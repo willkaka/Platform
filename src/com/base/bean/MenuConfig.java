@@ -13,7 +13,7 @@ import com.base.database.Table;
     * Sat Jun 09 14:27:46 CST 2018
     * @author huangyuanwei
     */ 
-public class Menuconfig {
+public class MenuConfig {
 	private String menuid = null;
 	private String menuCode = null;
 	private String text = null;
@@ -23,11 +23,11 @@ public class Menuconfig {
 	private String pearentMenuCode = null;
 	private Connection connection = null;
 	
-	public Menuconfig(){
+	public MenuConfig(){
 		
 	}
 	
-	public Menuconfig(String pearentMenuCode, Connection connection){
+	public MenuConfig(String pearentMenuCode, Connection connection){
 		try{
 			this.connection = connection;
 			
@@ -55,15 +55,15 @@ public class Menuconfig {
 		}
 	}
 	
-	public static Menuconfig getMenuConfig(String menuId, Connection connection){
-		Menuconfig menu = null;
+	public static MenuConfig getMenuConfig(String menuId, Connection connection){
+		MenuConfig menu = null;
 		
 		try{
 			PreparedStatement pSql = connection.prepareStatement("select * from menuconfig where menuid = '" + menuId + "'");
 			ResultSet set = pSql.executeQuery();
 			
 			if (set.next()) {
-				menu = new Menuconfig();
+				menu = new MenuConfig();
 				menu.setMenuid(set.getString("menuid"));
 				menu.setMenuCode(set.getString("menuCode"));
 				menu.setLevel(set.getInt("level"));
@@ -79,15 +79,15 @@ public class Menuconfig {
 		return menu;		
 	}
 	
-	public static Vector<Menuconfig> getMenuConfigs(Connection connection){
-		Vector<Menuconfig> menus = new Vector<Menuconfig>();
+	public static Vector<MenuConfig> getMenuConfigs(Connection connection){
+		Vector<MenuConfig> menus = new Vector<MenuConfig>();
 		
 		try{
 			PreparedStatement pSql = connection.prepareStatement("select * from menuconfig");
 			ResultSet set = pSql.executeQuery();
 			
 			while (set.next()) {
-				Menuconfig menu = new Menuconfig();
+				MenuConfig menu = new MenuConfig();
 				menu.setMenuid(set.getString("menuid"));
 				menu.setMenuCode(set.getString("menuCode"));
 				menu.setLevel(set.getInt("level"));
@@ -104,8 +104,8 @@ public class Menuconfig {
 		return menus;		
 	}
 	
-	public static Vector<Menuconfig> getMenuConfigByLevel(String menutype, int level, Connection connection){
-		Vector<Menuconfig> menus = new Vector<Menuconfig>();
+	public static Vector<MenuConfig> getMenuConfigByLevel(String menutype, int level, Connection connection){
+		Vector<MenuConfig> menus = new Vector<MenuConfig>();
 		if(!Table.isExist("menuconfig", connection)){
 			try {
 				createMenuConfigTable();
@@ -119,7 +119,7 @@ public class Menuconfig {
 			ResultSet set = pSql.executeQuery();
 			
 			while (set.next()) {
-				Menuconfig menu = new Menuconfig();
+				MenuConfig menu = new MenuConfig();
 				menu.setMenuid(set.getString("menuid"));
 				menu.setMenuCode(set.getString("menuCode"));
 				menu.setLevel(set.getInt("level"));
@@ -136,15 +136,15 @@ public class Menuconfig {
 		return menus;		
 	}
 	
-	public static Vector<Menuconfig> getSubMenuConfig(String pearentMenuCode, Connection connection){
-		Vector<Menuconfig> menus = new Vector<Menuconfig>();
+	public static Vector<MenuConfig> getSubMenuConfig(String pearentMenuCode, Connection connection){
+		Vector<MenuConfig> menus = new Vector<MenuConfig>();
 		
 		try{
 			PreparedStatement pSql = connection.prepareStatement("select * from menuconfig where pearentMenuCode = '" + pearentMenuCode.trim() + "' order by menuid");
 			ResultSet set = pSql.executeQuery();
 			
 			while (set.next()) {
-				Menuconfig menu = new Menuconfig(pearentMenuCode, connection);
+				MenuConfig menu = new MenuConfig(pearentMenuCode, connection);
 				menu.setMenuid(set.getString("menuid"));
 				menu.setMenuCode(set.getString("menuCode"));
 				menu.setLevel(set.getInt("level"));

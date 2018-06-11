@@ -10,7 +10,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
-import com.base.bean.Menuconfig;
+import com.base.bean.MenuConfig;
 import com.base.comp.JTablePanel;
 import com.base.database.Table;
 import com.base.layout.LayoutByRow;
@@ -39,9 +39,9 @@ public class TreeMenuPanel extends JPanel{
 		panelLayout.setRowInfo(1, 20, 20, 10);
 	    panelLayout.add(menuBox, 1, 100, 'H', 0, 1.0f, 'L');
 		
-		Vector<Menuconfig> menuConfigs = Menuconfig.getMenuConfigByLevel("leftmenu",0, connection);
+		Vector<MenuConfig> menuConfigs = MenuConfig.getMenuConfigByLevel("leftmenu",0, connection);
 		Vector menulist = new Vector();
-		for(Menuconfig menu: menuConfigs) {
+		for(MenuConfig menu: menuConfigs) {
 			Vector<String> m = new Vector<String>();
 			m.add(menu.getMenuid() + " " + menu.getText());
 			//m.add(menu.getMenuid() );

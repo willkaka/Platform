@@ -14,7 +14,7 @@ import javax.swing.table.TableModel;
 
 import org.sqlite.SQLiteConnection;
 
-import com.base.bean.Menuconfig;
+import com.base.bean.MenuConfig;
 import com.base.comp.JTablePanel;
 import com.base.database.SqliteDB;
 import com.base.database.Table;

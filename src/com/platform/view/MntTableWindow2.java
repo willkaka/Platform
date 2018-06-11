@@ -31,7 +31,7 @@ import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
 
-import com.base.bean.Menuconfig;
+import com.base.bean.MenuConfig;
 import com.base.database.*;
 import oracle.jdbc.util.SQLStateMapping;
 import com.base.layout.LayoutByRow;
@@ -95,7 +95,7 @@ public class MntTableWindow2 {
 			Vector<TableField> fields = Table.geTableFields(tableName, connection);
 			Vector<String> fieldComments = Table.geTableFieldsComment(tableName, connection);
 			Table.createTableClass(tableName, connection);
-			Menuconfig menuConfig = new Menuconfig();
+			MenuConfig menuConfig = new MenuConfig();
 			System.out.println(menuConfig.getClass().getName());
 			Vector records = Table.getTableRecords(tableName, null, connection);
 			DefaultTableModel model = new DefaultTableModel(records, fieldComments);

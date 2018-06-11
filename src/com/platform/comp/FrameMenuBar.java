@@ -16,7 +16,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.xml.ws.AsyncHandler;
 
-import com.base.bean.Menuconfig;
+import com.base.bean.MenuConfig;
 import com.base.database.ClassUtil;
 import com.base.database.Table;
 import com.platform.view.MainFrame;
@@ -38,12 +38,12 @@ public class FrameMenuBar extends JMenuBar {
 
 	public void setMenuBar(){
 		// 读取配置的菜单信息
-		Vector<Menuconfig> menuConfigs = Menuconfig.getMenuConfigByLevel("topmenu",0, conn_Sqlite);
-		for (Menuconfig mc : menuConfigs) {
+		Vector<MenuConfig> menuConfigs = MenuConfig.getMenuConfigByLevel("topmenu",0, conn_Sqlite);
+		for (MenuConfig mc : menuConfigs) {
 			JMenu menu = new JMenu(mc.getText());
 			this.add(menu);
-			Vector<Menuconfig> subMenuConfigs = Menuconfig.getSubMenuConfig(mc.getMenuCode(), conn_Sqlite);
-			for (Menuconfig submc : subMenuConfigs) {
+			Vector<MenuConfig> subMenuConfigs = MenuConfig.getSubMenuConfig(mc.getMenuCode(), conn_Sqlite);
+			for (MenuConfig submc : subMenuConfigs) {
 				JMenuItem menuItem = new JMenuItem(submc.getText());
 				className = submc.getClassName();
 				methodName = submc.getClassMethod();
@@ -65,7 +65,7 @@ public class FrameMenuBar extends JMenuBar {
 	}
 	
 	public void itemAction(String actionMenuId){
-		Menuconfig menuConfig = Menuconfig.getMenuConfig(actionMenuId, getConn_Sqlite());
+		MenuConfig menuConfig = MenuConfig.getMenuConfig(actionMenuId, getConn_Sqlite());
 		System.out.println("actionMenuId="+actionMenuId +"  classname:" +menuConfig.getClassName());
 		ClassLoader classLoader = ClassUtil.class.getClassLoader();
 		try {
