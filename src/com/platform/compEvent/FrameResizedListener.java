@@ -24,5 +24,7 @@ public class FrameResizedListener extends ComponentAdapter {
         mainFrame.getFrameLayout().setRowPos(frame.getWidth(), frame.getHeight());
         
         frame.repaint();
+        mainFrame.getLeftPanel().repaint();
+        mainFrame.getLeftPanel().updateUI();
     }
 }

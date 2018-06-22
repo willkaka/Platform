@@ -175,7 +175,7 @@ public class MenuConfig {
 				" values('MU01002','MntConfigFile','topmenu',1,'','维护配置文件','com.platform.menuEvent.OpenTableEvent','execute')");
 		SqliteDB.exeSql("insert into menuconfig (menuid,menucode,menutype,level,pearentmenucode,text,classname,classmethod)" + 
 				" values('MU01003','CrtConfigFile','topmenu',1,'','创建配置文件','com.platform.view.CrtTableWindow','execute')");
-		
+		//CREATE TABLE classmethodparms(classname VARCHAR2(100),methodname VARCHAR2(50),parmseq VARCHAR(10),parmclass VARCHAR(100) )
 	}
 	
 	public String getMenuid() {

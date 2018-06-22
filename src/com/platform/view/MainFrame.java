@@ -21,9 +21,11 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
+import com.base.comp.JClosableTabbedPane;
 import com.base.database.OracleDB;
 import com.base.database.SqliteDB;
 import com.base.layout.LayoutByRow;
@@ -43,7 +45,8 @@ public class MainFrame {
 	
 	//private JPanel leftPanel = new JPanel();
 	private TreeMenuPanel leftPanel = null;
-	private JPanel rightPanel = new JPanel();
+	//private JTabbedPane rightPanel = new JTabbedPane();
+	private JClosableTabbedPane rightPanel = new JClosableTabbedPane();
 	
 	private FrameMenuBar menuBar = null;
 
@@ -66,6 +69,7 @@ public class MainFrame {
 		TitledBorder leftPanelBorder = BorderFactory.createTitledBorder("");
 		leftPanel.setBorder(leftPanelBorder); //设置面板边框，实现分组框的效果，此句代码为关键代码  
 		frameLayout.add(leftPanel, 1, 100, 'B', 1, 0.2f, 'L');
+		frameLayout.setCompLayout(leftPanel, leftPanel.getPanelLayout());
 		
 		//右面板
 		rightPanel.setBorder(BorderFactory.createTitledBorder(""));
@@ -90,6 +94,10 @@ public class MainFrame {
 		frame.repaint();
 	}
 	
+	public void repaint(){
+		frame.repaint();
+	}
+	
 	public void reSetCompPos() {
 		frameLayout.setRowPos();
 		getLeftPanel().getPanelLayout().setRowPos();
@@ -109,7 +117,7 @@ public class MainFrame {
 		return leftPanel;
 	}
 
-	public JPanel getRightPanel() {
+	public JTabbedPane getRightPanel() {
 		return rightPanel;
 	}
 	

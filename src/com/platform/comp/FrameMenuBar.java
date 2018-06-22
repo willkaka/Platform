@@ -36,6 +36,9 @@ public class FrameMenuBar extends JMenuBar {
 		setMenuBar();
 	}
 
+	/**
+	 * 读取Sqlite中菜单栏配置信息，加载菜单项
+	 */
 	public void setMenuBar(){
 		// 读取配置的菜单信息
 		Vector<MenuConfig> menuConfigs = MenuConfig.getMenuConfigByLevel("topmenu",0, conn_Sqlite);
@@ -48,7 +51,8 @@ public class FrameMenuBar extends JMenuBar {
 				className = submc.getClassName();
 				methodName = submc.getClassMethod();
 				menuItem.setActionCommand(submc.getMenuid());
-
+				
+				//菜单项增加事件监听
 				menuItem.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
@@ -59,14 +63,22 @@ public class FrameMenuBar extends JMenuBar {
 						//e.
 					}
 				});
+				//将菜单项加载到菜单栏中
 				menu.add(menuItem);
 			}
 		}
 	}
 	
+	/**
+	 * 菜单事件，调用配置的类方法
+	 * @param actionMenuId菜单项ID
+	 */
 	public void itemAction(String actionMenuId){
+		//取该菜单项的配置信息
 		MenuConfig menuConfig = MenuConfig.getMenuConfig(actionMenuId, getConn_Sqlite());
 		System.out.println("actionMenuId="+actionMenuId +"  classname:" +menuConfig.getClassName());
+		
+		//加载要调用的类
 		ClassLoader classLoader = ClassUtil.class.getClassLoader();
 		try {
 			// Class<?> clazz = Class.forName(className);
