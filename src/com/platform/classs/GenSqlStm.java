@@ -10,6 +10,7 @@ import java.util.Vector;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -22,7 +23,7 @@ import com.base.layout.LayoutByRow;
 import com.platform.view.MainFrame;
 
 public class GenSqlStm {
-	private final String tabName = "GenSqlStm";
+	private final String tabName = "生成SQL_CRT语句";
 	
 	private MainFrame frame = null;
 	private Connection sqliteConn = null;
@@ -63,14 +64,23 @@ public class GenSqlStm {
 		});
 		
 		panelLayout.setRowInfo(2, 200, 10, 10);
+		
+		JScrollPane TextArea_scrollPane = new JScrollPane();
+		TextArea_scrollPane.setBounds(0, 187, 591, 98);
+        TextArea_scrollPane.setViewportView(outputSqlStm);
+        
 		outputSqlStm.setLineWrap(true);        //激活自动换行功能 
 		outputSqlStm.setWrapStyleWord(true);            // 激活断行不断字功能
-		panelLayout.add(outputSqlStm, 2, 400, 'N', 0, 1, 'L');
+		panelLayout.add(TextArea_scrollPane, 2, 400, 'B', 1, 1, 'L');
 		
 		frame.getRightPanel().addTab(tabName, panel);
+		frame.getRightPanelLayout().setRowInfo(1, 200, 5, 5);
+		frame.getRightPanelLayout().add(panel, 1, 100, 'B', 1, 1, 'L');
+		frame.getRightPanelLayout().setCompLayout(panel, panelLayout);
+		frame.getRightPanelLayout().setCompOthInfo(panel, tabName);
 		
 		this.frame.getFrameLayout().setRowPos();
-		panelLayout.setRowPos();
+		//panelLayout.setRowPos();
 	}
 	
 	public void genSqlCrtStm(){

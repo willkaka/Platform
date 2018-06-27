@@ -47,7 +47,8 @@ public class MainFrame {
 	private TreeMenuPanel leftPanel = null;
 	//private JTabbedPane rightPanel = new JTabbedPane();
 	private JClosableTabbedPane rightPanel = new JClosableTabbedPane();
-	
+	private LayoutByRow rightPanelLayout = new LayoutByRow(rightPanel);
+
 	private FrameMenuBar menuBar = null;
 
 	public MainFrame(){
@@ -68,15 +69,15 @@ public class MainFrame {
 		leftPanel = new TreeMenuPanel(this, conn_Sqlite);
 		TitledBorder leftPanelBorder = BorderFactory.createTitledBorder("");
 		leftPanel.setBorder(leftPanelBorder); //设置面板边框，实现分组框的效果，此句代码为关键代码  
-		frameLayout.add(leftPanel, 1, 100, 'B', 1, 0.2f, 'L');
+		frameLayout.add(leftPanel, 1, 190, 'B', 1, 0.2f, 'L');
 		frameLayout.setCompLayout(leftPanel, leftPanel.getPanelLayout());
 		
 		//右面板
 		rightPanel.setBorder(BorderFactory.createTitledBorder(""));
 		frameLayout.add(rightPanel, 1, 420, 'B', 1, 0.8f, 'L');
+		frameLayout.setCompLayout(rightPanel, rightPanelLayout);
 		
-		
-		frame.setBounds(200, 200, 800, 500);
+		frame.setBounds(200, 200, 1200, 700);
 		//frameLayout.setRowPos(frame.getWidth(), frame.getHeight());
 		reSetCompPos();
 		
@@ -117,7 +118,7 @@ public class MainFrame {
 		return leftPanel;
 	}
 
-	public JTabbedPane getRightPanel() {
+	public JClosableTabbedPane getRightPanel() {
 		return rightPanel;
 	}
 	
@@ -127,6 +128,10 @@ public class MainFrame {
 
 	public void setMenuBar(FrameMenuBar menuBar) {
 		this.menuBar = menuBar;
+	}
+	
+	public LayoutByRow getRightPanelLayout() {
+		return rightPanelLayout;
 	}
 	
 	public static void main(String[] args){

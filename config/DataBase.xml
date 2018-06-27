@@ -49,4 +49,11 @@
         <Password>Dadfa#1234kk</Password>
         <DriverName>oracle.jdbc.driver.OracleDriver</DriverName>
     </DataBase>
+    
+    <DataBase DBName="Loan" Env="T10">
+        <URL>jdbc:oracle:thin:@10.30.84.232:1549:t10dspm</URL>
+        <UserName>dspmopr</UserName>
+        <Password>Ddfakx110#ak</Password>
+        <DriverName>oracle.jdbc.driver.OracleDriver</DriverName>
+    </DataBase>
 </DataBases>

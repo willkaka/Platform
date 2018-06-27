@@ -41,7 +41,7 @@ public class LoanInfoQuery {
 			this.frame.getRightPanel().setSelectedComponent(this.frame.getRightPanel().getComponentAt(index));
 		} else{
 			showPageComp();
-			this.frame.getRightPanel().setSelectedComponent(this.frame.getRightPanel().getComponentAt(this.frame.getRightPanel().indexOfTab(tabName)));
+			//this.frame.getRightPanel().setSelectedComponent(this.frame.getRightPanel().getComponentAt(this.frame.getRightPanel().indexOfTab(tabName)));
 		}
 	}
 	
@@ -49,7 +49,7 @@ public class LoanInfoQuery {
 		JPanel panel = new JPanel();
 		LayoutByRow panelLayout = new LayoutByRow(panel);
 		panelLayout.setRowInfo(1, 20, 10, 10);
-		JLabel inputPromptLabel = new JLabel("请输入表格名称：");
+		JLabel inputPromptLabel = new JLabel("请输入借据编号：");
 		panelLayout.add(inputPromptLabel, 1, 120, 'N', 0, 0, 'L');
 		
 		panelLayout.add(inputTableName, 1, 80, 'N', 0, 0, 'L');
@@ -61,6 +61,8 @@ public class LoanInfoQuery {
 		panelLayout.add(outputSqlStm, 2, 400, 'N', 0, 1, 'L');
 		
 		frame.getRightPanel().addTab(tabName, panel);
+		frame.getRightPanelLayout().setCompOthInfo(panel, tabName);
+		frame.getRightPanel().setSelectedComponent(this.frame.getRightPanel().getComponentAt(this.frame.getRightPanel().indexOfTab(tabName)));
 		
 		this.frame.getFrameLayout().setRowPos();
 		panelLayout.setRowPos();
