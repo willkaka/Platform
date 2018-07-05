@@ -1,5 +1,6 @@
 package com.platform.comp;
 
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,6 +14,7 @@ import java.util.Vector;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -41,11 +43,12 @@ public class TreeMenuPanel extends JPanel{
 	private LayoutByRow panelLayout =  new LayoutByRow(this);
 
 	private JComboBox menuBox = new JComboBox();
-	//表格及滚动条
-	private JScrollPane tableScrollPane = new JScrollPane();
-	private LayoutByRow tableScrollPaneLayout =  new LayoutByRow(tableScrollPane);
-	/*private JTable table = new JTable();*/
 	
+	//表格及滚动条
+	private JPanel tablePanel = new JPanel();
+	private LayoutByRow tablePaneLayout =  new LayoutByRow(tablePanel);
+	private JScrollPane tableScrollPane = new JScrollPane(tablePanel);
+	private LayoutByRow tableScrollPaneLayout =  new LayoutByRow(tableScrollPane);
 	
 	public TreeMenuPanel(MainFrame mainFrame, Connection connection){
 		this.mainFrame = mainFrame;
@@ -59,34 +62,44 @@ public class TreeMenuPanel extends JPanel{
 	    panelLayout.add(menuBox, 1, 100, 'H', 0, 1.0f, 'L');
 		
 		Vector<MenuConfig> menuConfigs = MenuConfig.getMenuConfigByLevel("leftmenu",0, connection);
-		Vector menulist = new Vector();
 		int rowNum = 0;
 		for(MenuConfig menu: menuConfigs) {
-			Vector<String> m = new Vector<String>();
-			m.add(menu.getMenuid() + " " + menu.getText());
-			//m.add(menu.getMenuid() );
+			menuBox.addItem(menu.getMenuid() + " " + menu.getText());
+			menuBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					JComboBox tempMenuBox = (JComboBox) e.getSource(); 
+					invokeMethod(tempMenuBox.getSelectedItem().toString().substring(0,7));
+				}
+			});
+			
 			JLabel oprCodeLabel = new JLabel();
 			oprCodeLabel.setText(menu.getMenuid() + " " + menu.getText());
 			oprCodeLabel.addMouseListener(new MouseAdapter() {
-				@Override
 				public void mouseClicked(MouseEvent e) {
 					//点击事件
 					JLabel tempJLabel = (JLabel) e.getSource(); 
 					invokeMethod(tempJLabel.getText().substring(0,7));
 				}
 			});
-			tableScrollPaneLayout.setRowInfo(++rowNum, 25, 3, 0);
-			tableScrollPaneLayout.add(oprCodeLabel, rowNum, 100, 'H', 0, 1, 'L');
-			menulist.add(m);
+			tablePaneLayout.setRowInfo(++rowNum, 25, 3, 0);
+			tablePaneLayout.add(oprCodeLabel, rowNum, 100, 'H', 0, 1, 'L');
 		}
-		Vector<String> tableHeader = new Vector<String>();
-		tableHeader.add("123 ");
 
-        panelLayout.setRowInfo(2, 100, 10, 10);
-        panelLayout.add(tableScrollPane, 2, 100, 'B', 1, 1, 'L');
+        panelLayout.setRowInfo(2, 200, 10, 10);
+        panelLayout.add(tableScrollPane, 2, 170, 'B', 1, 1, 'L');
         panelLayout.setCompLayout(tableScrollPane, tableScrollPaneLayout);
+        tableScrollPaneLayout.setResetPos(false);
+        //panelLayout.setRowPos();
+        tableScrollPane.getVerticalScrollBar().setUnitIncrement(20); //设置滚动条滚动量
+        
+        tablePanel.setPreferredSize(new Dimension(tableScrollPane.getWidth(), rowNum * 28 + 10));
+        
+        tableScrollPaneLayout.setRowInfo(1, 200, 10, 10);
+        tableScrollPaneLayout.add(tablePanel, 1, 200, 'B', 1, 1, 'L');
+        tableScrollPaneLayout.setCompLayout(tablePanel, tablePaneLayout);
         
         //panelLayout.setRowPos();
+        mainFrame.getFrameLayout().setRowPos();
 		this.repaint();
 	}
 	
