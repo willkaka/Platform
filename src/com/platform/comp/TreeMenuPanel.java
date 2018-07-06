@@ -1,5 +1,6 @@
 package com.platform.comp;
 
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -7,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionAdapter;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.util.Map;
@@ -54,11 +56,19 @@ public class TreeMenuPanel extends JPanel{
 		this.mainFrame = mainFrame;
 		this.connection = connection;
 		
+		this.addMouseMotionListener(new MouseMotionAdapter(){
+			public void mouseMoved(MouseEvent e) {
+				getMainFrame().getFrame().setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			}
+		});
+		
 		loadLeftMenuComp();
 	}
 	
 	public void loadLeftMenuComp(){
-		panelLayout.setRowInfo(1, 20, 20, 10);
+		panelLayout.setBotGap(10);
+		panelLayout.setRowInfo(1, 20, 20, 0);
+		panelLayout.setRowGap(1, 0, 0, 0);
 	    panelLayout.add(menuBox, 1, 100, 'H', 0, 1.0f, 'L');
 		
 		Vector<MenuConfig> menuConfigs = MenuConfig.getMenuConfigByLevel("leftmenu",0, connection);
@@ -77,28 +87,31 @@ public class TreeMenuPanel extends JPanel{
 			oprCodeLabel.addMouseListener(new MouseAdapter() {
 				public void mouseClicked(MouseEvent e) {
 					//点击事件
-					JLabel tempJLabel = (JLabel) e.getSource(); 
-					invokeMethod(tempJLabel.getText().substring(0,7));
+					if(e.getClickCount() == 2){
+						JLabel tempJLabel = (JLabel) e.getSource(); 
+						invokeMethod(tempJLabel.getText().substring(0,7));
+					}
 				}
 			});
 			tablePaneLayout.setRowInfo(++rowNum, 25, 3, 0);
 			tablePaneLayout.add(oprCodeLabel, rowNum, 100, 'H', 0, 1, 'L');
 		}
 
-        panelLayout.setRowInfo(2, 200, 10, 10);
+        panelLayout.setRowInfo(2, 200, 10, 0);
+        panelLayout.setRowGap(2, 0, 0, 0);
         panelLayout.add(tableScrollPane, 2, 170, 'B', 1, 1, 'L');
         panelLayout.setCompLayout(tableScrollPane, tableScrollPaneLayout);
         tableScrollPaneLayout.setResetPos(false);
-        //panelLayout.setRowPos();
+        
         tableScrollPane.getVerticalScrollBar().setUnitIncrement(20); //设置滚动条滚动量
         
         tablePanel.setPreferredSize(new Dimension(tableScrollPane.getWidth(), rowNum * 28 + 10));
         
-        tableScrollPaneLayout.setRowInfo(1, 200, 10, 10);
+        tableScrollPaneLayout.setRowInfo(1, 200, 5, 0);
+        tableScrollPaneLayout.setRowGap(1, 0, 0, 0);
         tableScrollPaneLayout.add(tablePanel, 1, 200, 'B', 1, 1, 'L');
         tableScrollPaneLayout.setCompLayout(tablePanel, tablePaneLayout);
         
-        //panelLayout.setRowPos();
         mainFrame.getFrameLayout().setRowPos();
 		this.repaint();
 	}

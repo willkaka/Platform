@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.sql.Connection;
 import java.util.Vector;
 
@@ -19,6 +21,7 @@ import org.sqlite.SQLiteConnection;
 
 import com.base.database.*;
 import com.base.layout.LayoutByRow;
+import com.platform.compEvent.FrameResizedListener;
 
 public class CrtTableWindow2 {
 	private Connection connection = null;
@@ -59,6 +62,16 @@ public class CrtTableWindow2 {
 		fieldScrollLayout.setRowInfo(1, 200, 10, 10);
 		fieldScrollLayout.add(fieldPanel, 1, 200, 'B', 1, 1, 'L');
 		fieldScrollLayout.setCompLayout(fieldPanel, fieldPanelLayout);
+		
+		//设置窗口大小改变事件
+		frame.addComponentListener(new ComponentAdapter(){
+			@Override
+		    public void componentResized(ComponentEvent e) {    //窗口大小改变事件
+		        
+				frameLayout.setRowPos();
+		        frame.repaint();
+		    }
+		});
 		
 		frameLayout.setRowPos();
 		frame.setVisible(true);

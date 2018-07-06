@@ -19,12 +19,10 @@ public class FrameResizedListener extends ComponentAdapter {
 	}
 	@Override
     public void componentResized(ComponentEvent e) {    //窗口大小改变事件
-        JFrame frame = mainFrame.getFrame();
         
-        mainFrame.getFrameLayout().setRowPos(frame.getWidth(), frame.getHeight());
-        
-        frame.repaint();
-        mainFrame.getLeftPanel().repaint();
-        mainFrame.getLeftPanel().updateUI();
+        mainFrame.getFrameLayout().setRowPos();
+        //frame.repaint();
+        //mainFrame.getLeftPanel().repaint();
+        //mainFrame.getLeftPanel().updateUI();
     }
 }

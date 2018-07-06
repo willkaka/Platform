@@ -17,13 +17,17 @@ public class FrameMotionListener extends MouseMotionAdapter{
 	
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		if(e.getX() > this.frame.getLeftPanel().getX() + this.frame.getLeftPanel().getWidth() &&
-		   e.getX() <= this.frame.getRightPanel().getX() &&
+		System.out.println("0");
+		System.out.println(this.frame.getRightPanel().getX() - this.frame.getLeftPanel().getX() - this.frame.getLeftPanel().getWidth());
+		if(e.getX() > this.frame.getLeftPanel().getX() + this.frame.getLeftPanel().getWidth() + 3 &&
+		   e.getX() <= this.frame.getRightPanel().getX() - 3 &&
 		   e.getY() > this.frame.getLeftPanel().getY()  &&
 		   e.getY() <= this.frame.getLeftPanel().getY() + this.frame.getLeftPanel().getHeight() ){
 			this.frame.getFrame().setCursor(new Cursor(Cursor.W_RESIZE_CURSOR));//×óÓÒ¼ýÍ·¹â±ê
+			System.out.println("1");
 		}else{
 			this.frame.getFrame().setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			System.out.println("2");
 		}
 	}
 	
