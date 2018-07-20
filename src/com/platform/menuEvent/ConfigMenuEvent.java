@@ -1,5 +1,7 @@
 package com.platform.menuEvent;
 
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.sql.Connection;
 import java.util.Vector;
 
@@ -18,17 +20,24 @@ import com.base.layout.LayoutByRow;
 import com.platform.view.MainFrame;
 
 public class ConfigMenuEvent {
+	
+	JFrame configFrame = new JFrame("配置信息");
+	LayoutByRow frameLayout = new LayoutByRow(configFrame);
+	
 	public void execute(MainFrame frame, SQLiteConnection connection){
 		System.out.println("configMenuEvent");
-		//public void com.platform.menuEvent.ConfigMenuEvent.execute()
-		
-		JFrame configFrame = new JFrame("配置信息");
-		configFrame.setLayout(null);
-		LayoutByRow frameLayout = new LayoutByRow(configFrame);
-		frameLayout.setRowInfo(1, 625, 0, 10);
-		frameLayout.setBotGap(20);
 		
 		configFrame.setBounds(450, 200, 530, 625);
+		configFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		configFrame.addComponentListener(new ComponentAdapter() {
+			public void componentResized(ComponentEvent e) {    //窗口大小改变事件
+				frameLayout.setRowPos();
+			}
+		});
+		
+		frameLayout.setRowInfo(1, 625, 0, 10);
+		frameLayout.setBotGap(20);
+		frameLayout.setRowGap(1, 10, 5, 5);
 		
 		Vector tableColTitles = new Vector();
 		Vector tableRecords = new Vector();
@@ -42,17 +51,12 @@ public class ConfigMenuEvent {
 		//填充数据
 		JTablePanel tablePanel = new JTablePanel("menuconfig",tableColTitles, tableRecords, connection);
 		frameLayout.add(tablePanel, 1, 600, 'B', 1, 1, 'L');
+		frameLayout.setCompLayout(tablePanel, tablePanel.getPanelLayout());
 		
 		frameLayout.setRowPos();
 		
-		
-		configFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		//configFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		configFrame.setVisible(true);
 		configFrame.repaint();
-		
-		//frame.getMenuBar().removeAll();
-		//frame.getMenuBar().setMenuBar();
 	}
 	
 /*	public static void main(String[] args){

@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.sql.Connection;
 import java.util.Vector;
 
@@ -27,9 +29,11 @@ public class CrtTableWindow {
 	private JPanel titlePanel = new JPanel();
 	private JPanel fieldPanel = new JPanel();
 	private JScrollPane fieldScrollPane = new JScrollPane(fieldPanel);
-	private LayoutByRow frameLayout = null;
-	private LayoutByRow titlePanelLayout = null;
-	private LayoutByRow fieldPanelLayout = null;
+	
+	private LayoutByRow frameLayout = new LayoutByRow(frame);
+	private LayoutByRow titlePanelLayout = new LayoutByRow(titlePanel);
+	private LayoutByRow fieldScrollLayout = new LayoutByRow(fieldScrollPane);
+	private LayoutByRow fieldPanelLayout = new LayoutByRow(fieldPanel);
 
 	private JTextField tableNameTextField = new JTextField();
 
@@ -38,21 +42,19 @@ public class CrtTableWindow {
 	//public CrtTableWindow(SQLiteConnection connection) {
 	public void execute(MainFrame frame1, SQLiteConnection connection){
 		this.connection = connection;
+		
 		frame.setTitle("CreateTable");
 		frame.setBounds(450, 200, 530, 625);
-		// setResizable(false); //不允许改变窗口大小
-		// 设置退出
 		frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		// 取消框架格式
-		frame.setLayout(null);
-		titlePanel.setLayout(null);
-		fieldPanel.setLayout(null);
 		
-		frameLayout = new LayoutByRow(frame);
-		titlePanelLayout = new LayoutByRow(titlePanel);
-		fieldPanelLayout = new LayoutByRow(fieldPanel);
+		frame.addComponentListener(new ComponentAdapter() {
+			public void componentResized(ComponentEvent e) {    //窗口大小改变事件
+				frameLayout.setRowPos();
+			}
+		});
 		
 		titlePanelLayout.setRowInfo(1, 25, 10, 10);
+		titlePanelLayout.setRowGap(1, 0, 0, 5);
 		JLabel tabelNameLabel = new JLabel("请输入需要创建的表名：");
 		titlePanelLayout.add(tabelNameLabel, 1, 150, 'N', 0, 0, 'L');
 		tableNameTextField.addActionListener(new ActionListener() {
@@ -81,6 +83,7 @@ public class CrtTableWindow {
 		titlePanelLayout.add(createButton, 1, 90, 'N', 0, 0, 'R');
 		
 		titlePanelLayout.setRowInfo(2, 20, 10, 10);
+		titlePanelLayout.setRowGap(2, 0, 0, 5);
 		JLabel titleLabel = new JLabel("seq    fieldName            type                            len       dec        comment");
 		titlePanelLayout.add(titleLabel, 2, 400, 'N', 0, 0, 'L');
 		JButton addFieldButton = new JButton("+");
@@ -90,7 +93,7 @@ public class CrtTableWindow {
 				addOneFieldDef(null);
 			}
 		});
-		titlePanelLayout.add(addFieldButton, 2, 30, 'N', 0, 0, 'R');
+		titlePanelLayout.add(addFieldButton, 2, 40, 'N', 0, 0, 'R');
 		
 		//初始页面显示一条字段定义
 		//addOneFieldDef();
@@ -100,21 +103,23 @@ public class CrtTableWindow {
 		
 		frameLayout.setRowInfo(1, 80, 10, 10);
 		frameLayout.add(titlePanel, 1, 10, 'H', 0, 1, 'L');
+		frameLayout.setCompLayout(titlePanel, titlePanelLayout);
+		
 		frameLayout.setRowInfo(2, 400, 10, 10);
+		frameLayout.setBotGap(40);
 		
 		//滚动条
-		//JScrollPane scrollPane = new JScrollPane(fieldPanel);
-		/*int w=frame.getWidth()-30;
-		int h=300;
-		fieldPanel.setBounds(5, 310, w, h);
-		scrollPane.setBounds(5, 310, w-30, h-30);*/
 		fieldScrollPane.getVerticalScrollBar().setUnitIncrement(20); //设置滚动条滚动量
 		
 		frameLayout.add(fieldScrollPane, 2, 10, 'B', 1, 1, 'L');
-		frameLayout.setRowPos();
+		frameLayout.setCompLayout(fieldScrollPane, fieldScrollLayout);
+		//frameLayout.setRowPos();
 		
 		fieldPanel.setPreferredSize(new Dimension(fieldScrollPane.getWidth(), fieldScrollPane.getHeight()));
 		fieldPanel.revalidate(); // 告诉其他部件,我的宽高变了
+		fieldScrollLayout.setRowInfo(1, 200, 10, 10);
+		fieldScrollLayout.add(fieldPanel, 1, 200, 'B', 1, 1, 'L');
+		fieldScrollLayout.setCompLayout(fieldPanel, fieldPanelLayout);
 		
 		titlePanelLayout.setRowPos();
 		fieldPanelLayout.setRowPos();
@@ -267,7 +272,8 @@ public class CrtTableWindow {
 		fieldPanel.setPreferredSize(new Dimension(fieldScrollPane.getWidth()-40, layoutRow*30+30));
 		fieldPanel.revalidate(); // 告诉其他部件,我的宽高变了
 		
-		frame.repaint();
+		//frame.repaint();
+		frameLayout.setRowPos();
 	}
 	
 	public LayoutByRow getFrameLayout() {

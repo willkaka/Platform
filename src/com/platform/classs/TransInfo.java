@@ -29,7 +29,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
-import javax.xml.crypto.Data;
 
 import org.sqlite.SQLiteConnection;
 
@@ -42,8 +41,8 @@ import com.platform.view.MainFrame;
 
 import oracle.jdbc.util.RepConversion;
 
-public class LineTransInfo {
-	private final String tabName = "合作机构交易配置查询";
+public class TransInfo {
+	private final String tabName = "交易信息查询";
 	
 	private Connection sqliteConn = null;
 	private Connection connection = null;
@@ -63,8 +62,9 @@ public class LineTransInfo {
 	private JPanel panel = new JPanel();
 	private LayoutByRow panelLayout = new LayoutByRow(panel);
 	
-	private JComboBox lineListBox = new JComboBox();
-	private JComboBox finListBox = new JComboBox();
+	//private JComboBox lineListBox = new JComboBox();
+	private JTextField transNoField = new JTextField();
+	//private JComboBox finListBox = new JComboBox();
 	
 	private int entryCount = 0;
 	
@@ -74,12 +74,12 @@ public class LineTransInfo {
 		this.sqliteConn = sqliteConnection;
 		
 		int index = this.frame.getRightPanel().indexOfTab(tabName);
-		/*if(index >= 0){
+		if(index >= 0){
 			this.frame.getRightPanel().setSelectedComponent(this.frame.getRightPanel().getComponentAt(index));
-		} else{*/
+		} else{
 			showPageComp();
 			this.frame.getRightPanel().setSelectedComponent(this.frame.getRightPanel().getComponentAt(this.frame.getRightPanel().indexOfTab(tabName)));
-//		}
+		}
 	}
 	
 	public void showPageComp(){
@@ -105,40 +105,22 @@ public class LineTransInfo {
 					}
 				OracleDB db = new OracleDB(DatabaseInfo.getDatabaseInfo(sqliteConn, ((JComboBox)e.getSource()).getSelectedItem().toString()));
 				connection = db.getConnection();
+				
 				transConfigPanel.removeAll();
 				transConfigPanelLayout.removeAllComp();
 				transEntryPanel.removeAll();
 				transEntryPanelLayout.removeAllComp();
-				entryCount = 0;
 				resetCompPos();
 			}
 		});
 		
-		JLabel inputPromptLabel1 = new JLabel("    合作机构：");
+		JLabel inputPromptLabel1 = new JLabel("    TransNo：");
 		panelLayout.add(inputPromptLabel1, 1, 78, 'N', 0, 0, 'L');
 		
-		for(String line:getLineList()){
-			lineListBox.addItem(line);
-		}
-		panelLayout.add(lineListBox, 1, 250, 'N', 0, 0, 'L');
-		lineListBox.addActionListener(new ActionListener() {
+		panelLayout.add(transNoField, 1, 100, 'N', 0, 0, 'L');
+		transNoField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				showTransConfig(getSelectedLineID(), getSelectedFinType());
-				resetCompPos();
-			}
-		});
-		
-		JLabel inputPromptLabel2 = new JLabel("    帐套类型：");
-		panelLayout.add(inputPromptLabel2, 1, 78, 'N', 0, 0, 'L');
-		
-		String[] finList = {"ALL","LAS","IRR"};
-		for(String fin:finList){
-			finListBox.addItem(fin);
-		}
-		panelLayout.add(finListBox, 1, 60, 'N', 0, 0, 'L');
-		finListBox.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				showTransConfig(getSelectedLineID(), getSelectedFinType());
+				showTransConfig( getInputTransNo() );				
 				resetCompPos();
 			}
 		});
@@ -151,14 +133,12 @@ public class LineTransInfo {
 		panelLayout.setCompLayout(transConfigScroll, transConfigSrcollLayout);
 		panelLayout.setCompLayout(transEntryScroll, transEntrySrcollLayout);
 		
-		//transConfigSrcollLayout.setResetPos(false);
 		transConfigSrcollLayout.setRowInfo(1, 100, 10, 10);
 		transConfigSrcollLayout.add(transConfigPanel, 1, 100, 'B', 1, 1, 'L');
 		transConfigSrcollLayout.setCompLayout(transConfigPanel, transConfigPanelLayout);
 		
 		transConfigScroll.getVerticalScrollBar().setUnitIncrement(20); //设置滚动条滚动量
 		
-		//transEntrySrcollLayout.setResetPos(false);
 		transEntrySrcollLayout.setRowInfo(1, 100, 10, 10);
 		transEntrySrcollLayout.add(transEntryPanel, 1, 100, 'B', 1, 1, 'L');
 		transEntrySrcollLayout.setCompLayout(transEntryPanel, transEntryPanelLayout);
@@ -174,8 +154,8 @@ public class LineTransInfo {
 		resetCompPos();
 	}
 	
-	public void showTransConfig(String lineid, String finType){
-		List<String> TransActionList = getTransActionList(lineid,finType);
+	public void showTransConfig(String transNo ){
+		List<String> TransActionList = getTransActionList(transNo );
 		transConfigPanelLayout.removeAllComp();
 		int lineNum = 0;
 		for(String transAction:TransActionList){
@@ -183,7 +163,7 @@ public class LineTransInfo {
 			transActionLabel.addMouseListener(new MouseAdapter() {
 				public void mouseClicked(MouseEvent e) {
 					if(e.getClickCount() == 2){
-						String transid = ((JLabel)e.getSource()).getText().substring(5, 11);
+						String transid = ((JLabel)e.getSource()).getText().substring(0, 6);
 						//System.out.println("transid="+transid);
 						showTransEntry(transid);
 					}
@@ -255,13 +235,13 @@ public class LineTransInfo {
 			entryPanelLayout.setRowInfo(lineNum, 20, 1, 0);
 			entryPanelLayout.add(transEntryLabel, lineNum, 50, 'H', 0, 1, 'L');
 		}
-		transEntryPanelLayout.setRowInfo(++entryCount, lineNum * 21+10, 5, 0);
+		transEntryPanelLayout.setRowInfo(++entryCount, lineNum * 25+10, 5, 0);
 		transEntryPanelLayout.add(entryPanel, entryCount, 200, 'H', 0, 1, 'L');
 		transEntryPanelLayout.setCompLayout(entryPanel, entryPanelLayout);
 		
 		transEntryPanelLayout.setRowPos();
 		int w = transEntryScroll.getWidth()-40;
-		int h = transEntryPanelLayout.getLayoutHeight() + lineNum * 21 + 10 + 10;
+		int h = transEntryPanelLayout.getLayoutHeight() + lineNum * 25 + 10 + 10;
 		
 		transEntryPanel.setPreferredSize(new Dimension(w, h));
 		transEntryPanel.revalidate(); // 告诉其他部件,我的宽高变了
@@ -289,46 +269,14 @@ public class LineTransInfo {
 		return lineList;
 	}
 	
-/*	public List<String> getEnvList(){
-		ArrayList<String> envList = new ArrayList<String>();
-		
-		try {
-			String sqlStm = "SELECT envname FROM envdatabaseinfo";
-			PreparedStatement preparedStatement = this.sqliteConn.prepareStatement(sqlStm);
-			ResultSet rs = preparedStatement.executeQuery();
-			while(rs.next()){
-				envList.add(rs.getString(1) );
-			}
-			rs.close();
-			preparedStatement.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		return envList;
-	}*/
-	
-	public List<String> getTransActionList(String lineid, String finType){
+	public List<String> getTransActionList(String transNo ){
 		ArrayList<String> TransActionList = new ArrayList<String>();
 		
 		try {
-			String sqlStm0 = "SELECT tc.id,tc.transid,ta.name "
-					+ "FROM trans_config tc,trans_action ta "
-					+ "WHERE tc.bankcodeno=? AND tc.transid=ta.transid AND ta.accountset=? "
-					+ "ORDER BY ta.transid";
-			String sqlStm1 = "SELECT tc.id,tc.transid,ta.name "
-					+ "FROM trans_config tc,trans_action ta "
-					+ "WHERE tc.bankcodeno=? AND tc.transid=ta.transid "
-					+ "ORDER BY ta.transid";
+			String sqlStm1 = "SELECT * FROM trans_action ta WHERE ta.id =? order by ta.transid";
 			PreparedStatement preparedStatement = null;
-			if("ALL".equals(finType)){
-				preparedStatement = this.connection.prepareStatement(sqlStm1);
-				preparedStatement.setString(1, lineid);
-			}else{
-				preparedStatement = this.connection.prepareStatement(sqlStm0);
-				preparedStatement.setString(1, lineid);
-				preparedStatement.setString(2, finType);
-			}
+			preparedStatement = this.connection.prepareStatement(sqlStm1);
+			preparedStatement.setString(1, transNo);
 			ResultSet rs = preparedStatement.executeQuery();
 			while(rs.next()){
 				TransActionList.add(rs.getString(1) + ":" + rs.getString(2) + ":" + rs.getString(3));
@@ -368,18 +316,13 @@ public class LineTransInfo {
 		return TransEntryList;
 	}
 	
-	public String getSelectedLineID(){
-		return lineListBox.getSelectedItem().toString().substring(0, 16);
-	}
-	
-	public String getSelectedFinType(){
-		return finListBox.getSelectedItem().toString();
-	}
-	
 	public void resetCompPos(){
 		this.frame.getFrameLayout().setRowPos();
 	}
 	
+	public String getInputTransNo(){
+		return transNoField.getText();
+	}
 
 	public void getTest(){
 		ArrayList<String> TransActionList = new ArrayList<String>();

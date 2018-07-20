@@ -16,6 +16,7 @@ import javax.swing.JTextField;
 
 import org.sqlite.SQLiteConnection;
 
+import com.base.database.DatabaseInfo;
 import com.base.database.OracleDB;
 import com.base.database.Table;
 import com.base.database.TableField;
@@ -91,7 +92,7 @@ public class GenSqlStm {
 				+ "menutype varchar2(10),level int(3),pearentmenucode varchar2(15),text varchar2(100),"
 				+ "classname varchar2(100),classmethod varchar2(20))");*/
 		
-		OracleDB db = new OracleDB("DEV");
+		OracleDB db = new OracleDB(DatabaseInfo.getDatabaseInfo(sqliteConn, "DEV"));
 		this.connection = db.getConnection();
 		try {
 			Vector<TableField> fields = Table.geTableFields(tableName, this.connection);

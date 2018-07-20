@@ -69,12 +69,12 @@ public class MainFrame {
 		leftPanel = new TreeMenuPanel(this, conn_Sqlite);
 		TitledBorder leftPanelBorder = BorderFactory.createTitledBorder("");
 		leftPanel.setBorder(leftPanelBorder); //设置面板边框，实现分组框的效果，此句代码为关键代码  
-		frameLayout.add(leftPanel, 1, 190, 'B', 1, 0.2f, 'L');
+		frameLayout.add(leftPanel, 1, 190, 'N', 1, 1, 'L');
 		frameLayout.setCompLayout(leftPanel, leftPanel.getPanelLayout());
 		
 		//右面板
 		rightPanel.setBorder(BorderFactory.createTitledBorder(""));
-		frameLayout.add(rightPanel, 1, 420, 'B', 1, 0.8f, 'L');
+		frameLayout.add(rightPanel, 1, 420, 'B', 1, 1, 'L');
 		frameLayout.setCompLayout(rightPanel, rightPanelLayout);
 		
 		frame.setBounds(200, 200, 1200, 700);

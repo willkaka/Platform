@@ -2,6 +2,8 @@ package com.platform.menuEvent;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.sql.Connection;
 import java.util.Vector;
 
@@ -24,52 +26,39 @@ import com.platform.view.MainFrame;
 public class OpenTableEvent {
 	
 	Connection connection= null;
-	LayoutByRow frameLayout = null;
+	JFrame configFrame = new JFrame("配置信息");
+	LayoutByRow frameLayout = new LayoutByRow(configFrame);
+	
 	JTextField inputTableNameTextField = new JTextField();
 
 	public void execute(MainFrame frame, SQLiteConnection connection){
 		System.out.println("configMenuEvent");
-		//public void com.platform.menuEvent.ConfigMenuEvent.execute()
 		this.connection = connection;
-		JFrame configFrame = new JFrame("配置信息");
+		
 		configFrame.setLayout(null);
-		frameLayout = new LayoutByRow(configFrame);
 		frameLayout.setRowInfo(1, 625, 0, 10);
 		frameLayout.setBotGap(20);
 		
 		configFrame.setBounds(450, 200, 530, 625);
+		//窗口大小改变事件
+		configFrame.addComponentListener(new ComponentAdapter() {
+			public void componentResized(ComponentEvent e) { 
+				frameLayout.setRowPos();
+			}
+		});
 		
 		frameLayout.setRowInfo(1, 20, 10, 10);
 		JLabel inputTableNameLabel = new JLabel("请输入表名：");
 		frameLayout.add(inputTableNameLabel, 1, 100, 'N', 0, 0, 'L');
-		//JTextField inputTableNameTextField = new JTextField();
 		inputTableNameTextField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				showTableInfo();
 			}
 		});
 		frameLayout.add(inputTableNameTextField, 1, 100, 'N', 0, 0, 'L');
-		
-		
-		/*frameLayout.setRowInfo(2, 625, 0, 10);
-		Vector tableColTitles = new Vector();
-		Vector tableRecords = new Vector();
-		try{
-			tableColTitles = Table.geTableFieldsComment("menuconfig", connection);
-			tableRecords = Table.getTableRecords("menuconfig", null, connection);
-			
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		JTablePanel tablePanel = new JTablePanel("menuconfig",tableColTitles, tableRecords, connection);
-		frameLayout.add(tablePanel, 2, 600, 'B', 1, 1, 'L');*/
-		
 		frameLayout.setRowPos();
 		
-		
 		configFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		//configFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		configFrame.setVisible(true);
 		configFrame.repaint();
 	}
@@ -99,6 +88,7 @@ public class OpenTableEvent {
 		
 		tablePanel.repaint();
 		frameLayout.add(tablePanel, 2, 600, 'B', 1, 1, 'L');
+		frameLayout.setCompLayout(tablePanel, tablePanel.getPanelLayout());
 		
 		frameLayout.setRowPos();
 	}

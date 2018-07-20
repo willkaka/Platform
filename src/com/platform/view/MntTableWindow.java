@@ -48,8 +48,8 @@ public class MntTableWindow {
 	private Vector<Object> valueList = new Vector<Object>();
 	private char oprCode = 'U'; //U-更新记录/I-写记录；
 	
-	private LayoutByRow titleBoundLayout = null;
-	private LayoutByRow detailBoundLayout = null;
+	private LayoutByRow titleBoundLayout = new LayoutByRow(frame);
+	private LayoutByRow detailBoundLayout = new LayoutByRow(frame);
 	private LayoutByRow frameLayout = null;
 	
 	public MntTableWindow(Connection connection,String tableName) {
@@ -79,12 +79,12 @@ public class MntTableWindow {
 		// 取消框架格式
 		frame.setLayout(null);
 		
-		titleBoundLayout = new LayoutByRow(frame);
+		
 		titleBoundLayout.setRowInfo(1, 15, 10, 10);
 		JLabel tabelNameLabel = new JLabel(tableName);
 		titleBoundLayout.add(tabelNameLabel, 1, 50, 'N', 0, 0, 'L');
 		
-		detailBoundLayout = new LayoutByRow(frame);
+		
 		detailBoundLayout.setRowInfo(1, 400, 10, 10);
 		JTable detailTable = new JTable();
 		detailTable.setAutoscrolls(true);
@@ -101,14 +101,9 @@ public class MntTableWindow {
 			DefaultTableModel model = new DefaultTableModel(records, fieldComments);
 			detailTable.setModel(model);
 			
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		
-		
-		
 		
 		frame.setVisible(true);
 	}

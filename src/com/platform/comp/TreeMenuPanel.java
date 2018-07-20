@@ -56,11 +56,11 @@ public class TreeMenuPanel extends JPanel{
 		this.mainFrame = mainFrame;
 		this.connection = connection;
 		
-		this.addMouseMotionListener(new MouseMotionAdapter(){
+/*		this.addMouseMotionListener(new MouseMotionAdapter(){
 			public void mouseMoved(MouseEvent e) {
 				getMainFrame().getFrame().setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 			}
-		});
+		});*/
 		
 		loadLeftMenuComp();
 	}
@@ -101,7 +101,12 @@ public class TreeMenuPanel extends JPanel{
         panelLayout.setRowGap(2, 0, 0, 0);
         panelLayout.add(tableScrollPane, 2, 170, 'B', 1, 1, 'L');
         panelLayout.setCompLayout(tableScrollPane, tableScrollPaneLayout);
-        tableScrollPaneLayout.setResetPos(false);
+        //tableScrollPaneLayout.setResetPos(false);
+        tableScrollPane.addMouseMotionListener(new MouseMotionAdapter(){
+			public void mouseMoved(MouseEvent e) {
+				getMainFrame().getFrame().setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			}
+		});
         
         tableScrollPane.getVerticalScrollBar().setUnitIncrement(20); //设置滚动条滚动量
         

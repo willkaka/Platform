@@ -56,4 +56,11 @@
         <Password>Ddfakx110#ak</Password>
         <DriverName>oracle.jdbc.driver.OracleDriver</DriverName>
     </DataBase>
+
+    <DataBase DBName="Loan" Env="703Lib">
+        <URL>jdbc:oracle:thin:@10.30.84.147:1531:t12dspm</URL>
+        <UserName>dspmopr</UserName>
+        <Password>Ddja#1234</Password>
+        <DriverName>oracle.jdbc.driver.OracleDriver</DriverName>
+    </DataBase>
 </DataBases>
