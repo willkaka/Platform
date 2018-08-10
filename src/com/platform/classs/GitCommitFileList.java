@@ -59,6 +59,11 @@ import com.base.layout.LayoutByRow;
 import com.platform.classs.LineTransInfo.CloseXIcon;
 import com.platform.view.MainFrame;
 
+/**
+ * Git仓库提交信息查询
+ * @author huangyuanwei
+ *
+ */
 public class GitCommitFileList {
 	private final String tabName = "Git提交清单查询";
 	

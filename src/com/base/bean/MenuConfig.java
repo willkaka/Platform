@@ -56,13 +56,16 @@ public class MenuConfig {
 	}
 	
 	public static MenuConfig getMenuConfig(String menuId, Connection connection){
-		MenuConfig menu = null;
+		MenuConfig menu = new MenuConfig();
 		
 		try{
 			PreparedStatement pSql = connection.prepareStatement("select * from menuconfig where menuid = '" + menuId + "'");
 			ResultSet set = pSql.executeQuery();
 			
 			if (set.next()) {
+				menu = Table.parseResultSet(set, menu);
+			}
+			/*if (set.next()) {
 				menu = new MenuConfig();
 				menu.setMenuid(set.getString("menuid"));
 				menu.setMenuCode(set.getString("menuCode"));
@@ -71,7 +74,7 @@ public class MenuConfig {
 				menu.setText(set.getString("text"));
 				menu.setClassName(set.getString("className"));
 				menu.setClassMethod(set.getString("classMethod"));
-			}
+			}*/
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -88,6 +91,12 @@ public class MenuConfig {
 			
 			while (set.next()) {
 				MenuConfig menu = new MenuConfig();
+				menu = Table.parseResultSet(set, menu);
+				menus.addElement(menu);
+			}
+			
+			/*while (set.next()) {
+				MenuConfig menu = new MenuConfig();
 				menu.setMenuid(set.getString("menuid"));
 				menu.setMenuCode(set.getString("menuCode"));
 				menu.setLevel(set.getInt("level"));
@@ -96,7 +105,7 @@ public class MenuConfig {
 				menu.setClassName(set.getString("className"));
 				menu.setClassMethod(set.getString("classMethod"));
 				menus.addElement(menu);
-			}
+			}*/
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -120,6 +129,12 @@ public class MenuConfig {
 			
 			while (set.next()) {
 				MenuConfig menu = new MenuConfig();
+				menu = Table.parseResultSet(set, menu);
+				menus.addElement(menu);
+			}
+			
+			/*while (set.next()) {
+				MenuConfig menu = new MenuConfig();
 				menu.setMenuid(set.getString("menuid"));
 				menu.setMenuCode(set.getString("menuCode"));
 				menu.setLevel(set.getInt("level"));
@@ -128,7 +143,7 @@ public class MenuConfig {
 				menu.setClassName(set.getString("className"));
 				menu.setClassMethod(set.getString("classMethod"));
 				menus.addElement(menu);
-			}
+			}*/
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -145,6 +160,12 @@ public class MenuConfig {
 			
 			while (set.next()) {
 				MenuConfig menu = new MenuConfig(pearentMenuCode, connection);
+				menu = Table.parseResultSet(set, menu);
+				menus.addElement(menu);
+			}
+			
+			/*while (set.next()) {
+				MenuConfig menu = new MenuConfig(pearentMenuCode, connection);
 				menu.setMenuid(set.getString("menuid"));
 				menu.setMenuCode(set.getString("menuCode"));
 				menu.setLevel(set.getInt("level"));
@@ -153,7 +174,7 @@ public class MenuConfig {
 				menu.setClassName(set.getString("className"));
 				menu.setClassMethod(set.getString("classMethod"));
 				menus.addElement(menu);
-			}
+			}*/
 		}catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -37,11 +37,17 @@ import com.base.database.DatabaseInfo;
 import com.base.database.OracleDB;
 import com.base.database.Table;
 import com.base.database.TableField;
+import com.base.function.SystemOpr;
 import com.base.layout.LayoutByRow;
 import com.platform.view.MainFrame;
 
 import oracle.jdbc.util.RepConversion;
 
+/**
+ * 合作机构交易配置信息查询
+ * @author huangyuanwei
+ *
+ */
 public class LineTransInfo {
 	private final String tabName = "合作机构交易配置查询";
 	
@@ -183,9 +189,15 @@ public class LineTransInfo {
 			transActionLabel.addMouseListener(new MouseAdapter() {
 				public void mouseClicked(MouseEvent e) {
 					if(e.getClickCount() == 2){
-						String transid = ((JLabel)e.getSource()).getText().substring(5, 11);
+						String transInfo = ((JLabel)e.getSource()).getText();
+						String[] transInfos = transInfo.split(":");
+						//String transid = ((JLabel)e.getSource()).getText().substring(5, 11);
+						String transno="",transid="",transDsc="";
+						if(transInfos.length > 0) transno = transInfos[0];
+						if(transInfos.length > 1) transid = transInfos[1];
+						if(transInfos.length > 2) transDsc = transInfos[2];
 						//System.out.println("transid="+transid);
-						showTransEntry(transid);
+						showTransEntry(transid,transDsc);
 					}
 				}
 			});
@@ -203,7 +215,85 @@ public class LineTransInfo {
 		this.frame.repaint();
  	}
 	
-	public void showTransEntry(String transid){
+	public void showTransEntry(String transid,String transDsc){
+		
+		Component[] comps = transEntryPanel.getComponents();
+		for(Component comp:comps){
+			//System.out.println(comp.getName());
+			if(comp.getName().toLowerCase().equals(transid.toLowerCase())) return;
+		}
+		
+		JPanel entryPanel = new JPanel();
+		entryPanel.setName(transid);
+		TitledBorder border = BorderFactory.createTitledBorder(transid +" "+ transDsc);
+		border.setTitleJustification(TitledBorder.CENTER);
+		entryPanel.setBorder(border);
+		LayoutByRow entryPanelLayout = new LayoutByRow(entryPanel);
+		entryPanelLayout.setTopGap(15);
+		entryPanelLayout.setBotGap(5);
+		
+		List<String> TransEntryList = getTransEntryList(transid);
+		//transEntryPanelLayout.removeAllComp();
+		
+		CloseXIcon xIcon = new CloseXIcon(null);
+		JLabel xIconLabel = new JLabel(xIcon);
+		xIconLabel.setName(transid);
+		xIconLabel.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				String transid = ((JLabel)e.getSource()).getName();
+				Component[] comps = transEntryPanel.getComponents();
+				for(Component comp:comps){
+					//System.out.println(comp.getName());
+					if(comp.getName().toLowerCase().equals(transid.toLowerCase())) {
+						transEntryPanel.remove(comp);
+						transEntryPanelLayout.removeComp((JComponent) comp);
+						transEntryPanel.repaint();
+						transEntryPanel.updateUI();
+						entryCount--;
+						resetCompPos();
+						break;
+					}
+				}
+			}
+		});
+		entryPanelLayout.setRowInfo(1, 10, 0, 0);
+		entryPanelLayout.add(xIconLabel, 1, 10, 'N', 0, 0, 'L');
+		
+		JLabel showFinButLabel = new JLabel("ShowFin");
+		showFinButLabel.setName(transid);
+		showFinButLabel.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				String transid = ((JLabel)e.getSource()).getName();
+				showFin(transid+"_FIN");
+			}
+		});
+		entryPanelLayout.setRowGap(1, 5, 0, 10);
+		entryPanelLayout.add(showFinButLabel, 1, 100, 'N', 0, 0, 'L');
+		
+		int lineNum = 1;
+		for(String transEntry:TransEntryList){
+			JLabel transEntryLabel = new JLabel(transEntry);
+			
+			lineNum++;
+			entryPanelLayout.setRowInfo(lineNum, 20, 1, 0);
+			entryPanelLayout.add(transEntryLabel, lineNum, 50, 'H', 0, 1, 'L');
+		}
+		transEntryPanelLayout.setRowInfo(++entryCount, lineNum * 21+10, 5, 0);
+		transEntryPanelLayout.add(entryPanel, entryCount, 200, 'H', 0, 1, 'L');
+		transEntryPanelLayout.setCompLayout(entryPanel, entryPanelLayout);
+		
+		transEntryPanelLayout.setRowPos();
+		int w = transEntryScroll.getWidth()-40;
+		int h = transEntryPanelLayout.getLayoutHeight() + lineNum * 21 + 10 + 10;
+		
+		transEntryPanel.setPreferredSize(new Dimension(w, h));
+		transEntryPanel.revalidate(); // 告诉其他部件,我的宽高变了
+		
+		this.frame.getRightPanel().repaint();
+		this.frame.repaint();
+ 	}
+	
+public void showFin(String transid){
 		
 		Component[] comps = transEntryPanel.getComponents();
 		for(Component comp:comps){

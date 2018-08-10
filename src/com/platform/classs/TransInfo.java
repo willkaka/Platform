@@ -41,6 +41,11 @@ import com.platform.view.MainFrame;
 
 import oracle.jdbc.util.RepConversion;
 
+/**
+ * 由TransNo查询TransID信息
+ * @author huangyuanwei
+ *
+ */
 public class TransInfo {
 	private final String tabName = "交易信息查询";
 	
