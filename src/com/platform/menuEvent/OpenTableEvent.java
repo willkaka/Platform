@@ -39,7 +39,7 @@ public class OpenTableEvent {
 		frameLayout.setRowInfo(1, 625, 0, 10);
 		frameLayout.setBotGap(20);
 		
-		configFrame.setBounds(450, 200, 530, 625);
+		configFrame.setBounds(450, 200, 800, 625);
 		//窗口大小改变事件
 		configFrame.addComponentListener(new ComponentAdapter() {
 			public void componentResized(ComponentEvent e) { 

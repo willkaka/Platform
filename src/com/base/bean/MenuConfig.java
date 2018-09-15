@@ -94,18 +94,6 @@ public class MenuConfig {
 				menu = Table.parseResultSet(set, menu);
 				menus.addElement(menu);
 			}
-			
-			/*while (set.next()) {
-				MenuConfig menu = new MenuConfig();
-				menu.setMenuid(set.getString("menuid"));
-				menu.setMenuCode(set.getString("menuCode"));
-				menu.setLevel(set.getInt("level"));
-				menu.setPearentMenuCode(set.getString("pearentmenucode"));
-				menu.setText(set.getString("text"));
-				menu.setClassName(set.getString("className"));
-				menu.setClassMethod(set.getString("classMethod"));
-				menus.addElement(menu);
-			}*/
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -132,18 +120,6 @@ public class MenuConfig {
 				menu = Table.parseResultSet(set, menu);
 				menus.addElement(menu);
 			}
-			
-			/*while (set.next()) {
-				MenuConfig menu = new MenuConfig();
-				menu.setMenuid(set.getString("menuid"));
-				menu.setMenuCode(set.getString("menuCode"));
-				menu.setLevel(set.getInt("level"));
-				menu.setPearentMenuCode(set.getString("pearentmenucode"));
-				menu.setText(set.getString("text"));
-				menu.setClassName(set.getString("className"));
-				menu.setClassMethod(set.getString("classMethod"));
-				menus.addElement(menu);
-			}*/
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -163,18 +139,6 @@ public class MenuConfig {
 				menu = Table.parseResultSet(set, menu);
 				menus.addElement(menu);
 			}
-			
-			/*while (set.next()) {
-				MenuConfig menu = new MenuConfig(pearentMenuCode, connection);
-				menu.setMenuid(set.getString("menuid"));
-				menu.setMenuCode(set.getString("menuCode"));
-				menu.setLevel(set.getInt("level"));
-				menu.setPearentMenuCode(set.getString("pearentMenuCode"));
-				menu.setText(set.getString("text"));
-				menu.setClassName(set.getString("className"));
-				menu.setClassMethod(set.getString("classMethod"));
-				menus.addElement(menu);
-			}*/
 		}catch (Exception e) {
 			e.printStackTrace();
 		}

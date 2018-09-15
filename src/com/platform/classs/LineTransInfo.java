@@ -264,7 +264,7 @@ public class LineTransInfo {
 		showFinButLabel.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				String transid = ((JLabel)e.getSource()).getName();
-				showFin(transid+"_FIN");
+				showFin(transid,getSelectedLineID());
 			}
 		});
 		entryPanelLayout.setRowGap(1, 5, 0, 10);
@@ -293,29 +293,29 @@ public class LineTransInfo {
 		this.frame.repaint();
  	}
 	
-public void showFin(String transid){
+public void showFin(String transid, String lineid){
 		
 		Component[] comps = transEntryPanel.getComponents();
 		for(Component comp:comps){
 			//System.out.println(comp.getName());
-			if(comp.getName().toLowerCase().equals(transid.toLowerCase())) return;
+			if(comp.getName().toLowerCase().equals((transid+"_FIN").toLowerCase())) return;
 		}
 		
 		JPanel entryPanel = new JPanel();
-		entryPanel.setName(transid);
-		TitledBorder border = BorderFactory.createTitledBorder(transid);
+		entryPanel.setName(transid+"_FIN");
+		TitledBorder border = BorderFactory.createTitledBorder(transid+"_FIN");
 		border.setTitleJustification(TitledBorder.CENTER);
 		entryPanel.setBorder(border);
 		LayoutByRow entryPanelLayout = new LayoutByRow(entryPanel);
 		entryPanelLayout.setTopGap(15);
 		entryPanelLayout.setBotGap(5);
 		
-		List<String> TransEntryList = getTransEntryList(transid);
+		List<String> TransEntryList = getTransEntryListwithFin(transid,lineid);
 		//transEntryPanelLayout.removeAllComp();
 		
 		CloseXIcon xIcon = new CloseXIcon(null);
 		JLabel xIconLabel = new JLabel(xIcon);
-		xIconLabel.setName(transid);
+		xIconLabel.setName(transid+"_FIN");
 		xIconLabel.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				String transid = ((JLabel)e.getSource()).getName();
@@ -379,25 +379,6 @@ public void showFin(String transid){
 		return lineList;
 	}
 	
-/*	public List<String> getEnvList(){
-		ArrayList<String> envList = new ArrayList<String>();
-		
-		try {
-			String sqlStm = "SELECT envname FROM envdatabaseinfo";
-			PreparedStatement preparedStatement = this.sqliteConn.prepareStatement(sqlStm);
-			ResultSet rs = preparedStatement.executeQuery();
-			while(rs.next()){
-				envList.add(rs.getString(1) );
-			}
-			rs.close();
-			preparedStatement.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		return envList;
-	}*/
-	
 	public List<String> getTransActionList(String lineid, String finType){
 		ArrayList<String> TransActionList = new ArrayList<String>();
 		
@@ -438,7 +419,7 @@ public void showFin(String transid){
 			String sqlStm = "SELECT te.transid,te.sortid,te.direction,te.subjectno,te.digest,te.amount,te.validexpression "
 					+ "FROM trans_entry te "
 					+ "WHERE te.transid='" + transid +"' "
-					+ "ORDER BY te.transid,te.sortid";
+					+ "ORDER BY te.transid,CAST(te.sortid AS INTEGER)";
 			PreparedStatement preparedStatement = this.connection.prepareStatement(sqlStm);
 			ResultSet rs = preparedStatement.executeQuery();
 			while(rs.next()){
@@ -449,6 +430,91 @@ public void showFin(String transid){
 						          + rs.getString(5) + "  " 
 						          + rs.getString(6) + "  " 
 						          + rs.getString(7));
+			}
+			rs.close();
+			preparedStatement.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return TransEntryList;
+	}
+	
+	public List<String> getTransEntryListwithFin(String transid, String lineid){
+		ArrayList<String> TransEntryList = new ArrayList<String>();
+		
+		try {
+			String sqlStm = "SELECT te.transid,te.sortid,te.direction,te.subjectno,te.digest,te.amount,te.validexpression "
+					+ "FROM trans_entry te "
+					+ "WHERE te.transid='" + transid +"' "
+					+ "ORDER BY te.transid,CAST(te.sortid AS INTEGER) ";
+			PreparedStatement preparedStatement = this.connection.prepareStatement(sqlStm);
+			ResultSet rs = preparedStatement.executeQuery();
+			while(rs.next()){
+				
+				String finSubjectNo = "";
+				String sqlSelectFinSbjCnt = "SELECT count(1) "
+						+ "FROM las_core_subjectmap lc "
+						+ "WHERE lc.lassubjectno = '"+ rs.getString("subjectno") +"' "
+						+ "AND lc.bool='1' ";
+				PreparedStatement ppsSelectFinSbjCnt = this.connection.prepareStatement(sqlSelectFinSbjCnt);
+				ResultSet rstSelectFinSbjCnt = ppsSelectFinSbjCnt.executeQuery();
+				int finCount = 0;
+				if(rstSelectFinSbjCnt.next()){
+					finCount = rstSelectFinSbjCnt.getInt(1);
+				}
+				rstSelectFinSbjCnt.close();
+				ppsSelectFinSbjCnt.close();
+				
+				if(finCount == 1){
+					String sqlSelectFinSbj = "SELECT lc.finsubjectno "
+							+ "FROM las_core_subjectmap lc "
+							+ "WHERE lc.lassubjectno = '"+ rs.getString("subjectno") +"' "
+							+ "AND lc.bool='1' ";
+					PreparedStatement ppsSelectFinSbj = this.connection.prepareStatement(sqlSelectFinSbj);
+					ResultSet rstSelectFinSbj = ppsSelectFinSbj.executeQuery();
+					if(rstSelectFinSbj.next()){
+						finSubjectNo = rstSelectFinSbj.getString(1);
+					}
+					rstSelectFinSbj.close();
+					ppsSelectFinSbj.close();
+				}else if(finCount > 1){
+					String sqlSelectFinSbjCnt2 = "SELECT count(1) "
+							+ "FROM las_core_subjectmap lc "
+							+ "WHERE lc.lassubjectno = '"+ rs.getString("subjectno") +"' "
+							+ "AND lc.bool='1' "
+							+ "AND lc.attributevalue LIKE '%"+ lineid +"%'";
+					PreparedStatement ppsSelectFinSbjCnt2 = this.connection.prepareStatement(sqlSelectFinSbjCnt2);
+					ResultSet rstSelectFinSbjCnt2 = ppsSelectFinSbjCnt2.executeQuery();
+					int finCount2 = 0;
+					if(rstSelectFinSbjCnt2.next()){
+						finCount2 = rstSelectFinSbjCnt2.getInt(1);
+					}
+					rstSelectFinSbjCnt2.close();
+					ppsSelectFinSbjCnt2.close();
+					
+					if(finCount2 == 1){
+						String sqlSelectFinSbj = "SELECT lc.finsubjectno "
+								+ "FROM las_core_subjectmap lc "
+								+ "WHERE lc.lassubjectno = '"+ rs.getString("subjectno") +"' "
+								+ "AND lc.bool='1' "
+								+ "AND lc.attributevalue LIKE '%"+ lineid +"%'";
+						PreparedStatement ppsSelectFinSbj = this.connection.prepareStatement(sqlSelectFinSbj);
+						ResultSet rstSelectFinSbj = ppsSelectFinSbj.executeQuery();
+						if(rstSelectFinSbj.next()){
+							finSubjectNo = rstSelectFinSbj.getString(1);
+						}
+						rstSelectFinSbj.close();
+						ppsSelectFinSbj.close();
+					}
+				}
+				TransEntryList.add(rs.getString(1) + "  " 
+				          + rs.getString(2) + "  "
+				          + rs.getString(3) + "  "
+				          + finSubjectNo + "  " 
+				          + rs.getString(5) + "  " 
+				          + rs.getString(6) + "  " 
+				          + rs.getString(7));
+				
 			}
 			rs.close();
 			preparedStatement.close();

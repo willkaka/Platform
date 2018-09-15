@@ -439,6 +439,13 @@ public class GitCommitFileList {
 					if(diffEntries != null){
 						for(DiffEntry entry:diffEntries){
 							if(!filelist.contains(entry.getOldPath()) ) filelist.add(entry.getOldPath());
+							entry.getChangeType();
+							entry.getOldMode();
+							entry.getDiffAttribute();
+							entry.getId(null);
+							entry.getMode(null);
+							
+							
 						}
 					}else{
 						System.out.println("error:commitid("+commitID+")未取到提交文件信息！");

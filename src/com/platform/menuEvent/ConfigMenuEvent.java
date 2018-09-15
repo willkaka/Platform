@@ -27,7 +27,7 @@ public class ConfigMenuEvent {
 	public void execute(MainFrame frame, SQLiteConnection connection){
 		System.out.println("configMenuEvent");
 		
-		configFrame.setBounds(450, 200, 530, 625);
+		configFrame.setBounds(450, 200, 800, 625);
 		configFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		configFrame.addComponentListener(new ComponentAdapter() {
 			public void componentResized(ComponentEvent e) {    //窗口大小改变事件

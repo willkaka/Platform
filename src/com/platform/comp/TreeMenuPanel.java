@@ -20,12 +20,20 @@ import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
+import javax.xml.soap.Node;
 
 import com.base.bean.MenuConfig;
+import com.base.bean.Menuconfig2;
 import com.base.comp.JTablePanel;
 import com.base.database.ClassUtil;
 import com.base.database.Table;
+import com.base.function.StringUtil;
 import com.base.layout.LayoutByRow;
 import com.platform.view.MainFrame;
 
@@ -65,11 +73,18 @@ public class TreeMenuPanel extends JPanel{
 		loadLeftMenuComp();
 	}
 	
+	public void loadLeftMenuComp2(){
+		
+	}
+	
 	public void loadLeftMenuComp(){
 		panelLayout.setBotGap(10);
 		panelLayout.setRowInfo(1, 20, 20, 0);
 		panelLayout.setRowGap(1, 0, 0, 0);
 	    panelLayout.add(menuBox, 1, 100, 'H', 0, 1.0f, 'L');
+	    
+	    DefaultMutableTreeNode root = new DefaultMutableTreeNode("000000 菜单树");
+	    JTree tree = new JTree(root);
 		
 		Vector<MenuConfig> menuConfigs = MenuConfig.getMenuConfigByLevel("leftmenu",0, connection);
 		int rowNum = 0;
@@ -82,20 +97,29 @@ public class TreeMenuPanel extends JPanel{
 				}
 			});
 			
-			JLabel oprCodeLabel = new JLabel();
-			oprCodeLabel.setText(menu.getMenuid() + " " + menu.getText());
-			oprCodeLabel.addMouseListener(new MouseAdapter() {
-				public void mouseClicked(MouseEvent e) {
-					//点击事件
-					if(e.getClickCount() == 2){
-						JLabel tempJLabel = (JLabel) e.getSource(); 
-						invokeMethod(tempJLabel.getText().substring(0,7));
-					}
-				}
-			});
-			tablePaneLayout.setRowInfo(++rowNum, 25, 3, 0);
-			tablePaneLayout.add(oprCodeLabel, rowNum, 100, 'H', 0, 1, 'L');
+			DefaultMutableTreeNode node = getAllChildNode(menu);
+			root.add(node);			
 		}
+		tree.addTreeSelectionListener(new TreeSelectionListener() {
+		    public void valueChanged(TreeSelectionEvent evt) {
+		    	// 获取被选中的相关节点
+		        TreePath path = evt.getPath();
+		        TreePath[] paths = evt.getPaths();
+		        TreePath newLeadPath = evt.getNewLeadSelectionPath();
+		        TreePath oldLeadPath = evt.getOldLeadSelectionPath();
+		        
+		        DefaultMutableTreeNode oSelectedNode = (DefaultMutableTreeNode) path.getLastPathComponent();
+		        System.out.println(oSelectedNode.getUserObject().toString());
+		        String sMenuInfo = oSelectedNode.getUserObject().toString();
+		        if(sMenuInfo != null && sMenuInfo.length() >= 7){
+		        	String sMenuID = sMenuInfo.substring(0,7);
+		        	invokeMethod(sMenuID);
+		        }
+		    }
+		});
+		tablePaneLayout.setRowInfo(++rowNum, 500, 10, 10);
+		tablePaneLayout.add(tree, rowNum, 300, 'N', 0, 1, 'L');
+		
 
         panelLayout.setRowInfo(2, 200, 10, 0);
         panelLayout.setRowGap(2, 0, 0, 0);
@@ -121,8 +145,28 @@ public class TreeMenuPanel extends JPanel{
 		this.repaint();
 	}
 	
+	public DefaultMutableTreeNode getAllChildNode(MenuConfig menuconfig){
+		DefaultMutableTreeNode node = null; 
+		if(menuconfig != null){
+			node = new DefaultMutableTreeNode(menuconfig.getMenuid() + " " + menuconfig.getText());
+			Vector<MenuConfig> subNodes = MenuConfig.getSubMenuConfig(menuconfig.getMenuCode(),connection);
+			if(subNodes != null){
+				for(MenuConfig menu:subNodes){
+					DefaultMutableTreeNode subnode = getAllChildNode(menu);
+					
+					if(subnode != null) node.add(subnode);
+				}
+			}
+		}
+		return node;
+	}
+	
 	public void invokeMethod(String menucode){
 		MenuConfig menuConfig = MenuConfig.getMenuConfig(menucode, connection);
+		if(menuConfig == null || menuConfig.getClassName() == null || StringUtil.isNull(menuConfig.getClassName())){
+			System.out.println("菜单码："+menucode+"不存在！");
+			return;
+		}
 		System.out.println("..............."+menuConfig.getClassName()+"....................");
 		
 		System.out.println("目前支持的参数：");
