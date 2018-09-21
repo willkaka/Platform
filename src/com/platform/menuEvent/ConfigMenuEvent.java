@@ -42,7 +42,7 @@ public class ConfigMenuEvent {
 		Vector tableColTitles = new Vector();
 		Vector tableRecords = new Vector();
 		try{
-			tableColTitles = Table.geTableFieldsComment("menuconfig", connection);
+			tableColTitles = Table.getTableFieldsComment("menuconfig", connection);
 			tableRecords = Table.getTableRecords("menuconfig", null, connection);
 			
 		}catch (Exception e) {

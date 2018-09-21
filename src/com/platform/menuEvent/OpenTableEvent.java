@@ -77,7 +77,7 @@ public class OpenTableEvent {
 		Vector tableColTitles = new Vector();
 		Vector tableRecords = new Vector();
 		try{
-			tableColTitles = Table.geTableFieldsComment(tableName, connection);
+			tableColTitles = Table.getTableFieldsComment(tableName, connection);
 			tableRecords = Table.getTableRecords(tableName, null, connection);
 			
 		}catch (Exception e) {
