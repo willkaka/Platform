@@ -1,31 +1,12 @@
 package com.platform.view;
 
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.math.BigDecimal;
-import java.security.PrivilegedActionException;
 import java.sql.Connection;
-import java.util.Vector;
-
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
 import com.base.comp.JClosableTabbedPane;
+import com.base.database.DatabaseInfo;
 import com.base.database.OracleDB;
 import com.base.database.SqliteDB;
 import com.base.layout.LayoutByRow;
@@ -41,7 +22,7 @@ public class MainFrame {
 	private Connection conn_Oracle = null;
 	
 	private JFrame frame = new JFrame();
-	private LayoutByRow frameLayout = null;
+	private LayoutByRow frameLayout = null;  
 	
 	//private JPanel leftPanel = new JPanel();
 	private TreeMenuPanel leftPanel = null;
@@ -53,7 +34,8 @@ public class MainFrame {
 
 	public MainFrame(){
 		conn_Sqlite = SqliteDB.getConnection("./data/Database.db");
-		conn_Oracle = OracleDB.getConnection();
+		OracleDB db = new OracleDB(DatabaseInfo.getDatabaseInfo(conn_Sqlite, "DEV"));
+		conn_Oracle = db.getConnection();
 		
 		frame.setTitle("工具操作平台");
 		frame.setLayout(null);

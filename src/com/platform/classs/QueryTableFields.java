@@ -19,16 +19,18 @@ import com.base.comp.TablePanel;
 import com.base.database.DatabaseInfo;
 import com.base.database.OracleDB;
 import com.base.database.Table;
+import com.base.database.TableField;
+import com.base.function.PrcString;
 import com.base.layout.LayoutByRow;
 import com.platform.view.MainFrame;
 
 /**
- * 查询数据表信息
+ * 查询数据表结构
  * @author huangyuanwei
  *
  */
-public class QueryTableInfo {
-	private final String tabName = "查询数据表信息";
+public class QueryTableFields {
+	private final String tabName = "查询数据表结构";
 	
 	private Connection sqliteConn = null;
 	private Connection connection = null;
@@ -39,7 +41,7 @@ public class QueryTableInfo {
 	
 	private TablePanel tablePanel = null;
 	
-	private JComboBox tableNameComboBox = new JComboBox();
+	private JTextField tableNameField = new JTextField();
 	
 	public void execute(MainFrame frame, SQLiteConnection sqliteConnection){
 		System.out.println("---execute "+tabName+"-----");
@@ -78,24 +80,10 @@ public class QueryTableInfo {
 						e1.printStackTrace();
 					}
 				//OracleDB db = new OracleDB(DatabaseInfo.getDatabaseInfo(sqliteConn, ((JComboBox)e.getSource()).getSelectedItem().toString()));
-				//connection = DatabaseInfo.getDBConnection(DatabaseInfo.getDatabaseInfo(sqliteConn, ((JComboBox)e.getSource()).getSelectedItem().toString()));
 				//connection = OracleDB.getConnection();
 				String sEnv = ((JComboBox)e.getSource()).getSelectedItem().toString();
 				DatabaseInfo databaseInfo = DatabaseInfo.getDatabaseInfo(sqliteConn, sEnv);
 				connection = databaseInfo.getDBConnection(databaseInfo);
-				if(databaseInfo.getDbtype().equals("MySql")){
-					try {
-						tableNameComboBox.removeAllItems();
-						List<Table> tableList = Table.getMysqlTableList(connection);
-						for(Table table:tableList){
-							tableNameComboBox.addItem(table.getTableName());
-						}
-					} catch (Exception e1) {
-						e1.printStackTrace();
-					} 
-					
-				}
-				
 				
 				//tableInfoJTable.removeAll();
 				//tableInfoTableLayout.removeAllComp();
@@ -106,11 +94,11 @@ public class QueryTableInfo {
 		JLabel inputPromptLabel1 = new JLabel("    表名：");
 		mainPanelLayout.add(inputPromptLabel1, 1, 78, 'N', 0, 0, 'L');
 		
-		mainPanelLayout.add(tableNameComboBox, 1, 200, 'N', 0, 0, 'L');
-		tableNameComboBox.addActionListener(new ActionListener() {
+		mainPanelLayout.add(tableNameField, 1, 200, 'N', 0, 0, 'L');
+		tableNameField.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				showTableInfo(tableNameComboBox.getSelectedItem().toString());				
+				showTableInfo(tableNameField.getText());				
 				resetCompPos();
 			}
 		});
@@ -138,11 +126,37 @@ public class QueryTableInfo {
 	}
 	
 	public void showTableInfo(String tableName){
-		Vector cols = null;
-		Vector rows = null;
+		Vector<TableField> cols = new Vector<TableField>();
+		TableField f1 = new TableField();
+		f1.setFieldName("seq");
+		f1.setFieldDsc("序号");
+		f1.setFieldType(" ");
+		f1.setFieldLen(0);
+		TableField f2 = new TableField();
+		f2.setFieldName("name");
+		f2.setFieldDsc("字段名称");
+		f2.setFieldType(" ");
+		f2.setFieldLen(0);
+		TableField f3 = new TableField();
+		f3.setFieldName("type");
+		f3.setFieldDsc("类型");
+		f3.setFieldType(" ");
+		f3.setFieldLen(0);
+		TableField f4 = new TableField();
+		f4.setFieldName("comment");
+		f4.setFieldDsc("注释");
+		f4.setFieldType(" ");
+		f4.setFieldLen(0);
+		
+		cols.addElement(f1);
+		cols.addElement(f2);
+		cols.addElement(f3);
+		cols.addElement(f4);
+				
+		Vector<TableField> fields = null;
 		try{
-			cols = Table.geTableFields(tableName, null, connection);
-			rows = Table.getTableRecords(tableName, null, connection);			
+			//cols = Table.geTableFields(tableName, connection);
+			fields = Table.geTableFields(tableName, null, connection);
 		}catch(SQLException e){
 			e.printStackTrace();
 			//System.out.println("ErrorCode:"+e.getErrorCode());
@@ -154,6 +168,17 @@ public class QueryTableInfo {
 			//System.out.println(""+);
 		}catch (Exception e) {
 			e.printStackTrace();
+		}
+		
+		Vector rows = new Vector<>();
+		int iCntNum = 1;
+		for(TableField field:fields){
+			Vector<String> row = new Vector<String>();
+			row.add(String.valueOf(iCntNum++));
+			row.add(PrcString.ConvertToCamelCase(field.getFieldName()));
+			row.add(field.getTypeShowString());
+			row.add(field.getFieldDsc());
+			rows.add(row);
 		}
 		tablePanel.setTablePanelData(cols, rows);
 	}

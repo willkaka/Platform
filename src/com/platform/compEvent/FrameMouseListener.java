@@ -5,6 +5,7 @@ import java.awt.event.MouseEvent;
 
 public class FrameMouseListener extends MouseAdapter{
 	/* 取得鼠标拖曳的结束坐标 */
+	@Override
 	public void mouseReleased(MouseEvent e) {
 		int endx = e.getX();
         int endy = e.getY();
@@ -13,6 +14,7 @@ public class FrameMouseListener extends MouseAdapter{
 	}
 	
 	/* 取得鼠标拖曳的开始坐标 */
+	@Override
 	public void mousePressed(MouseEvent e) {
 		
 	}

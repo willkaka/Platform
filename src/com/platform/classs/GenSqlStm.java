@@ -2,8 +2,6 @@ package com.platform.classs;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.util.Vector;
 
@@ -59,6 +57,7 @@ public class GenSqlStm {
 		JButton GenSqlStmButton = new JButton("生成SQL创建表格语句");
 		panelLayout.add(GenSqlStmButton, 1, 180, 'N', 0, 0, 'L');
 		GenSqlStmButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				genSqlCrtStm();
 			}
@@ -95,7 +94,7 @@ public class GenSqlStm {
 		OracleDB db = new OracleDB(DatabaseInfo.getDatabaseInfo(sqliteConn, "DEV"));
 		this.connection = db.getConnection();
 		try {
-			Vector<TableField> fields = Table.geTableFields(tableName, this.connection);
+			Vector<TableField> fields = Table.geTableFields(tableName, null, this.connection);
 			int fieldCount = 0;
 			for(TableField field:fields){
 				if(fieldCount++ != 0) sqlCrtStm += ",";

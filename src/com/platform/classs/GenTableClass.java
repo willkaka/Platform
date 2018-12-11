@@ -2,12 +2,9 @@ package com.platform.classs;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.sql.Connection;
-import java.util.Vector;
-
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -18,8 +15,6 @@ import org.sqlite.SQLiteConnection;
 
 import com.base.database.DatabaseInfo;
 import com.base.database.OracleDB;
-import com.base.database.Table;
-import com.base.database.TableField;
 import com.base.function.GenDatabaseTableEntity;
 import com.base.layout.LayoutByRow;
 import com.platform.view.MainFrame;
@@ -60,6 +55,7 @@ public class GenTableClass {
 		JButton GenJavaSrcButton = new JButton("生成Java类代码");
 		panelLayout.add(GenJavaSrcButton, 1, 180, 'N', 0, 0, 'L');
 		GenJavaSrcButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				GenJavaSrc();
 			}
@@ -88,8 +84,12 @@ public class GenTableClass {
 		String tableName = getTableName();
 		String sqlCrtStm = "CREATE TABLE " + tableName + " (";
 		
-		OracleDB db = new OracleDB(DatabaseInfo.getDatabaseInfo(sqliteConn, "DEV"));
-		this.connection = db.getConnection();
+		//OracleDB db = new OracleDB(DatabaseInfo.getDatabaseInfo(sqliteConn, "DEV"));
+		//this.connection = db.getConnection();
+		
+		String sEnv = "DEV";
+		DatabaseInfo databaseInfo = DatabaseInfo.getDatabaseInfo(sqliteConn, sEnv);
+		connection = databaseInfo.getDBConnection(databaseInfo);
 		try {
 			GenDatabaseTableEntity tableEntry = new GenDatabaseTableEntity(connection,tableName);
 			

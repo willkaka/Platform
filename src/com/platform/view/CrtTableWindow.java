@@ -1,7 +1,6 @@
 package com.platform.view;
 
 import java.awt.Dimension;
-import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -17,6 +16,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.WindowConstants;
+
 import org.sqlite.SQLiteConnection;
 
 import com.base.database.*;
@@ -45,9 +46,10 @@ public class CrtTableWindow {
 		
 		frame.setTitle("CreateTable");
 		frame.setBounds(450, 200, 530, 625);
-		frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		frame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		
 		frame.addComponentListener(new ComponentAdapter() {
+			@Override
 			public void componentResized(ComponentEvent e) {    //窗口大小改变事件
 				frameLayout.setRowPos();
 			}
@@ -58,6 +60,7 @@ public class CrtTableWindow {
 		JLabel tabelNameLabel = new JLabel("请输入需要创建的表名：");
 		titlePanelLayout.add(tabelNameLabel, 1, 150, 'N', 0, 0, 'L');
 		tableNameTextField.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				getTableInfo();
 			}
@@ -137,7 +140,7 @@ public class CrtTableWindow {
 			if(!SqliteDB.isExistTable(tableName)){
 				JOptionPane.showMessageDialog(null, tableName+"不存在");
 			}else{
-				Vector<TableField> fields = Table.geTableFields(tableName, connection);
+				Vector<TableField> fields = Table.geTableFields(tableName, null, connection);
 				for(TableField field:fields){
 					addOneFieldDef(field);
 				}				
@@ -239,12 +242,13 @@ public class CrtTableWindow {
 		JButton delFieldButton = new JButton("del");
 		delFieldButton.setActionCommand(Integer.toString(layoutRow));
 		delFieldButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				JButton tempButton = (JButton) e.getSource();
 				int linenum = Integer.parseInt(tempButton.getActionCommand());
 				Vector fieldvalues = getFieldPanelLayout().getCompValuesAtLine(linenum);
 				try {
-					Vector<TableField> fields = Table.geTableFields(getTableNameTextField().getText(), connection);
+					Vector<TableField> fields = Table.geTableFields(getTableNameTextField().getText(), null, connection);
 					TableField field = fields.get(linenum);
 					//字段名不相等
 					if(!field.getFieldName().toLowerCase().equals(fieldvalues.get(1).toString().toLowerCase())){

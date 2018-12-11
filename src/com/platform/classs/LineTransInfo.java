@@ -9,39 +9,26 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.security.PrivilegedActionException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
-
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
-import javax.xml.crypto.Data;
-
 import org.sqlite.SQLiteConnection;
 
 import com.base.database.DatabaseInfo;
 import com.base.database.OracleDB;
-import com.base.database.Table;
-import com.base.database.TableField;
-import com.base.function.SystemOpr;
 import com.base.layout.LayoutByRow;
 import com.platform.view.MainFrame;
-
-import oracle.jdbc.util.RepConversion;
 
 /**
  * 合作机构交易配置信息查询
@@ -100,8 +87,9 @@ public class LineTransInfo {
 		}
 		OracleDB db = new OracleDB(DatabaseInfo.getDatabaseInfo(sqliteConn, "DEV"));
 		connection = db.getConnection(); //初始
-		panelLayout.add(EnvListBox, 1, 60, 'N', 0, 0, 'L');
+		panelLayout.add(EnvListBox, 1, 100, 'N', 0, 0, 'L');
 		EnvListBox.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(connection != null)
 					try {
@@ -109,8 +97,13 @@ public class LineTransInfo {
 					} catch (SQLException e1) {
 						e1.printStackTrace();
 					}
-				OracleDB db = new OracleDB(DatabaseInfo.getDatabaseInfo(sqliteConn, ((JComboBox)e.getSource()).getSelectedItem().toString()));
-				connection = db.getConnection();
+				//OracleDB db = new OracleDB(DatabaseInfo.getDatabaseInfo(sqliteConn, ((JComboBox)e.getSource()).getSelectedItem().toString()));
+				//connection = db.getConnection();
+				
+				String sEnv = ((JComboBox)e.getSource()).getSelectedItem().toString();
+				DatabaseInfo databaseInfo = DatabaseInfo.getDatabaseInfo(sqliteConn, sEnv);
+				connection = databaseInfo.getDBConnection(databaseInfo);
+				
 				transConfigPanel.removeAll();
 				transConfigPanelLayout.removeAllComp();
 				transEntryPanel.removeAll();
@@ -128,6 +121,7 @@ public class LineTransInfo {
 		}
 		panelLayout.add(lineListBox, 1, 250, 'N', 0, 0, 'L');
 		lineListBox.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				showTransConfig(getSelectedLineID(), getSelectedFinType());
 				resetCompPos();
@@ -143,6 +137,7 @@ public class LineTransInfo {
 		}
 		panelLayout.add(finListBox, 1, 60, 'N', 0, 0, 'L');
 		finListBox.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				showTransConfig(getSelectedLineID(), getSelectedFinType());
 				resetCompPos();
@@ -187,6 +182,7 @@ public class LineTransInfo {
 		for(String transAction:TransActionList){
 			JLabel transActionLabel = new JLabel(transAction);
 			transActionLabel.addMouseListener(new MouseAdapter() {
+				@Override
 				public void mouseClicked(MouseEvent e) {
 					if(e.getClickCount() == 2){
 						String transInfo = ((JLabel)e.getSource()).getText();
@@ -239,6 +235,7 @@ public class LineTransInfo {
 		JLabel xIconLabel = new JLabel(xIcon);
 		xIconLabel.setName(transid);
 		xIconLabel.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent e) {
 				String transid = ((JLabel)e.getSource()).getName();
 				Component[] comps = transEntryPanel.getComponents();
@@ -262,6 +259,7 @@ public class LineTransInfo {
 		JLabel showFinButLabel = new JLabel("ShowFin");
 		showFinButLabel.setName(transid);
 		showFinButLabel.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent e) {
 				String transid = ((JLabel)e.getSource()).getName();
 				showFin(transid,getSelectedLineID());
@@ -317,6 +315,7 @@ public void showFin(String transid, String lineid){
 		JLabel xIconLabel = new JLabel(xIcon);
 		xIconLabel.setName(transid+"_FIN");
 		xIconLabel.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent e) {
 				String transid = ((JLabel)e.getSource()).getName();
 				Component[] comps = transEntryPanel.getComponents();
@@ -567,7 +566,8 @@ public void showFin(String transid, String lineid){
 	        width = 16;
 	        height = 16;
 	    }
-	    public void paintIcon(Component c, Graphics g, int x, int y) {
+	    @Override
+		public void paintIcon(Component c, Graphics g, int x, int y) {
 	        this.x_pos = x;
 	        this.y_pos = y;
 	        Color col = g.getColor();
@@ -588,10 +588,12 @@ public void showFin(String transid, String lineid){
 	            fileIcon.paintIcon(c, g, x + width, y_p);
 	        }
 	    }
-	    public int getIconWidth() {
+	    @Override
+		public int getIconWidth() {
 	        return width + (fileIcon != null ? fileIcon.getIconWidth() : 0);
 	    }
-	    public int getIconHeight() {
+	    @Override
+		public int getIconHeight() {
 	        return height;
 	    }
 	    public Rectangle getBounds() {

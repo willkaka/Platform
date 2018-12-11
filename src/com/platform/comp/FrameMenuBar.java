@@ -1,24 +1,16 @@
 package com.platform.comp;
 
-import java.awt.MenuItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
-import java.util.HashMap;
 import java.util.Vector;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.xml.ws.AsyncHandler;
-
 import com.base.bean.MenuConfig;
 import com.base.database.ClassUtil;
-import com.base.database.Table;
 import com.platform.view.MainFrame;
 
 public class FrameMenuBar extends JMenuBar {

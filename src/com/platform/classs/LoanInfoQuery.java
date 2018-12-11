@@ -1,22 +1,13 @@
 package com.platform.classs;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.Connection;
-import java.util.Vector;
-
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import org.sqlite.SQLiteConnection;
 
-import com.base.database.OracleDB;
-import com.base.database.Table;
-import com.base.database.TableField;
 import com.base.layout.LayoutByRow;
 import com.platform.view.MainFrame;
 

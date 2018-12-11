@@ -14327,3 +14327,16 @@ zenith['ziniŋ]n.天顶；极点
 zephyr['zefә]n.和风 ；西风
 zest[zest]n.刺激性；热心,兴趣
 zigzag['zigzæg]n.&a.之字形(的),v.弯弯曲曲地进行
+sub[]
+org[]
+acc[]
+calc[]
+corp[]
+inte[]
+irr[]
+las[]
+sterm[]
+trans[]
+update[]
+
+

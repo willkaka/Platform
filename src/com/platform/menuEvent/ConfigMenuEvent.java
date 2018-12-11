@@ -2,19 +2,13 @@ package com.platform.menuEvent;
 
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.sql.Connection;
 import java.util.Vector;
 
 import javax.swing.JFrame;
-import javax.swing.JTable;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.TableModel;
-
+import javax.swing.WindowConstants;
 import org.sqlite.SQLiteConnection;
 
-import com.base.bean.MenuConfig;
 import com.base.comp.JTablePanel;
-import com.base.database.SqliteDB;
 import com.base.database.Table;
 import com.base.layout.LayoutByRow;
 import com.platform.view.MainFrame;
@@ -28,8 +22,9 @@ public class ConfigMenuEvent {
 		System.out.println("configMenuEvent");
 		
 		configFrame.setBounds(450, 200, 800, 625);
-		configFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		configFrame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		configFrame.addComponentListener(new ComponentAdapter() {
+			@Override
 			public void componentResized(ComponentEvent e) {    //窗口大小改变事件
 				frameLayout.setRowPos();
 			}
@@ -42,7 +37,7 @@ public class ConfigMenuEvent {
 		Vector tableColTitles = new Vector();
 		Vector tableRecords = new Vector();
 		try{
-			tableColTitles = Table.getTableFieldsComment("menuconfig", connection);
+			tableColTitles = Table.getTableFieldsComment("menuconfig", null, connection);
 			tableRecords = Table.getTableRecords("menuconfig", null, connection);
 			
 		}catch (Exception e) {

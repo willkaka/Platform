@@ -7,23 +7,15 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.security.SecureClassLoader;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -51,12 +43,11 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.sqlite.SQLiteConnection;
 
-import com.base.database.DatabaseInfo;
-import com.base.database.OracleDB;
+import com.base.function.DirectoryOpr;
 import com.base.function.StringUtil;
 import com.base.function.SystemOpr;
 import com.base.layout.LayoutByRow;
-import com.platform.classs.LineTransInfo.CloseXIcon;
+import com.base.readfile.OperateTxtFile;
 import com.platform.view.MainFrame;
 
 /**
@@ -90,6 +81,8 @@ public class GitCommitFileList {
 	
 	private JFileChooser fileChooser = new JFileChooser();
 
+	private JTextField BegTimeTextField = new JTextField();
+	private JTextField EndTimeTextField = new JTextField();
 	//private JTextField localPathTextField = new JTextField();
 	private JComboBox commitUserBox = new JComboBox<>();
 	private String commitUser = "ALL";
@@ -118,6 +111,7 @@ public class GitCommitFileList {
 		
 		mainPanelLayout.add(localPathTextField, 1, 250, 'N', 0, 0, 'L');
 		localPathTextField.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				actionflag = "localPathTextField";
 				JTextField tempfield = (JTextField) e.getSource();
@@ -153,6 +147,7 @@ public class GitCommitFileList {
 		
 		mainPanelLayout.add(commitUserBox, 1, 150, 'N', 0, 0, 'L');
 		commitUserBox.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(!"localPathTextField".equals(actionflag)){
 					JComboBox tempbox = (JComboBox) e.getSource();
@@ -178,12 +173,70 @@ public class GitCommitFileList {
 					showUserAllFileList(getLocalPath(),getCommitUser());
 			}
 		});
-		mainPanelLayout.add(showUserAllFileBut, 1, 150, 'N', 0, 0, 'L');
 		
-		mainPanelLayout.setRowInfo(2, 100, 10, 10);
-		mainPanelLayout.setRowGap(2, 0, 0, 0);
-		mainPanelLayout.add(commitListScroll, 2, 300, 'V', 1, 0, 'L');
-		mainPanelLayout.add(fileListScroll, 2, 500, 'B', 1, 1, 'L');
+		//--------------------------------------------
+		JButton delNoUserChgFileBut = new JButton("删除非本人改动的程序");
+		delNoUserChgFileBut.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String sLocalDir = localPathTextField.getText();
+				String sUser = commitUserBox.getSelectedItem().toString();
+				
+				ArrayList<HashMap<String, Object>> aChgPgmMapList = getCommitList(sLocalDir,sUser,null,null);
+				ArrayList<String> aChgPgmList = new ArrayList<>();
+				for(HashMap<String, Object> commitInfo:aChgPgmMapList){
+					List<DiffEntry> aDifEntLst = null;
+					try {
+						aDifEntLst = getDifEntLst(sLocalDir,commitInfo.get("CommitID").toString());
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					if (aDifEntLst == null) continue;
+						
+					for(DiffEntry entry:aDifEntLst){
+						String sPath = sLocalDir+"/"+entry.getOldPath();
+						sPath = sPath.replace("/", "\\");
+						System.out.println( sPath );
+						aChgPgmList.add( sPath );
+						//OperateTxtFile.writeToTxtFile2( "D:/DSPM_20180720_1.txt",sPath);
+					}
+				}
+				
+				ArrayList<String> aAllFileList = DirectoryOpr.getAllFilesPath(sLocalDir,"ALL");
+				
+				for(String sFilePath:aAllFileList){
+					File fFile = new File(sFilePath);
+					if(!fFile.isDirectory()){
+						if(!aChgPgmList.contains(sFilePath)){
+							//OperateTxtFile.writeToTxtFile2( "D:/DSPM_20180720_2.txt","del:"+sFilePath);
+							fFile.delete();
+							//OperateTxtFile.writeToTxtFile2("D:/DSPM_20180720_2.txt","删除文件："+sFilePath+",处理结果："+ fFile.delete() );
+						}
+					}
+				}
+				DirectoryOpr.delEmptyDirectory(sLocalDir);
+			}
+		});
+		
+		mainPanelLayout.add(showUserAllFileBut, 1, 150, 'N', 0, 0, 'L');
+		mainPanelLayout.add(delNoUserChgFileBut, 1, 150, 'N', 0, 0, 'L');
+		
+		mainPanelLayout.setRowInfo(2, 20, 10, 10);
+		JLabel BegTimeLabel = new JLabel("开始日期：");
+		JLabel EndTimeLabel = new JLabel("结束日期：");
+		mainPanelLayout.add(BegTimeLabel, 2, 65, 'N', 0, 0, 'L');
+		mainPanelLayout.add(BegTimeTextField, 2, 150, 'N', 0, 0, 'L');
+		mainPanelLayout.add(EndTimeLabel, 2, 65, 'N', 0, 0, 'L');
+		mainPanelLayout.add(EndTimeTextField, 2, 150, 'N', 0, 0, 'L');
+		
+		mainPanelLayout.setRowInfo(3, 100, 10, 10);
+		mainPanelLayout.setRowGap(3, 0, 0, 0);
+		mainPanelLayout.add(commitListScroll, 3, 300, 'B', 0.5f, 1, 'L');
+		
+		mainPanelLayout.setRowInfo(4, 100, 10, 10);
+		mainPanelLayout.setRowGap(4, 0, 0, 0);
+		mainPanelLayout.add(fileListScroll, 4, 500, 'B', 0.5f, 1, 'L');
 		
 		mainPanelLayout.setCompLayout(commitListScroll, commitListSrcollLayout);
 		mainPanelLayout.setCompLayout(fileListScroll, fileListSrcollLayout);
@@ -210,7 +263,7 @@ public class GitCommitFileList {
 	}
 	
 	public void showCommitList(String gitLocalDir, String commitUser){
-		List<String> commitList = getCommitList(gitLocalDir,"ALL");
+		ArrayList<HashMap<String, Object>> commitList = getCommitList(gitLocalDir,commitUser,BegTimeTextField.getText(),EndTimeTextField.getText());
 		List<String> commitUsers = new ArrayList<>();
 		
 		commitListPanel.removeAll();
@@ -219,27 +272,29 @@ public class GitCommitFileList {
 		commitUserBox.addItem("ALL");
 		
 		int lineNum = 0;
-		for(String commitInfo:commitList){
-			String[] infos = commitInfo.split("#");
+		int iCommitListHeight = 0;
+		for(HashMap<String, Object> commitInfo:commitList){
+			//String[] infos = commitInfo.split("#");
 			
-			if(!commitUsers.contains(infos[1])){
-				commitUsers.add(infos[1]);
-				commitUserBox.addItem(infos[1]);
+			if(!commitUsers.contains(commitInfo.get("Name"))){
+				commitUsers.add(commitInfo.get("Name").toString());
+				commitUserBox.addItem(commitInfo.get("Name"));
 			}
 			
-			if(commitUser != null && !"".equals(commitUser) && !"ALL".equals(commitUser) && !infos[1].equals(commitUser))
+			if(commitUser != null && !"".equals(commitUser) && !"ALL".equals(commitUser) && !commitInfo.get("Name").equals(commitUser))
 				continue;
 			
 			JLabel commitInfoLabel = new JLabel();
 			//System.out.println(commitInfo);
-			commitInfoLabel.setText("<html><body>"+infos[1] + " " +infos[2] +"<p>"+ infos[3]+"<body></html>");  //1-name  2-time 3-comment
+			commitInfoLabel.setText("<html><body>"+commitInfo.get("Name") + " " +commitInfo.get("CommitTime") +"<p>"+ commitInfo.get("Comment")+"<body></html>");  //1-name  2-time 3-comment
 			//commitInfoLabel.setText(infos[1] + " " +infos[2] +System.getProperty("line.separator")+ infos[3]);  //1-name  2-time 3-comment
-			commitInfoLabel.setName(infos[0]); //commitid
+			commitInfoLabel.setName(commitInfo.get("CommitID").toString()); //commitid
 			commitInfoLabel.addMouseListener(new MouseAdapter() {
+				@Override
 				public void mouseClicked(MouseEvent e) {
 					if(e.getClickCount() == 2){
 						String commitID = ((JLabel)e.getSource()).getName();//0-40
-						showFileList(commitID,infos[1],infos[2]);
+						showFileList(commitID,commitInfo.get("Name").toString(),commitInfo.get("CommitTime").toString());
 					}
 				}
 			});
@@ -247,13 +302,14 @@ public class GitCommitFileList {
 			lineNum++;
 			commitListPanelLayout.setRowInfo(lineNum, 40, 5, 0);
 			commitListPanelLayout.setRowGap(lineNum, 5, 0, 5);
+			iCommitListHeight = iCommitListHeight + 40 + 5;  
 			commitListPanelLayout.add(commitInfoLabel, lineNum, 50, 'H', 0, 1, 'L');
 		}
 		commitUserBox.setSelectedItem(commitUser);
 		
 		commitListPanelLayout.setRowPos();
 		
-		commitListPanel.setPreferredSize(new Dimension(commitListScroll.getWidth()-40, lineNum*25+10));
+		commitListPanel.setPreferredSize(new Dimension(commitListScroll.getWidth()-40, iCommitListHeight+10));
 		commitListPanel.revalidate(); // 告诉其他部件,我的宽高变了
 		
 		this.frame.getRightPanel().repaint();
@@ -262,9 +318,9 @@ public class GitCommitFileList {
 	
 	public void showFileList(String commitID,String user,String time){
 		
-		List<DiffEntry> filelist = null;
+		List<DiffEntry> aDifEntLst = null;
 		try {
-			filelist = getFileList(localPathTextField.getText(),commitID);
+			aDifEntLst = getDifEntLst(localPathTextField.getText(),commitID);
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -289,6 +345,7 @@ public class GitCommitFileList {
 		JLabel xIconLabel = new JLabel(xIcon);
 		xIconLabel.setName(commitID);
 		xIconLabel.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent e) {
 				String commitid = ((JLabel)e.getSource()).getName();
 				Component[] comps = fileListPanel.getComponents();
@@ -311,6 +368,7 @@ public class GitCommitFileList {
 		JLabel copyLabel = new JLabel("CopyToClip");
 		copyLabel.setName(commitID);
 		copyLabel.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent e) {
 				String commitid = ((JLabel)e.getSource()).getName();
 				Component[] comps = fileListPanel.getComponents();
@@ -335,7 +393,7 @@ public class GitCommitFileList {
 		entryPanelLayout.add(copyLabel, 1, 100, 'N', 0, 0, 'L');
 		
 		int lineNum = 1;
-		for(DiffEntry entry:filelist){
+		for(DiffEntry entry:aDifEntLst){
 			JLabel entryLabel = new JLabel(entry.getOldPath());
 			
 			lineNum++;
@@ -377,6 +435,7 @@ public class GitCommitFileList {
 		JLabel xIconLabel = new JLabel(xIcon);
 		xIconLabel.setName(commitUser);
 		xIconLabel.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent e) {
 				String commitid = ((JLabel)e.getSource()).getName();
 				Component[] comps = fileListPanel.getComponents();
@@ -399,6 +458,7 @@ public class GitCommitFileList {
 		JLabel copyLabel = new JLabel("CopyToClip");
 		copyLabel.setName(commitUser);
 		copyLabel.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent e) {
 				String commitid = ((JLabel)e.getSource()).getName();
 				Component[] comps = fileListPanel.getComponents();
@@ -426,16 +486,16 @@ public class GitCommitFileList {
 		ArrayList<String> files = new ArrayList<>(); //去重
 		
 		//取所有提交信息
-		List<String> commitList = getCommitList(gitLocalDir,"1");
-		for(String commitInfo:commitList){
-			String[] infos = commitInfo.split("#");
+		ArrayList<HashMap<String, Object>> commitList = getCommitList(gitLocalDir,commitUserBox.getSelectedItem().toString(),BegTimeTextField.getText(),EndTimeTextField.getText());
+		for(HashMap<String, Object> commitInfo:commitList){
+			//String[] infos = commitInfo.split("#");
 			
-			if("ALL".equals(commitUser) || infos[1].equals(commitUser)){
-				String commitID = infos[0];
+			if("ALL".equals(commitUser) || commitInfo.get("Name").equals(commitUser)){
+				String commitID = commitInfo.get("CommitID").toString();
 				List<DiffEntry> diffEntries = null;
 				try {
 					//System.out.println("---01--"+commitID);
-					diffEntries = getFileList(localPathTextField.getText(),commitID);
+					diffEntries = getDifEntLst(localPathTextField.getText(),commitID);
 					if(diffEntries != null){
 						for(DiffEntry entry:diffEntries){
 							if(!filelist.contains(entry.getOldPath()) ) filelist.add(entry.getOldPath());
@@ -488,8 +548,8 @@ public class GitCommitFileList {
 	 * @param gitLocalDir git本地文件夹位置
 	 * @return
 	 */
-	public List<String> getCommitList(String gitLocalDir, String commitType){
-        ArrayList<String> commitList = new ArrayList<String>();
+	public ArrayList<HashMap<String,Object>> getCommitList(String gitLocalDir, String sCommitUser, String sBegDate, String sEndDate){
+        ArrayList<HashMap<String, Object>> commitList = new ArrayList<HashMap<String,Object>>();
 		
 		File gitDir = new File(gitLocalDir); 
         Git git = null;
@@ -505,24 +565,39 @@ public class GitCommitFileList {
 
                 Iterable<RevCommit> gitlog= git.log().call();  
                 for (RevCommit revCommit : gitlog) {  
-                    String version = revCommit.getName();//版本号  (commit id)
-                    String name = revCommit.getAuthorIdent().getName();  
-                    String email = revCommit.getAuthorIdent().getEmailAddress();  
-                    String comment = revCommit.getShortMessage();
-                    if(comment == null || "".equals(comment)) comment = "null";
-                    if(StringUtil.length(comment)>30) comment = StringUtil.subStringByByte(comment, 0, 30);
-                    
+                	
                     Calendar c=Calendar.getInstance();
-                    int seconds = revCommit.getCommitTime();//数据库中提取的数据
+                    int seconds = revCommit.getCommitTime();
                     long millions=new Long(seconds).longValue()*1000;
                     c.setTimeInMillis(millions);
-                    SimpleDateFormat sdft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    String dateString = sdft.format(c.getTime());
+                    SimpleDateFormat sdft_date = new SimpleDateFormat("yyyy-MM-dd");
+                    SimpleDateFormat sdft_time = new SimpleDateFormat("HH:mm:ss");
+                    String sCommitTime = sdft_time.format(c.getTime());
+                    String sCommitDate = sdft_date.format(c.getTime());
                     
-                    String ss = version + "#" + name + "#" + dateString +"#"+comment;
-                    //System.out.println("--ss:"+ss + "  type:"+revCommit.getType());
-                    if("ALL".equals(commitType) || (commitType.equals("1") && comment.length()>5 && !"Merge".equals(comment.substring(0, 5))))
-                    	commitList.add(ss);
+                    String sCommitByUser = revCommit.getAuthorIdent().getName();
+                    
+                    if(!sCommitUser.equals("ALL") && !sCommitUser.equals(sCommitByUser)) continue;
+                    if(!StringUtil.isNull(sBegDate) && sCommitDate.compareTo(sBegDate) < 0) continue;
+                    if(!StringUtil.isNull(sEndDate) && sCommitDate.compareTo(sEndDate) > 0) continue;
+                    
+                	HashMap<String, Object> commitinfo = new HashMap<>();
+                	commitinfo.put("CommitID", revCommit.getName());
+                	commitinfo.put("Name", sCommitByUser);
+                	commitinfo.put("Email", revCommit.getAuthorIdent().getEmailAddress());
+                	commitinfo.put("Comment", revCommit.getShortMessage());
+                	commitinfo.put("CommitTime", sCommitDate + ' ' + sCommitTime);
+                	commitinfo.put("CommitType", revCommit.getType());
+                    
+                	System.out.println(commitinfo.get("CommitID").toString() + '\t'
+                			          +commitinfo.get("Name").toString()+ '\t'
+                			          +commitinfo.get("Email").toString()+ '\t'
+                			          +commitinfo.get("Comment").toString()+ '\t'
+                			          +commitinfo.get("CommitTime").toString()+ '\t'
+                			          +commitinfo.get("CommitType").toString()
+                			          );
+                	
+                	commitList.add(commitinfo);
                 }  
                 
             }catch (NoHeadException e) {  
@@ -545,7 +620,7 @@ public class GitCommitFileList {
      * @return 
      * @throws Exception
      */
-    public static List<DiffEntry> getFileList(String gitRoot, String revision) throws Exception {
+    public static List<DiffEntry> getDifEntLst(String gitRoot, String revision) throws Exception {
         Git git = Git.open(new File(gitRoot));
         Repository repository = git.getRepository();
 
@@ -601,7 +676,8 @@ public class GitCommitFileList {
 	        width = 16;
 	        height = 16;
 	    }
-	    public void paintIcon(Component c, Graphics g, int x, int y) {
+	    @Override
+		public void paintIcon(Component c, Graphics g, int x, int y) {
 	        this.x_pos = x;
 	        this.y_pos = y;
 	        Color col = g.getColor();
@@ -622,10 +698,12 @@ public class GitCommitFileList {
 	            fileIcon.paintIcon(c, g, x + width, y_p);
 	        }
 	    }
-	    public int getIconWidth() {
+	    @Override
+		public int getIconWidth() {
 	        return width + (fileIcon != null ? fileIcon.getIconWidth() : 0);
 	    }
-	    public int getIconHeight() {
+	    @Override
+		public int getIconHeight() {
 	        return height;
 	    }
 	    public Rectangle getBounds() {

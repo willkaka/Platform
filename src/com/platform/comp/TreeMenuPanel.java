@@ -2,37 +2,23 @@ package com.platform.comp;
 
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
-import java.lang.reflect.Method;
 import java.sql.Connection;
-import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
-import javax.xml.soap.Node;
-
 import com.base.bean.MenuConfig;
-import com.base.bean.Menuconfig2;
-import com.base.comp.JTablePanel;
 import com.base.database.ClassUtil;
-import com.base.database.Table;
 import com.base.function.StringUtil;
 import com.base.layout.LayoutByRow;
 import com.platform.view.MainFrame;
@@ -91,6 +77,7 @@ public class TreeMenuPanel extends JPanel{
 		for(MenuConfig menu: menuConfigs) {
 			menuBox.addItem(menu.getMenuid() + " " + menu.getText());
 			menuBox.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					JComboBox tempMenuBox = (JComboBox) e.getSource(); 
 					invokeMethod(tempMenuBox.getSelectedItem().toString().substring(0,7));
@@ -101,7 +88,8 @@ public class TreeMenuPanel extends JPanel{
 			root.add(node);			
 		}
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
-		    public void valueChanged(TreeSelectionEvent evt) {
+		    @Override
+			public void valueChanged(TreeSelectionEvent evt) {
 		    	// 获取被选中的相关节点
 		        TreePath path = evt.getPath();
 		        TreePath[] paths = evt.getPaths();
@@ -127,6 +115,7 @@ public class TreeMenuPanel extends JPanel{
         panelLayout.setCompLayout(tableScrollPane, tableScrollPaneLayout);
         //tableScrollPaneLayout.setResetPos(false);
         tableScrollPane.addMouseMotionListener(new MouseMotionAdapter(){
+			@Override
 			public void mouseMoved(MouseEvent e) {
 				getMainFrame().getFrame().setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 			}

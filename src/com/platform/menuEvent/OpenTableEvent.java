@@ -9,16 +9,11 @@ import java.util.Vector;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.TableModel;
-
+import javax.swing.WindowConstants;
 import org.sqlite.SQLiteConnection;
 
-import com.base.bean.MenuConfig;
 import com.base.comp.JTablePanel;
-import com.base.database.SqliteDB;
 import com.base.database.Table;
 import com.base.layout.LayoutByRow;
 import com.platform.view.MainFrame;
@@ -42,6 +37,7 @@ public class OpenTableEvent {
 		configFrame.setBounds(450, 200, 800, 625);
 		//窗口大小改变事件
 		configFrame.addComponentListener(new ComponentAdapter() {
+			@Override
 			public void componentResized(ComponentEvent e) { 
 				frameLayout.setRowPos();
 			}
@@ -51,6 +47,7 @@ public class OpenTableEvent {
 		JLabel inputTableNameLabel = new JLabel("请输入表名：");
 		frameLayout.add(inputTableNameLabel, 1, 100, 'N', 0, 0, 'L');
 		inputTableNameTextField.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				showTableInfo();
 			}
@@ -58,7 +55,7 @@ public class OpenTableEvent {
 		frameLayout.add(inputTableNameTextField, 1, 100, 'N', 0, 0, 'L');
 		frameLayout.setRowPos();
 		
-		configFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		configFrame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		configFrame.setVisible(true);
 		configFrame.repaint();
 	}
@@ -77,7 +74,7 @@ public class OpenTableEvent {
 		Vector tableColTitles = new Vector();
 		Vector tableRecords = new Vector();
 		try{
-			tableColTitles = Table.getTableFieldsComment(tableName, connection);
+			tableColTitles = Table.getTableFieldsComment(tableName, null, connection);
 			tableRecords = Table.getTableRecords(tableName, null, connection);
 			
 		}catch (Exception e) {

@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
@@ -23,12 +24,12 @@ import com.base.layout.LayoutByRow;
 import com.platform.view.MainFrame;
 
 /**
- * 查询数据表信息
+ * 查询Code_Library参数信息
  * @author huangyuanwei
  *
  */
-public class QueryTableInfo {
-	private final String tabName = "查询数据表信息";
+public class QueryCodeLibraryCode {
+	private final String tabName = "查询CL参数信息";
 	
 	private Connection sqliteConn = null;
 	private Connection connection = null;
@@ -39,7 +40,8 @@ public class QueryTableInfo {
 	
 	private TablePanel tablePanel = null;
 	
-	private JComboBox tableNameComboBox = new JComboBox();
+	private JComboBox EnvListBox = null;
+	private JTextField codeNameField = new JTextField();
 	
 	public void execute(MainFrame frame, SQLiteConnection sqliteConnection){
 		System.out.println("---execute "+tabName+"-----");
@@ -60,7 +62,7 @@ public class QueryTableInfo {
 		JLabel inputPromptLabel0 = new JLabel("数据环境：");
 		mainPanelLayout.add(inputPromptLabel0, 1, 65, 'N', 0, 0, 'L');
 		
-		JComboBox EnvListBox = new JComboBox();
+		EnvListBox = new JComboBox();
 		List<DatabaseInfo> envList = DatabaseInfo.getEnvList(this.sqliteConn); 
 		for(DatabaseInfo env:envList){
 			EnvListBox.addItem(env.getEnvname());
@@ -77,25 +79,9 @@ public class QueryTableInfo {
 					} catch (SQLException e1) {
 						e1.printStackTrace();
 					}
-				//OracleDB db = new OracleDB(DatabaseInfo.getDatabaseInfo(sqliteConn, ((JComboBox)e.getSource()).getSelectedItem().toString()));
-				//connection = DatabaseInfo.getDBConnection(DatabaseInfo.getDatabaseInfo(sqliteConn, ((JComboBox)e.getSource()).getSelectedItem().toString()));
-				//connection = OracleDB.getConnection();
 				String sEnv = ((JComboBox)e.getSource()).getSelectedItem().toString();
 				DatabaseInfo databaseInfo = DatabaseInfo.getDatabaseInfo(sqliteConn, sEnv);
 				connection = databaseInfo.getDBConnection(databaseInfo);
-				if(databaseInfo.getDbtype().equals("MySql")){
-					try {
-						tableNameComboBox.removeAllItems();
-						List<Table> tableList = Table.getMysqlTableList(connection);
-						for(Table table:tableList){
-							tableNameComboBox.addItem(table.getTableName());
-						}
-					} catch (Exception e1) {
-						e1.printStackTrace();
-					} 
-					
-				}
-				
 				
 				//tableInfoJTable.removeAll();
 				//tableInfoTableLayout.removeAllComp();
@@ -103,14 +89,14 @@ public class QueryTableInfo {
 			}
 		});
 		
-		JLabel inputPromptLabel1 = new JLabel("    表名：");
-		mainPanelLayout.add(inputPromptLabel1, 1, 78, 'N', 0, 0, 'L');
+		JLabel inputPromptLabel1 = new JLabel("    参数名称：");
+		mainPanelLayout.add(inputPromptLabel1, 1, 80, 'N', 0, 0, 'L');
 		
-		mainPanelLayout.add(tableNameComboBox, 1, 200, 'N', 0, 0, 'L');
-		tableNameComboBox.addActionListener(new ActionListener() {
+		mainPanelLayout.add(codeNameField, 1, 200, 'N', 0, 0, 'L');
+		codeNameField.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				showTableInfo(tableNameComboBox.getSelectedItem().toString());				
+				showTableInfo(codeNameField.getText());				
 				resetCompPos();
 			}
 		});
@@ -137,17 +123,31 @@ public class QueryTableInfo {
 		resetCompPos();
 	}
 	
-	public void showTableInfo(String tableName){
+	public void showTableInfo(String sCodeName){
 		Vector cols = null;
 		Vector rows = null;
 		try{
-			cols = Table.geTableFields(tableName, null, connection);
-			rows = Table.getTableRecords(tableName, null, connection);			
+			String sEnv = EnvListBox.getSelectedItem().toString();
+			DatabaseInfo databaseInfo = DatabaseInfo.getDatabaseInfo(sqliteConn, sEnv);
+			
+			HashMap<String,Object> keyAndValues = new HashMap<>();
+			if(databaseInfo.getDbtype().equals("Oracle")){
+				keyAndValues.put("codeno", sCodeName);
+				keyAndValues.put("order", "order by itemno");
+			}else if(databaseInfo.getDbtype().equals("MySql")){
+				keyAndValues.put("code_no", sCodeName);
+				keyAndValues.put("order", "order by item_no");
+			}
+			
+			keyAndValues.put("select", "*");
+			
+			cols = Table.geTableFields("Code_Library",keyAndValues, connection);
+			rows = Table.getTableRecords("Code_Library", keyAndValues, connection);			
 		}catch(SQLException e){
 			e.printStackTrace();
 			//System.out.println("ErrorCode:"+e.getErrorCode());
 			if(e.getErrorCode() == 942){
-				JOptionPane.showMessageDialog(null, "数据表："+tableName+"不存在！");
+				JOptionPane.showMessageDialog(null, "参数"+sCodeName+"不存在！");
 				return;
 			}
 			//System.out.println(""+);
@@ -161,4 +161,5 @@ public class QueryTableInfo {
 	public void resetCompPos(){
 		this.frame.getFrameLayout().setRowPos();
 	}
+
 }

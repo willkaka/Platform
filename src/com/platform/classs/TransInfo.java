@@ -9,24 +9,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.security.PrivilegedActionException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
-
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
@@ -34,12 +29,8 @@ import org.sqlite.SQLiteConnection;
 
 import com.base.database.DatabaseInfo;
 import com.base.database.OracleDB;
-import com.base.database.Table;
-import com.base.database.TableField;
 import com.base.layout.LayoutByRow;
 import com.platform.view.MainFrame;
-
-import oracle.jdbc.util.RepConversion;
 
 /**
  * 由TransNo查询TransID信息
@@ -99,8 +90,9 @@ public class TransInfo {
 		}
 		OracleDB db = new OracleDB(DatabaseInfo.getDatabaseInfo(sqliteConn, "DEV"));
 		connection = db.getConnection(); //初始
-		panelLayout.add(EnvListBox, 1, 60, 'N', 0, 0, 'L');
+		panelLayout.add(EnvListBox, 1, 100, 'N', 0, 0, 'L');
 		EnvListBox.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(connection != null)
 					try {
@@ -124,6 +116,7 @@ public class TransInfo {
 		
 		panelLayout.add(transNoField, 1, 100, 'N', 0, 0, 'L');
 		transNoField.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				showTransConfig( getInputTransNo() );				
 				resetCompPos();
@@ -166,6 +159,7 @@ public class TransInfo {
 		for(String transAction:TransActionList){
 			JLabel transActionLabel = new JLabel(transAction);
 			transActionLabel.addMouseListener(new MouseAdapter() {
+				@Override
 				public void mouseClicked(MouseEvent e) {
 					if(e.getClickCount() == 2){
 						String transid = ((JLabel)e.getSource()).getText().substring(0, 6);
@@ -212,6 +206,7 @@ public class TransInfo {
 		JLabel xIconLabel = new JLabel(xIcon);
 		xIconLabel.setName(transid);
 		xIconLabel.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent e) {
 				String transid = ((JLabel)e.getSource()).getName();
 				Component[] comps = transEntryPanel.getComponents();
@@ -359,7 +354,8 @@ public class TransInfo {
 	        width = 16;
 	        height = 16;
 	    }
-	    public void paintIcon(Component c, Graphics g, int x, int y) {
+	    @Override
+		public void paintIcon(Component c, Graphics g, int x, int y) {
 	        this.x_pos = x;
 	        this.y_pos = y;
 	        Color col = g.getColor();
@@ -380,10 +376,12 @@ public class TransInfo {
 	            fileIcon.paintIcon(c, g, x + width, y_p);
 	        }
 	    }
-	    public int getIconWidth() {
+	    @Override
+		public int getIconWidth() {
 	        return width + (fileIcon != null ? fileIcon.getIconWidth() : 0);
 	    }
-	    public int getIconHeight() {
+	    @Override
+		public int getIconHeight() {
 	        return height;
 	    }
 	    public Rectangle getBounds() {

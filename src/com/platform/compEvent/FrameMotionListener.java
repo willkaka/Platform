@@ -43,7 +43,7 @@ public class FrameMotionListener extends MouseMotionAdapter{
 		BigDecimal bg = new BigDecimal(leftRate);
         float f1 = bg.setScale(2, BigDecimal.ROUND_HALF_UP).floatValue();
 		float rightRate = 1 - f1;
-		this.frame.getFrameLayout().resetCompInfo(this.frame.getLeftPanel(), 1, 100, 'B', 1, (float)leftRate, 'L');
+		this.frame.getFrameLayout().resetCompInfo(this.frame.getLeftPanel(), 1, 100, 'B', 1, leftRate, 'L');
 		this.frame.getFrameLayout().resetCompInfo(this.frame.getRightPanel(), 1, 420, 'B', 1, rightRate, 'L');
 		this.frame.getFrameLayout().setRowPos(this.frame.getFrame().getWidth(), this.frame.getFrame().getHeight());
 		this.frame.getLeftPanel().getPanelLayout().setRowPos();

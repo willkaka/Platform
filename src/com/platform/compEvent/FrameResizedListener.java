@@ -3,12 +3,6 @@ package com.platform.compEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-
 import com.platform.view.MainFrame;
 
 public class FrameResizedListener extends ComponentAdapter {

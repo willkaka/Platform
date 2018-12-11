@@ -79,7 +79,8 @@ public class testTree extends JPanel
     }
 
     /** Required by TreeSelectionListener interface. */
-    public void valueChanged(TreeSelectionEvent e) {
+    @Override
+	public void valueChanged(TreeSelectionEvent e) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode)
                            tree.getLastSelectedPathComponent();
 
@@ -113,7 +114,8 @@ public class testTree extends JPanel
             }
         }
 
-        public String toString() {
+        @Override
+		public String toString() {
             return bookName;
         }
     }
@@ -234,7 +236,8 @@ public class testTree extends JPanel
         //Schedule a job for the event dispatch thread:
         //creating and showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
+            @Override
+			public void run() {
                 createAndShowGUI();
             }
         });
