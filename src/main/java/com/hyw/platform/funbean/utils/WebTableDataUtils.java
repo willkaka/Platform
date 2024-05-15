@@ -1,6 +1,6 @@
 package com.hyw.platform.funbean.utils;
 
-import com.hyw.platform.dbservice.dto.FieldAttr;
+import com.hyw.gdata.dto.FieldAttr;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class WebTableDataUtils {
 
-    public static List<Map<String,Object>> convertToMapList(List<Map<String,FieldAttr>> recordList){
+    public static List<Map<String,Object>> convertToMapList(List<Map<String, FieldAttr>> recordList){
         List<Map<String, Object>> dataMaps = new ArrayList<>();
         for(Map<String,FieldAttr> map:recordList) {
             Map<String, Object> fieldInfoMap = new LinkedHashMap<>();

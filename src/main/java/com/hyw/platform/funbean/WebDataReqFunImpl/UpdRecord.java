@@ -1,14 +1,13 @@
 package com.hyw.platform.funbean.WebDataReqFunImpl;
 
-import com.alibaba.fastjson.JSONObject;
-import com.hyw.platform.dbservice.DataService;
-import com.hyw.platform.dbservice.dto.TableFieldInfo;
-import com.hyw.platform.dbservice.utils.QueryUtil;
-import com.hyw.platform.dbservice.utils.SqlUtil;
+import com.hyw.gdata.DataService;
+import com.hyw.gdata.dto.TableFieldInfo;
+import com.hyw.gdata.utils.QueryUtil;
+import com.hyw.gdata.utils.SqlGenUtil;
 import com.hyw.platform.funbean.RequestFun;
+import com.hyw.platform.iservice.ConfigDatabaseInfoService;
 import com.hyw.platform.web.req.PublicReq;
 import com.hyw.platform.web.req.ValueObject;
-import com.hyw.platform.web.req.WebValueDto;
 import com.hyw.platform.web.resp.EventInfo;
 import com.hyw.platform.web.resp.NextOprDto;
 import com.hyw.platform.web.resp.PublicResp;
@@ -29,6 +28,8 @@ public class UpdRecord implements RequestFun {
 
     @Autowired
     private DataService dataService;
+    @Autowired
+    private ConfigDatabaseInfoService configDatabaseInfoService;
 
     @Override
     public PublicResp execute(PublicReq requestDto){
@@ -106,7 +107,7 @@ public class UpdRecord implements RequestFun {
                     valueObject.getValue().equals(valueObject.getDefValue())) continue;
             if(index>0) sql.append(QueryUtil.isBlankStr(sql.toString())?"":", ");
             //拼接字段值
-            sql.append(fieldName).append("=").append(SqlUtil.getFieldValue(fieldType, valueObject.getValue()));
+            sql.append(fieldName).append("=").append(SqlGenUtil.getFieldValue(fieldType, valueObject.getValue()));
             index++;
         }
 
@@ -116,7 +117,7 @@ public class UpdRecord implements RequestFun {
             if(index>0) sql.append(QueryUtil.isBlankStr(sql.toString())?"":" AND ");
             ValueObject valueObject = fieldValue.get(keyFieldName.getFieldName());
             sql.append(keyFieldName.getFieldName()).append("=")
-                    .append(SqlUtil.getFieldValue(keyFieldName.getFieldType(), valueObject.getDefValue()));
+                    .append(SqlGenUtil.getFieldValue(keyFieldName.getFieldType(), valueObject.getDefValue()));
             index++;
         }
         return sql.toString();

@@ -1,9 +1,9 @@
 package com.hyw.platform.funbean.WebDataReqFunImpl;
 
-import com.hyw.platform.dbservice.DataService;
-import com.hyw.platform.dbservice.dto.TableFieldInfo;
-import com.hyw.platform.dbservice.utils.QueryUtil;
-import com.hyw.platform.dbservice.utils.SqlUtil;
+import com.hyw.gdata.DataService;
+import com.hyw.gdata.dto.TableFieldInfo;
+import com.hyw.gdata.utils.QueryUtil;
+import com.hyw.gdata.utils.SqlGenUtil;
 import com.hyw.platform.exception.BizThrow;
 import com.hyw.platform.funbean.RequestFun;
 import com.hyw.platform.web.req.PublicReq;
@@ -94,7 +94,7 @@ public class DelRecord implements RequestFun {
         for(TableFieldInfo keyFieldName:keyFieldList) {
             if(index>0) sql.append(QueryUtil.isBlankStr(sql.toString())?"":" AND ");
             sql.append(keyFieldName.getFieldName()).append("=")
-                    .append(SqlUtil.getFieldValue(keyFieldName.getFieldType(), fieldValue.get(keyFieldName.getFieldName())));
+                    .append(SqlGenUtil.getFieldValue(keyFieldName.getFieldType(), fieldValue.get(keyFieldName.getFieldName())));
             index++;
         }
         return sql.toString();

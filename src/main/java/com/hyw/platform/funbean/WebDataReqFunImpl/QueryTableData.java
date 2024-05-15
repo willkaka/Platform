@@ -1,15 +1,16 @@
 package com.hyw.platform.funbean.WebDataReqFunImpl;
 
-import com.hyw.platform.dbservice.DataService;
-import com.hyw.platform.dbservice.dto.FieldAttr;
-import com.hyw.platform.dbservice.utils.DbUtil;
-import com.hyw.platform.dbservice.utils.SqlUtil;
+import com.hyw.gdata.DataService;
+import com.hyw.gdata.dto.FieldAttr;
+import com.hyw.gdata.utils.DbUtil;
+import com.hyw.gdata.utils.SqlGenUtil;
 import com.hyw.platform.exception.BizException;
 import com.hyw.platform.funbean.WebDataReqFun;
 import com.hyw.platform.funbean.WebTableDataReqFun;
 import com.hyw.platform.funbean.abs.RequestPubDto;
 import com.hyw.platform.funbean.abs.RequestTableDataUnit;
 import com.hyw.platform.funbean.utils.WebTableDataUtils;
+import com.hyw.platform.iservice.ConfigDatabaseInfoService;
 import com.hyw.platform.web.req.PublicReq;
 import com.hyw.platform.web.resp.webElement.TableNormal;
 import lombok.Getter;
@@ -29,6 +30,8 @@ public class QueryTableData extends RequestTableDataUnit<QueryTableData.QueryVar
 
     @Autowired
     private DataService dataService;
+    @Autowired
+    private ConfigDatabaseInfoService configDatabaseInfoService;
 
     /**
      * 输入参数检查
@@ -68,7 +71,7 @@ public class QueryTableData extends RequestTableDataUnit<QueryTableData.QueryVar
         sql = sql + " FROM " + variable.tableName;
 
         //连接数据库，查询数据，关闭数据库
-        Connection connection = dataService.getDatabaseConnection(variable.getDbName(),variable.getLibName());
+        Connection connection = configDatabaseInfoService.getConnection(variable.getDbName(),variable.getLibName());
         String whereCondition = null;
         Map<String, FieldAttr> fieldAttrMap = DbUtil.getFieldAttrMap(connection,variable.getDbName(),variable.getLibName(),variable.getTableName());
         if(StringUtils.isNotBlank(variable.getSelectField()) &&
@@ -77,7 +80,7 @@ public class QueryTableData extends RequestTableDataUnit<QueryTableData.QueryVar
             FieldAttr fieldAttr = fieldAttrMap.get(variable.getSelectField());
             if(null != fieldAttr){
                 whereCondition = variable.getSelectField() + " " + variable.getOperationType() + " " +
-                        SqlUtil.convertToExpression(variable.getFieldValue(),fieldAttr.getDataType());
+                        SqlGenUtil.convertToExpression(variable.getFieldValue(),fieldAttr.getDataType());
             }
         }
         if(StringUtils.isNotBlank(whereCondition)){

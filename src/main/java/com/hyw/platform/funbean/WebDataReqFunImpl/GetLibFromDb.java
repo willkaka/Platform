@@ -1,8 +1,9 @@
 package com.hyw.platform.funbean.WebDataReqFunImpl;
 
-import com.hyw.platform.dbservice.DataService;
-import com.hyw.platform.dbservice.utils.DbUtil;
+import com.hyw.gdata.DataService;
+import com.hyw.gdata.utils.DbUtil;
 import com.hyw.platform.funbean.WebDataReqFun;
+import com.hyw.platform.iservice.ConfigDatabaseInfoService;
 import com.hyw.platform.web.req.PublicReq;
 import com.hyw.platform.web.req.ValueObject;
 import com.hyw.platform.web.req.WebValueDto;
@@ -21,6 +22,8 @@ public class GetLibFromDb implements WebDataReqFun {
 
     @Autowired
     private DataService dataService;
+    @Autowired
+    private ConfigDatabaseInfoService configDatabaseInfoService;
 
     @Override
     public Map<String,Object> execute(PublicReq publicReq){
@@ -29,7 +32,7 @@ public class GetLibFromDb implements WebDataReqFun {
             return new HashMap<>();
         }
         String dbName = webValueDto.getWebInputValueMap().get("dbName").getValue().toString();
-        Connection connection = dataService.getDatabaseConnection(dbName,null);
+        Connection connection = configDatabaseInfoService.getConnection(dbName,null);
         List<String> libs = DbUtil.getLibraryNames(connection);
         dataService.closeConnection(connection);
 

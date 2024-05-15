@@ -1,6 +1,6 @@
 package com.hyw.platform.tservice.http;
 
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+//import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 //import okhttp3.*;
 import java.io.File;
 import java.io.IOException;

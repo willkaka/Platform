@@ -1,6 +1,5 @@
 package com.hyw.platform.exception;
 
-import com.hyw.platform.dbservice.exception.DbException;
 import org.apache.commons.lang3.StringUtils;
 
 public class BizThrow {

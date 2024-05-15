@@ -1,4 +1,9 @@
 
+/**
+  * PublicResp
+  * {"rtnCode":"","nextOprDto":{"eventInfoList":[]},"webElementDtoList":[]}
+  */
+
 function sucFreshAll(PublicResp){
     let rtnCode = PublicResp.rtnCode;
     let elementDtoList = PublicResp.webElementDtoList;

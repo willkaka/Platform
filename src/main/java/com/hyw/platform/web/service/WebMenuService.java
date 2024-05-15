@@ -1,8 +1,8 @@
 package com.hyw.platform.web.service;
 
 import com.alibaba.fastjson.JSON;
-import com.hyw.platform.dbservice.DataService;
-import com.hyw.platform.dbservice.NQueryWrapper;
+import com.hyw.gdata.DataService;
+import com.hyw.gdata.NQueryWrapper;
 import com.hyw.platform.web.model.WebEvent;
 import com.hyw.platform.web.model.WebMenu;
 import com.hyw.platform.web.model.WebTrigger;
@@ -10,6 +10,7 @@ import com.hyw.platform.web.resp.EventInfo;
 import com.hyw.platform.web.resp.webElement.WebElementDto;
 import com.hyw.platform.web.util.WebUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,10 +25,11 @@ public class WebMenuService {
     @Autowired
     private DataService dataService;
 
-    @SuppressWarnings("unchecked")
+
     public List<WebElementDto> getMenu(String parentMenu) {
         List<WebElementDto> webElementDtoDtoList = new ArrayList<>();
 
+        @SuppressWarnings("unchecked")
         List<WebMenu> webMenuList = dataService.list(new NQueryWrapper<WebMenu>()
                 .eq(WebMenu::getMenuParent, parentMenu)
                 .orderByAsc(WebMenu::getWebMenuId));
@@ -36,15 +38,9 @@ public class WebMenuService {
             webElementDto.setPId("root".equals(webMenu.getMenuParent()) ? "menuArea" : webMenu.getMenuParent());
             webElementDto.setId(webMenu.getMenu());
             webElementDto.setType("root".equals(webMenu.getMenuParent()) ? "Group" : "Menu");
-            if ("root".equals(webMenu.getMenuParent())) {
-                webElementDto.setId(webMenu.getMenu())
-                        .setDesc(webMenu.getMenuDesc())
-                        .setEventInfoList(getEventInfoList(webMenu.getMenu()));
-            } else {
-                webElementDto.setId(webMenu.getMenu())
-                        .setDesc(webMenu.getMenuDesc())
-                        .setEventInfoList(getEventInfoList(webMenu.getMenu()));
-            }
+            webElementDto.setId(webMenu.getMenu());
+            webElementDto.setDesc(webMenu.getMenuDesc());
+            webElementDto.setEventInfoList(getEventInfoList(webMenu.getMenu(),"menuEvent"));
             webElementDto.setSubElementList(getMenu(webMenu.getMenu()));
             webElementDtoDtoList.add(webElementDto);
         }
@@ -57,13 +53,13 @@ public class WebMenuService {
      * @param menu 菜单
      * @return List<EventInfo>
      */
-    private List<EventInfo> getEventInfoList(String menu) {
+    private List<EventInfo> getEventInfoList(String menu,String type) {
         List<EventInfo> eventInfoList = new ArrayList<>();
 
         //取配置的事件
         List<WebEvent> webEventInfoList = dataService.list(new NQueryWrapper<WebEvent>()
                 .eq(WebEvent::getMenu, menu)
-                .eq(WebEvent::getPage,"menuEvent"));
+                .eq(WebEvent::getPage, StringUtils.isBlank(type)?"start_page":type));
         for (WebEvent webEventInfo : webEventInfoList) {
             //取由该事件触发的事件
             List<WebTrigger> webTriggerInfoList = dataService.list(new NQueryWrapper<WebTrigger>()

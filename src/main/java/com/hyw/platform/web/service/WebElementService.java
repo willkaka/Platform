@@ -2,10 +2,9 @@ package com.hyw.platform.web.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.hyw.platform.dbservice.DataService;
-import com.hyw.platform.dbservice.NQueryWrapper;
-import com.hyw.platform.dbservice.dto.FieldAttr;
-import com.hyw.platform.dbservice.dto.TableFieldInfo;
+import com.hyw.gdata.DataService;
+import com.hyw.gdata.NQueryWrapper;
+import com.hyw.gdata.dto.TableFieldInfo;
 import com.hyw.platform.funbean.WebDataReqFun;
 import com.hyw.platform.funbean.WebTableDataReqFun;
 import com.hyw.platform.web.model.*;

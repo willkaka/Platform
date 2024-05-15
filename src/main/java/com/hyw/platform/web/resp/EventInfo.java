@@ -1,6 +1,6 @@
 package com.hyw.platform.web.resp;
 
-import com.hyw.platform.dbservice.dto.FieldAttr;
+import com.hyw.gdata.dto.FieldAttr;
 import lombok.Data;
 import lombok.experimental.Accessors;
 

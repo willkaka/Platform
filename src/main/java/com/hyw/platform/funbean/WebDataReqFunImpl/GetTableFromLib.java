@@ -1,8 +1,9 @@
 package com.hyw.platform.funbean.WebDataReqFunImpl;
 
-import com.hyw.platform.dbservice.DataService;
-import com.hyw.platform.dbservice.utils.DbUtil;
+import com.hyw.gdata.DataService;
+import com.hyw.gdata.utils.DbUtil;
 import com.hyw.platform.funbean.WebDataReqFun;
+import com.hyw.platform.iservice.ConfigDatabaseInfoService;
 import com.hyw.platform.web.req.PublicReq;
 import com.hyw.platform.web.req.WebValueDto;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,8 @@ public class GetTableFromLib implements WebDataReqFun {
 
     @Autowired
     private DataService dataService;
+    @Autowired
+    private ConfigDatabaseInfoService configDatabaseInfoService;
 
     @Override
     public Map<String,Object> execute(PublicReq publicReq){
@@ -29,7 +32,7 @@ public class GetTableFromLib implements WebDataReqFun {
         String dbName = webValueDto.getWebInputValueMap().get("dbName").getValue().toString();
         String libName = webValueDto.getWebInputValueMap().get("libName").getValue().toString();
 
-        Connection connection = dataService.getDatabaseConnection(dbName,libName);
+        Connection connection = configDatabaseInfoService.getConnection(dbName,libName);
         List<String> tables = DbUtil.getTableNames(connection, libName);
         dataService.closeConnection(connection);
         tables.sort((s1,s2) -> s1.compareTo(s2));

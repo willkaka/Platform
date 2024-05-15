@@ -1,10 +1,9 @@
 package com.hyw.platform.tools;
 
-import com.hyw.platform.dbservice.DataService;
-import com.hyw.platform.dbservice.NQueryWrapper;
-import com.hyw.platform.dbservice.dto.TableFieldInfo;
-import com.hyw.platform.dbservice.utils.DateTimeUtil;
-import com.hyw.platform.dbservice.utils.DbUtil;
+import com.hyw.gdata.DataService;
+import com.hyw.gdata.NQueryWrapper;
+import com.hyw.gdata.dto.TableFieldInfo;
+import com.hyw.gdata.utils.DbUtil;
 import com.hyw.platform.tools.excel.ExExcelUtils;
 import com.hyw.platform.tools.excel.ExcelUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -63,7 +62,7 @@ public class ExportExcelData2 {
 
 //        exportExcelData.executeUpdateSql(exportExcelData.sqlDeleteLedgerDetailFin,5000000,30000);
         LocalDateTime endTime = LocalDateTime.now();
-        System.out.println(String.format("开始时间：%s,结束时间：%s,耗时：%s",begTime,endTime, DateTimeUtil.getDifTime(begTime,endTime)));
+//        System.out.println(String.format("开始时间：%s,结束时间：%s,耗时：%s",begTime,endTime, DateTimeUtil.getDifTime(begTime,endTime)));
     }
 
     private void setInitVariables(String env) {

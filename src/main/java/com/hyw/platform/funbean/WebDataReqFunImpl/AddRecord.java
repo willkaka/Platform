@@ -1,8 +1,8 @@
 package com.hyw.platform.funbean.WebDataReqFunImpl;
 
-import com.hyw.platform.dbservice.DataService;
-import com.hyw.platform.dbservice.dto.TableFieldInfo;
-import com.hyw.platform.dbservice.utils.SqlUtil;
+import com.hyw.gdata.DataService;
+import com.hyw.gdata.dto.TableFieldInfo;
+import com.hyw.gdata.utils.SqlGenUtil;
 import com.hyw.platform.funbean.RequestFun;
 import com.hyw.platform.web.req.PublicReq;
 import com.hyw.platform.web.req.ValueObject;
@@ -38,7 +38,7 @@ public class AddRecord implements RequestFun {
         Map<String,String> inputValue = requestDto.getWebValueDto().getValue();
 
         List<TableFieldInfo> tableFieldInfoList = dataService.getTableFieldList(tableName);
-        String insertSql = SqlUtil.getInsertSql(tableName,tableFieldInfoList,inputValue);
+        String insertSql = SqlGenUtil.getInsertSql(tableName,tableFieldInfoList,inputValue);
         int count = dataService.executeSql(insertSql);
 
         if(count>0){

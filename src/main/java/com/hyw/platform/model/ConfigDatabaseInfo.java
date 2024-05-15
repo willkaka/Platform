@@ -1,4 +1,4 @@
-package com.hyw.platform.dbservice.dao;
+package com.hyw.platform.model;
 
 import lombok.Data;
 

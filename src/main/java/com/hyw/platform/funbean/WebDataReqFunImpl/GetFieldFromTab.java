@@ -1,11 +1,12 @@
 package com.hyw.platform.funbean.WebDataReqFunImpl;
 
-import com.hyw.platform.dbservice.DataService;
-import com.hyw.platform.dbservice.dto.FieldAttr;
-import com.hyw.platform.dbservice.utils.DbUtil;
+import com.hyw.gdata.DataService;
+import com.hyw.gdata.dto.FieldAttr;
+import com.hyw.gdata.utils.DbUtil;
 import com.hyw.platform.exception.BizException;
 import com.hyw.platform.funbean.abs.RequestPubDto;
 import com.hyw.platform.funbean.abs.RequestTableDataUnit;
+import com.hyw.platform.iservice.ConfigDatabaseInfoService;
 import com.hyw.platform.web.req.PublicReq;
 import com.hyw.platform.web.resp.webElement.TableNormal;
 import lombok.Getter;
@@ -25,6 +26,8 @@ public class GetFieldFromTab extends RequestTableDataUnit<GetFieldFromTab.QueryV
 
     @Autowired
     private DataService dataService;
+    @Autowired
+    private ConfigDatabaseInfoService configDatabaseInfoService;
 
     /**
      * 输入参数检查
@@ -45,7 +48,7 @@ public class GetFieldFromTab extends RequestTableDataUnit<GetFieldFromTab.QueryV
     public TableNormal execLogic(PublicReq publicReq,GetFieldFromTab.QueryVariable variable){
         TableNormal tableNormal = new TableNormal();
 
-        Connection connection = dataService.getDatabaseConnection(variable.getDbName(),variable.getLibName());
+        Connection connection = configDatabaseInfoService.getConnection(variable.getDbName(),variable.getLibName());
         Map<String, FieldAttr> fields = DbUtil.getFieldAttrMap(connection,variable.getDbName(),variable.getLibName(),variable.getTableName());
         dataService.closeConnection(connection);
 

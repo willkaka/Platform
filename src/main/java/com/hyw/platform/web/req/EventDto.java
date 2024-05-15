@@ -1,6 +1,6 @@
 package com.hyw.platform.web.req;
 
-import com.hyw.platform.dbservice.dto.FieldAttr;
+import com.hyw.gdata.dto.FieldAttr;
 import lombok.Data;
 
 import java.util.Map;
