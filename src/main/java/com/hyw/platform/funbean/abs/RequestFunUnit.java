@@ -38,16 +38,16 @@ public abstract class RequestFunUnit<D, V extends RequestPubDto> implements Requ
     public PublicResp execute(PublicReq requestDto){
         // 参数赋值，将请求的参数 RequestDto，
         // 转为V（父类为RequestPubDto）并将requestDto.getReqParm().get("inputValue")中的值赋到对应的字段
-        V var = getVariable(requestDto);
+        V params = getVariable(requestDto);
 
         // 必要的输入检查
-        checkVariable(var);
+        checkVariable(params);
 
         //执行自定义逻辑
-        D data = execLogic(requestDto,var);
+        D data = execLogic(requestDto,params);
 
         //返回数据处理
-        return returnData(requestDto,data,var);
+        return returnData(requestDto,data,params);
     }
 
     /**
@@ -58,23 +58,23 @@ public abstract class RequestFunUnit<D, V extends RequestPubDto> implements Requ
      * @return variable
      */
     private V getVariable(PublicReq requestDto){
-        V var = newInstanceVariable();
+        V variable = newInstanceVariable();
         //处理参数
         Map<String,String> inputValue = requestDto.getWebValueDto().getValue();
-        List<Field> fields = ObjectUtil.getAllFieldList(var.getClass());
+        List<Field> fields = ObjectUtil.getAllFieldList(variable.getClass());
         for(Field field:fields){
             String fieldName = field.getName();
             Object value = inputValue.get(fieldName);
             if(inputValue.containsKey(fieldName)){
                 try {
                     if (!field.isAccessible()) { field.setAccessible(true); }
-                    field.set(var, valueConvert(field,value));
+                    field.set(variable, valueConvert(field,value));
                 } catch (Exception e) {
-                    throw new BizException("给对象(" + var.getClass().getName() + ")属性(" + fieldName + ")赋值(" + value + ")失败!");
+                    throw new BizException("给对象(" + variable.getClass().getName() + ")属性(" + fieldName + ")赋值(" + value + ")失败!");
                 }
             }
         }
-        return var;
+        return variable;
     }
 
     private Object valueConvert(Field field,Object value){
@@ -99,17 +99,17 @@ public abstract class RequestFunUnit<D, V extends RequestPubDto> implements Requ
 
     /**
      * 输入参数检查
-     * @param var 参数
+     * @param variable 参数
      */
-    public void checkVariable(V var){ }
+    public void checkVariable(V variable){ }
 
     /**
      * 执行自定义逻辑
      * @param requestDto 请求dto
-     * @param var 参数
+     * @param variable 参数
      * @return D
      */
-    public D execLogic(PublicReq requestDto, V var){
+    public D execLogic(PublicReq requestDto, V variable){
         return null;
     }
 

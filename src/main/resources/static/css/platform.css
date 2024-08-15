@@ -267,7 +267,7 @@ body{
     overflow-x:scroll; /*溢出时显示横向滚动条*/
     width:100%;
     max-width:100%;
-    display:inline-block;
+    display:grid;
 }
 
 .output_table{
@@ -275,7 +275,8 @@ body{
     border-collapse:collapse;/*为表格设置合并边框*/
     margin:2px 5px 2px 5px;/*上边距，右边距，下边距，左边距*/
     float:left;
-    display: contents;
+    /*display: contents;*/
+    display: inline-block;
 
     /*display:table;
         width:100%;
@@ -445,7 +446,7 @@ position: fixed;
 }
 /*********************元素样式定义*********************************/
 .button {
-    background-color: #4CAF50; /* Green */
+    background-color: #8AB9C2;
     border: none;
     color: white;
     padding: 10px 15px;
