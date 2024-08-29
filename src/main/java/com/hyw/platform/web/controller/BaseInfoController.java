@@ -45,7 +45,7 @@ public class BaseInfoController {
      * @param model model
      * @return index.html
      */
-    @RequestMapping("index")
+    @RequestMapping(value = {"/", "", "index"})
     public String startRequest(Model model) {
         model.addAttribute("webSiteName", Constant.WEB_SITE_TITLE);
         return "index";

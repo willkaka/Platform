@@ -29,15 +29,15 @@ public abstract class RequestWebUnit<D, V extends RequestWebUnit.Variable> imple
     @Override
     public PublicResp execute(PublicReq requestDto){
         //参数赋值
-        V var = getVariable(requestDto);
+        V param = getVariable(requestDto);
 
-        checkVariable(var);
+        checkVariable(param);
 
         //执行自定义逻辑
-        D data = execLogic(requestDto,var);
+        D data = execLogic(requestDto,param);
 
         //返回数据处理
-        return returnData(data,var);
+        return returnData(data,param);
     }
 
     /**
@@ -46,52 +46,52 @@ public abstract class RequestWebUnit<D, V extends RequestWebUnit.Variable> imple
      * @return variable
      */
     private V getVariable(PublicReq requestDto){
-        V var = newInstanceVariable();
+        V param = newInstanceVariable();
         //处理参数
         Map<String,String> inputValue = requestDto.getWebValueDto().getValue();
-        List<Field> fields = ObjectUtil.getAllFieldList(var.getClass());
+        List<Field> fields = ObjectUtil.getAllFieldList(param.getClass());
         for(Field field:fields){
             String fieldName = field.getName();
             if(inputValue.containsKey(fieldName)){
                 String value = inputValue.get(fieldName);
                 try {
                     if (!field.isAccessible()) { field.setAccessible(true); }
-                    field.set(var,value);
+                    field.set(param,value);
                 }catch (Exception e) {
-                    throw new BizException("给对象("+var.getClass().getName()+")属性("+fieldName+")赋值("+value+")失败!");
+                    throw new BizException("给对象("+param.getClass().getName()+")属性("+fieldName+")赋值("+value+")失败!");
                 }
             }
         }
-        return var;
+        return param;
     }
 
     /**
      * 输入参数检查
-     * @param var 参数
+     * @param param 参数
      */
-    public void checkVariable(V var){ }
+    public void checkVariable(V param){ }
 
     /**
      * 执行自定义逻辑
      * @param requestDto 请求dto
-     * @param var 参数
+     * @param param 参数
      * @return D
      */
-    public D execLogic(PublicReq requestDto, V var){
+    public D execLogic(PublicReq requestDto, V param){
         return null;
     }
 
     /**
      * 返回数据处理
      * @param data 数据
-     * @param variable 参数
+     * @param param 参数
      * @return ReturnDto
      */
-    public PublicResp returnData(D data, V variable){
+    public PublicResp returnData(D data, V param){
         PublicResp returnDto = new PublicResp();
 
-//        returnDto.getOutputMap().put("showType", variable.getOutputShowType());//以表格形式显示
-//        returnDto.getOutputMap().put("withPage",variable.isWithPage());//表格内容分页显示
+//        returnDto.getOutputMap().put("showType", param.getOutputShowType());//以表格形式显示
+//        returnDto.getOutputMap().put("withPage",param.isWithPage());//表格内容分页显示
 //        returnDto.getOutputMap().put("isChanged",true); //标识输出区域已改变需要刷新
 //        returnDto.getOutputMap().put("isClear",true);//清除原有输出内容
 //
@@ -116,9 +116,9 @@ public abstract class RequestWebUnit<D, V extends RequestWebUnit.Variable> imple
 //
 //        if(isListMapFieldAttr){
 //            returnDto.getOutputMap().put("tableRecordList", data);
-//            returnDto.getOutputMap().put("totalCount", variable.getTotalCount());
-//            returnDto.getOutputMap().put("pageNow", variable.getPageNow());
-//            returnDto.getOutputMap().put("pageSize", variable.getPageSize());
+//            returnDto.getOutputMap().put("totalCount", param.getTotalCount());
+//            returnDto.getOutputMap().put("pageNow", param.getPageNow());
+//            returnDto.getOutputMap().put("pageSize", param.getPageSize());
 //        }
 
         return returnDto;

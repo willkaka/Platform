@@ -5,6 +5,13 @@ function sendRequest(reqMapping,reqType,reqMethod,requestParam) {
     sendJsonByAjax(reqMapping,reqMethod, requestParam,"application/json;charset=utf-8",null,sucFreshAll);
 }
 
+function generateCustomSerialNumber() {
+    const prefix = 'RQ';
+    const randomDigits = Math.floor(Math.random() * 1000);
+    const timestamp = new Date().getTime();
+    return prefix + randomDigits + timestamp;
+}
+
 /**
  * 发送json报文到后台
  * @param requestUrl
@@ -22,6 +29,11 @@ function sendJsonByAjax(requestUrl, requestType, requestParam, contentType, proc
 
         // 请求路径
         url: requestUrl,
+
+        // 报文头
+        headers: {
+                'trace-id': generateCustomSerialNumber() // 添加 traceId 到请求的 headers 中
+            },
 
         // 传送文件时 传 {let formData = new FormData(); let files = param.inputValue["file"];ReqJsonDto
         data: requestParam,
