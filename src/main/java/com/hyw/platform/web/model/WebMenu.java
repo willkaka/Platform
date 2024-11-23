@@ -11,8 +11,6 @@ import lombok.experimental.Accessors;
 //@TableName("web_menu_info
 public class WebMenu {
 
-    private static final long serialVersionUID = 1L;
-
     /**
      * null
      */

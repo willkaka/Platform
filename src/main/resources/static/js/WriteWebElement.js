@@ -1,42 +1,51 @@
 
 /**
   * PublicResp
+  * eventInfo 原事件信息
   * {"rtnCode":"","nextOprDto":{"eventInfoList":[]},"webElementDtoList":[]}
-  */
-
-function sucFreshAll(PublicResp){
+ **/
+function sucFreshAll(PublicResp,eventInfo){
     let rtnCode = PublicResp.rtnCode;
     let elementDtoList = PublicResp.webElementDtoList;
     if(null!=elementDtoList){
-        loopElementList(elementDtoList);
+        loopElementList(elementDtoList,eventInfo);
     }
     let nextOprDto = PublicResp.nextOprDto;
     if(null != nextOprDto){
-        nextOpr(nextOprDto);
+        nextOpr(PublicResp,nextOprDto);
     }
 }
 
-function nextOpr(nextOprDto){
+function nextOpr(PublicResp,nextOprDto){
     let eventInfoList = nextOprDto["eventInfoList"];
     if(null == eventInfoList) return;
     for(let i=0;i<eventInfoList.length;i++){
         let eventInfo = eventInfoList[i];
+        if(null != eventInfo && eventInfo.event == "showMessage"){
+            let msg = eventInfo.paramMap["msg"];
+            if(PublicResp.rtnCode != "0000"){
+                alert(msg+PublicResp.rtnCode + "\n失败信息:" + PublicResp.rtnMsg);
+            }else{
+                alert(msg);
+            }
+        }
         if(null != eventInfo && eventInfo.event == "request"){
             executeEventMethod(eventInfo,null);
         }
         if(null != eventInfo && eventInfo.event == "closeSw"){
-            hideById(eventInfo.element+"_subWindowBackGround"); //add_sub_window
+            let subWindowId = eventInfo.paramMap["subWindowId"];
+            hideById(subWindowId); //add_sub_window
         }
     }
 }
 
-function loopElementList(elementDtoList){
+function loopElementList(elementDtoList,eventInfo){
     for (let i=0;i<elementDtoList.length;i++){
         let elementDto = elementDtoList[i];
-        writeWebElementRoute(elementDto.pid,elementDto);
+        writeWebElementRoute(elementDto.pid,elementDto,eventInfo);
         let subElementDtoList = elementDto.subElementList;
         if(subElementDtoList!=null && subElementDtoList.length>0){
-            loopElementList(subElementDtoList);
+            loopElementList(subElementDtoList,eventInfo);
         }
     }
 }
@@ -44,10 +53,11 @@ function loopElementList(elementDtoList){
 /**
  * 生成页面元素路由
  **/
-function writeWebElementRoute(parentEleId,elementInfo){
+function writeWebElementRoute(parentEleId,elementInfo,eventInfo){
     if(elementInfo.id != "body") removeElementById(elementInfo.id);
 
-    let parentEle = document.getElementById(parentEleId);
+    let parentEle;
+    parentEle = document.getElementById(parentEleId);
     if(parentEle == null) {
         parentEle = document.getElementById(parentEleId+"_group");
         if(parentEle == null) return;
@@ -62,7 +72,7 @@ function writeWebElementRoute(parentEleId,elementInfo){
     if(elementInfo.type == "table_record_button") writeTableButton(parentEle,elementInfo);
     if(elementInfo.type == "table_record_radio") writeTableRadio(parentEle,elementInfo);
 
-    if(elementInfo.type == "input") writeInput(parentEle,elementInfo);
+    if(elementInfo.type == "input") writeInput(parentEle,elementInfo,eventInfo);
     if(elementInfo.type == "inputFile") writeInputFile(parentEle,elementInfo);
     if(elementInfo.type == "dropDown") writeDropDown(parentEle,elementInfo);
     if(elementInfo.type == "inputDataList") writeInputDataList(parentEle,elementInfo);
@@ -122,7 +132,7 @@ function writeMenu(parentEle,elementInfo){
 /**
  * 在父元素插入生成的输入框 div label/input
  **/
-function writeInput(parentEle,elementInfo){
+function writeInput(parentEle,elementInfo,eventInfo){
     let groupDiv = document.createElement("div");
     groupDiv.setAttribute("class","inputArea_div_grp");
     if(null == elementInfo.attrMap){
@@ -143,6 +153,10 @@ function writeInput(parentEle,elementInfo){
     }
     if(null != elementInfo.defValue){
         input.setAttribute("value",elementInfo.defValue);
+    }
+    if(eventInfo!=null && eventInfo.paramMap!=null && eventInfo.paramMap["valueFromSelectedRecord"]){
+        input.setAttribute("value", eventInfo.paramMap[elementInfo.id])
+        input.setAttribute("defaultValue", eventInfo.paramMap[elementInfo.id])
     }
     input.setAttribute("class","inputArea_sub_input");
     groupDiv.appendChild(input);
@@ -825,7 +839,6 @@ function writeSubWindow(parentEle,elementInfo){
     div_sFooter.setAttribute("class","subWidowFooter");
     div_sContent.appendChild(div_sFooter);
 }
-
 
 /**
  * 设置元素属性

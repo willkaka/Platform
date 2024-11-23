@@ -8,14 +8,14 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-//@TableName("web_element_info
-public class WebElement {
+//@TableName("web_call_after")
+public class WebCallAfter {
 
     /**
      * null
      */
-    //web_element_info_id
-    private Integer webElementId;
+    //web_call_after_id
+    private Integer webCallAfterId;
 
     /**
      * null
@@ -26,43 +26,43 @@ public class WebElement {
     /**
      * null
      */
-    //menu
+    //area
     private String page;
 
     /**
      * null
      */
-    //element_seq
-    private String elementParent;
-
-    /**
-     * null
-     */
-    //element_seq
-    private Integer elementSeq;
-
-    /**
-     * null
-     */
     //element
-    private String element;
+    private String processBean;
 
     /**
      * null
      */
-    //element_type
-    private String elementType;
+    //event_type
+    private String processStatus;
 
     /**
      * null
      */
-    //element_desc
-    private String elementDesc;
+    //request_type
+    private String oprType;
 
     /**
      * null
      */
-    //element_attr
-    private String elementAttr;
+    //request_type
+    private String requestType;
+
+    /**
+     * null
+     */
+    //request_no
+    private String requestBean;
+
+    /**
+     * null
+     */
+    //param
+    private String param;
 
 }

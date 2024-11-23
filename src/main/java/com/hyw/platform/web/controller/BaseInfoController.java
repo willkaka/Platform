@@ -1,6 +1,5 @@
 package com.hyw.platform.web.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.hyw.platform.exception.BizException;
 import com.hyw.platform.funbean.RequestFun;
@@ -60,15 +59,11 @@ public class BaseInfoController {
     @RequestMapping(value = "initPageInfo")
     @ResponseBody
     public PublicResp initPageInfo(@RequestBody PublicReq publicReq) {
-        log.info("后台收到请求initPageInfo,请求报文内容{}", JSON.toJSONString(publicReq));
-
         PublicResp publicResp = new PublicResp().setRtnCode("0000").setRtnMsg("success");
 
         //取菜单清单
         List<WebElementDto> menuList = webMenuService.getMenu("root");
         publicResp.setWebElementDtoList(menuList);
-
-        log.info("返回报文内容{}", JSON.toJSONString(publicResp));
         return publicResp;
     }
 
@@ -81,8 +76,6 @@ public class BaseInfoController {
     @RequestMapping(value = "/menuReq/{eventId}")
     @ResponseBody
     public PublicResp menuReq(@PathVariable String eventId, @RequestBody PublicReq publicReq) {
-        log.info("后台收到请求/menuReq/{}", eventId);
-        log.info("请求报文内容{}", JSON.toJSONString(publicReq));
         PublicResp publicResp = new PublicResp();
 
         EventInfo eventInfo = publicReq.getEventInfo();
@@ -96,8 +89,6 @@ public class BaseInfoController {
 
         publicResp.setRtnCode("0000");
         publicResp.setRtnMsg("success");
-
-        log.info("返回报文内容{}", JSON.toJSONString(publicResp));
         return publicResp;
     }
 
@@ -110,8 +101,6 @@ public class BaseInfoController {
     @RequestMapping(value = "/buttonReq/{eventId}")
     @ResponseBody
     public PublicResp buttonReq(@PathVariable String eventId, @RequestBody PublicReq requestDto) {
-        log.info("后台收到请求/buttonReq/{}", eventId);
-        log.info("请求报文内容{}", JSON.toJSONString(requestDto));
         PublicResp publicResp = new PublicResp();
 
         if (StringUtils.isBlank(eventId)) {
@@ -122,8 +111,6 @@ public class BaseInfoController {
 
         log.info("开始执行{}", eventId);
         publicResp = ((RequestFun) context.getBean(eventId)).execute(requestDto);
-
-        log.info("返回报文内容{}", JSON.toJSONString(publicResp));
         return publicResp;
     }
 
@@ -137,8 +124,6 @@ public class BaseInfoController {
     @RequestMapping(value = "/refreshEleReq/refresh")
     @ResponseBody
     public PublicResp refreshEleReq(@RequestBody PublicReq publicReq) {
-        log.info("后台收到请求/refreshEleReq");
-        log.info("请求报文内容{}", JSON.toJSONString(publicReq));
         PublicResp publicResp = new PublicResp();
 
         EventInfo eventInfo = publicReq.getEventInfo();
@@ -152,8 +137,6 @@ public class BaseInfoController {
 
         publicResp.setRtnCode("0000");
         publicResp.setRtnMsg("success");
-
-        log.info("返回报文内容{}", JSON.toJSONString(publicResp));
         return publicResp;
     }
 
@@ -167,8 +150,6 @@ public class BaseInfoController {
     @RequestMapping(value = "/refreshEleReq/{eventId}")
     @ResponseBody
     public PublicResp refreshEleReqTrigger(@PathVariable String eventId, @RequestBody PublicReq publicReq) {
-        log.info("后台收到请求/refreshEleReq/{}", eventId);
-        log.info("请求报文内容{}", JSON.toJSONString(publicReq));
         PublicResp publicResp = new PublicResp();
 
         EventInfo eventInfo = publicReq.getEventInfo();
@@ -182,13 +163,8 @@ public class BaseInfoController {
 
         Map<String,Object> paramMap = eventInfo.getParamMap();
         publicResp.setNextOprDto(getNextOpr(paramMap));
-
-
-
         publicResp.setRtnCode("0000");
         publicResp.setRtnMsg("success");
-
-        log.info("返回报文内容{}", JSON.toJSONString(publicResp));
         return publicResp;
     }
 
@@ -201,8 +177,6 @@ public class BaseInfoController {
     @RequestMapping(value = "/webDataReq/{eventId}")
     @ResponseBody
     public PublicResp webDataReq(@PathVariable String eventId, @RequestBody PublicReq publicReq) {
-        log.info("后台收到请求/webDataReq/{}", eventId);
-        log.info("请求报文内容{}", JSON.toJSONString(publicReq));
         PublicResp publicResp = new PublicResp();
 
         EventInfo eventInfo = publicReq.getEventInfo();
@@ -219,8 +193,6 @@ public class BaseInfoController {
 
         publicResp.setRtnCode("0000");
         publicResp.setRtnMsg("success");
-
-        log.info("返回报文内容{}", JSON.toJSONString(publicResp));
         return publicResp;
     }
 
@@ -234,8 +206,6 @@ public class BaseInfoController {
     @RequestMapping(value = "/swDataReq/{eventId}")
     @ResponseBody
     public PublicResp swDataReq(@PathVariable String eventId, @RequestBody PublicReq publicReq) {
-        log.info("后台收到请求/swDataReq/{}", eventId);
-        log.info("请求报文内容{}", JSON.toJSONString(publicReq));
         PublicResp publicResp = new PublicResp();
 
         EventInfo eventInfo = publicReq.getEventInfo();
@@ -261,8 +231,6 @@ public class BaseInfoController {
 
         publicResp.setRtnCode("0000");
         publicResp.setRtnMsg("success");
-
-        log.info("返回报文内容{}", JSON.toJSONString(publicResp));
         return publicResp;
     }
 

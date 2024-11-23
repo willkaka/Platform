@@ -21,7 +21,7 @@ function generateCustomSerialNumber() {
  * @param processData
  * @param sucfn
  */
-function sendJsonByAjax(requestUrl, requestType, requestParam, contentType, processData, sucFun) {
+function sendJsonByAjax(requestUrl, requestType, requestParam, contentType, processData, sucFun,eventInfo) {
     $.ajax({
 
         // 请求类型 post/get
@@ -48,7 +48,7 @@ function sendJsonByAjax(requestUrl, requestType, requestParam, contentType, proc
         success:function (PublicResp) {
             // 后台主机响应正常
             if (PublicResp.rtnCode === RTN_CODE_SUC) {
-                sucFun(PublicResp);
+                sucFun(PublicResp,eventInfo);
 
             // 后台主机响应异常
             } else {

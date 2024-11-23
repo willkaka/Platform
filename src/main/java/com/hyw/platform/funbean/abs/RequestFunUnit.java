@@ -1,12 +1,20 @@
 package com.hyw.platform.funbean.abs;
 
+import com.alibaba.fastjson.JSON;
+import com.hyw.gdata.DataService;
+import com.hyw.gdata.NQueryWrapper;
 import com.hyw.platform.exception.BizException;
 import com.hyw.platform.funbean.RequestFun;
+import com.hyw.platform.web.model.WebCallAfter;
 import com.hyw.platform.web.req.PublicReq;
+import com.hyw.platform.web.req.ValueObject;
+import com.hyw.platform.web.resp.EventInfo;
+import com.hyw.platform.web.resp.NextOprDto;
 import com.hyw.platform.web.resp.PublicResp;
 import com.hyw.platform.web.service.WebElementService;
 import com.hyw.platform.web.util.ObjectUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.Field;
@@ -29,6 +37,8 @@ public abstract class RequestFunUnit<D, V extends RequestPubDto> implements Requ
 
     @Autowired
     private WebElementService webElementService;
+    @Autowired
+    private DataService dataService;
 
     /**
      * 执行入口
@@ -46,8 +56,10 @@ public abstract class RequestFunUnit<D, V extends RequestPubDto> implements Requ
         //执行自定义逻辑
         D data = execLogic(requestDto,params);
 
+        PublicResp resp = setPublicResp();
+
         //返回数据处理
-        return returnData(requestDto,data,params);
+        return returnData(requestDto,data,params,resp);
     }
 
     /**
@@ -57,20 +69,39 @@ public abstract class RequestFunUnit<D, V extends RequestPubDto> implements Requ
      * @param requestDto 请求dto
      * @return variable
      */
+
     private V getVariable(PublicReq requestDto){
         V variable = newInstanceVariable();
         //处理参数
-        Map<String,String> inputValue = requestDto.getWebValueDto().getValue();
+        Map<String, ValueObject> webInputValueMap = requestDto.getWebValueDto().getWebInputValueMap();
+        Map<String, ValueObject> camelFieldMap = new HashMap<>();
+        for (Map.Entry<String, ValueObject> entry : webInputValueMap.entrySet()) {
+            String key = entry.getKey();
+            ValueObject value = entry.getValue();
+            String modifiedKey = com.hyw.platform.web.util.StringUtils.camelCaseToUnderline( key );
+            camelFieldMap.put(modifiedKey, value);
+        }
         List<Field> fields = ObjectUtil.getAllFieldList(variable.getClass());
         for(Field field:fields){
-            String fieldName = field.getName();
-            Object value = inputValue.get(fieldName);
-            if(inputValue.containsKey(fieldName)){
+            String fieldName = com.hyw.platform.web.util.StringUtils.camelCaseToUnderline( field.getName() );
+            if(camelFieldMap.containsKey(fieldName)){
+                ValueObject valueObject = camelFieldMap.get(fieldName);
                 try {
                     if (!field.isAccessible()) { field.setAccessible(true); }
-                    field.set(variable, valueConvert(field,value));
+                    field.set(variable, valueConvert(field,valueObject.getValue()));
                 } catch (Exception e) {
-                    throw new BizException("给对象(" + variable.getClass().getName() + ")属性(" + fieldName + ")赋值(" + value + ")失败!");
+                    throw new BizException("给对象(" + variable.getClass().getName() + ")属性(" + fieldName + ")赋值(" + valueObject.getValue() + ")失败!");
+                }
+            }
+            // 将对象中的字段 去掉default再将首字母改为小写，与map中的字段匹配
+            if(fieldName.startsWith("default_") &&
+                    camelFieldMap.containsKey(fieldName.replace("default_",""))){
+                ValueObject valueObject = camelFieldMap.get(fieldName.replace("default_",""));
+                try {
+                    if (!field.isAccessible()) { field.setAccessible(true); }
+                    field.set(variable, valueConvert(field,valueObject.getDefValue()));
+                } catch (Exception e) {
+                    throw new BizException("给对象(" + variable.getClass().getName() + ")属性(" + fieldName + ")赋值(" + valueObject.getDefValue() + ")失败!");
                 }
             }
         }
@@ -99,6 +130,11 @@ public abstract class RequestFunUnit<D, V extends RequestPubDto> implements Requ
 
     /**
      * 输入参数检查
+     */
+    public PublicResp setPublicResp(){ return null;}
+
+    /**
+     * 输入参数检查
      * @param variable 参数
      */
     public void checkVariable(V variable){ }
@@ -119,10 +155,33 @@ public abstract class RequestFunUnit<D, V extends RequestPubDto> implements Requ
      * @param variable 参数
      * @return ReturnDto
      */
-    public PublicResp returnData(PublicReq requestDto, D data, V variable){
-        PublicResp returnDto = new PublicResp();
+    public PublicResp returnData(PublicReq requestDto, D data, V variable, PublicResp resp){
+        if(resp!=null){
+            return resp;
+        }else {
+            PublicResp returnDto = new PublicResp();
 
-        return returnDto;
+            List<WebCallAfter> webCallAfterList = dataService.list(new NQueryWrapper<WebCallAfter>()
+                    .eq(WebCallAfter::getMenu, requestDto.getEventInfo().getMenu())
+                    .eq(WebCallAfter::getPage, requestDto.getEventInfo().getPage())
+                    .eq(WebCallAfter::getProcessStatus, "success")
+                    .eq(WebCallAfter::getProcessBean, requestDto.getEventInfo().getReqMapping()));
+            List<EventInfo> eventInfoList = new ArrayList<>();
+            for(WebCallAfter webCallAfter:webCallAfterList){
+                EventInfo eventInfo = new EventInfo();
+                eventInfo.setMenu(webCallAfter.getMenu());
+                eventInfo.setPage(webCallAfter.getPage());
+                eventInfo.setEvent(webCallAfter.getOprType());
+                eventInfo.setReqType(webCallAfter.getRequestType());
+                eventInfo.setReqMapping(webCallAfter.getRequestBean());
+                if(StringUtils.isNotBlank(webCallAfter.getParam())) {
+                    eventInfo.setParamMap(JSON.parseObject(webCallAfter.getParam()));
+                }
+                eventInfoList.add(eventInfo);
+            }
+            returnDto.setNextOprDto(new NextOprDto().setEventInfoList(eventInfoList));
+            return returnDto;
+        }
     }
 
     /**

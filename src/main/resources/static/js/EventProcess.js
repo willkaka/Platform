@@ -34,7 +34,7 @@ function executeEventMethod(eventInfo,sourceElement) {
     requestObj.eventId = eventInfo.id;
     requestObj.curMenu = curMenuId;
     requestObj.userName = getCookie(userNameKey);
-    let param = getCurPageInfo();
+    let param = getCurPageInfo(eventInfo);
     requestObj.webValueDto = param;
     // 把原值保存在 eventInfo.recordMap.curValue
 //    eventInfo = putChangeValue(param,eventInfo);
@@ -56,7 +56,7 @@ function executeEventMethod(eventInfo,sourceElement) {
         contentType = "application/json;charset=utf-8";
         processData = null;
     }
-    sendJsonByAjax(eventInfo.reqType+'/'+eventInfo.reqMapping,'post', data,contentType,processData,sucFreshAll);
+    sendJsonByAjax(eventInfo.reqType+'/'+eventInfo.reqMapping,'post', data,contentType,processData,sucFreshAll,eventInfo);
 }
 
 /**

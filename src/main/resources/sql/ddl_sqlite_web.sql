@@ -37,11 +37,30 @@ CREATE TABLE IF NOT EXISTS web_event (
   event_type varchar(32),
   request_type varchar(32),
   request_bean varchar(32),
+  next_page varchar(40),
   trigger_type varchar(32),
   trigger_element varchar(32),
   trigger_element_type varchar(32),
   param varchar(500) );
 CREATE INDEX wev_ind_01 on web_event (menu,element);
+
+
+-- 调用方法后处理配置
+-- menu	element	event_type	request_type	request_no	param
+DROP TABLE IF EXISTS web_call_after;
+CREATE TABLE IF NOT EXISTS web_call_after (
+  web_call_after_id integer primary key,
+  menu varchar(32) NOT NULL,
+  page varchar(32) NOT NULL,
+  process_bean varchar(32),
+  -- bean处理成功失败状态
+  process_status varchar(20),
+  -- 页面需要操作的动作类型
+  opr_type varchar(32),
+  request_type varchar(32),
+  request_bean varchar(32),
+  param varchar(500) );
+CREATE INDEX wca_ind_01 on web_call_after (menu,page,process_bean);
 
 DROP TABLE IF EXISTS web_trigger;
 CREATE TABLE web_trigger (

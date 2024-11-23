@@ -510,6 +510,29 @@ position: fixed;
     padding: 15px;
     text-align: center;
 }
+.alert {
+    padding: 15px;
+    background-color: #f44336; /* 红色背景 */
+    color: white; /* 白色文字 */
+}
+
+/* 不同类型的警告框样式 */
+.alert-success {
+    background-color: #8AB9C2;
+}
+.alert-info {
+    background-color: #8AB9C2;
+}
+.alert-warning {
+    background-color: #8AB9C2;
+}
+.alert-danger {
+    background-color: #8AB9C2;
+}
+
+.showWithRowDiv{
+    display: grid;
+}
 
 /***************************************************/
 

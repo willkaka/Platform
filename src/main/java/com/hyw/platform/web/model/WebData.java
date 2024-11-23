@@ -10,8 +10,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class WebData {
 
-    private static final long serialVersionUID = 1L;
-
     /**
      * null
      */

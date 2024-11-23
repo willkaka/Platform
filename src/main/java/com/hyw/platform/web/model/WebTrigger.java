@@ -11,8 +11,6 @@ import lombok.experimental.Accessors;
 //@TableName("web_trigger_info
 public class WebTrigger {
 
-    private static final long serialVersionUID = 1L;
-
     /**
      * null
      */

@@ -11,8 +11,6 @@ import lombok.experimental.Accessors;
 //@TableName("web_event_info
 public class WebEvent {
 
-    private static final long serialVersionUID = 1L;
-
     /**
      * null
      */

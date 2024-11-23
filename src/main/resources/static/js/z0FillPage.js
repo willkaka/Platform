@@ -4,6 +4,7 @@
 
 var curMenuId = "";
 var userNameKey="userName";
+// var htmlMap = {};
 
 /**
  * 初始化页面内容

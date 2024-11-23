@@ -154,8 +154,8 @@ function modalMoveById(id){
  * 取页面数值
  * @return Map
  **/
-function getCurPageInfo(){
-    let pageInfoMap = {"curMenu":curMenuId,"webInputValueMap":getInputValueMap()};
+function getCurPageInfo(eventInfo){
+    let pageInfoMap = {"curMenu":curMenuId,"webInputValueMap":getInputValueMap(eventInfo)};
     return pageInfoMap;
 }
 
@@ -163,7 +163,7 @@ function getCurPageInfo(){
  * 取输入区域取值
  * @return Map
  **/
-function getInputValueMap(){
+function getInputValueMap(eventInfo){
     let nodeValueMap = {};
 
     //取标签为 input 的页面元素
