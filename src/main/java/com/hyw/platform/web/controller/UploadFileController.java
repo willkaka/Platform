@@ -1,0 +1,56 @@
+package com.hyw.platform.web.controller;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@Slf4j
+public class UploadFileController {
+
+    @Autowired
+    ApplicationContext context;
+//
+//    /**
+//     * 上传文件
+//     * @param multipartFiles 上传的文件
+//     */
+//    @RequestMapping(value = "/fileReq/{fileUploadEventId}")
+//    public ReturnDto uploadFile(@PathVariable String fileUploadEventId,
+//                                @RequestParam("fileList") List<MultipartFile> multipartFiles, HttpServletRequest request){
+//        ReturnDto returnDto = new ReturnDto();
+//
+//        String dto = request.getParameter("requestDto");
+//        RequestDto requestDto = JSONObject.parseObject(dto,RequestDto.class);
+//        log.info("后台收到请求/fileReq/"+ fileUploadEventId);
+//        log.info("请求报文内容{}",JSON.toJSONString(requestDto));
+//
+//        //文件无法与参数一起传输
+//        Map<String,Object> map = (Map<String,Object>) requestDto.getReqParm().get("inputValue");
+//        map.put("fileList",multipartFiles);
+//
+//        String eventId = requestDto.getEventInfo().getId();
+//        if(StringUtil.isBlank(eventId)){
+//            returnDto.setRtnCode("9997");
+//            returnDto.setRtnMsg("未配置该按钮请求("+eventId+")的处理方法！");
+//            return returnDto;
+//        }
+//
+//        log.info("开始执行{}",requestDto.getEventInfo().getId());
+//        returnDto = ((RequestFun) context.getBean(eventId)).execute(requestDto);
+//
+//        log.info("返回报文内容{}",returnDto);
+//        return returnDto;
+//    }
+}
