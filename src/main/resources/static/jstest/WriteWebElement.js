@@ -36,6 +36,11 @@ function nextOpr(PublicResp,nextOprDto){
             let subWindowId = eventInfo.paramMap["subWindowId"];
             hideById(subWindowId); //add_sub_window
         }
+
+        if(null != eventInfo && eventInfo.event == "removeEle"){
+            let subWindowId = eventInfo.paramMap["removeEleId"];
+            removeElementById(subWindowId);
+        }
     }
 }
 

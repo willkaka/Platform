@@ -1,8 +1,10 @@
 package com.hyw.platform.web.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.hyw.gdata.NQueryWrapper;
 import com.hyw.platform.exception.BizException;
 import com.hyw.platform.funbean.RequestFun;
+import com.hyw.platform.web.model.WebCallAfter;
 import com.hyw.platform.web.req.PublicReq;
 import com.hyw.platform.web.resp.EventInfo;
 import com.hyw.platform.web.resp.NextOprDto;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -185,11 +188,17 @@ public class BaseInfoController {
         }
         Map<String,Object> param = eventInfo.getParamMap();
         String page = eventInfo.getNextPage();
-        String parentEle = (String)param.getOrDefault("parentEle",null);
-
-        //取输入区域元素清单，固定从body开始
-        List<WebElementDto> inputList = webElementService.getPageElementsByParentEle(eventInfo.getMenu(), page,parentEle,publicReq);
-        publicResp.setWebElementDtoList(inputList);
+        if(StringUtils.isNotBlank(page)){
+            List<WebElementDto> inputList = webElementService.getPageElementsById(eventInfo.getMenu(), page, null, publicReq);
+            publicResp.setWebElementDtoList(inputList);
+        }else {
+            String parentEle = (String) param.getOrDefault("parentEle", null);
+            //取输入区域元素清单，固定从body开始
+            List<WebElementDto> inputList = webElementService.getPageElementsByParentEle(eventInfo.getMenu(), page, parentEle, publicReq);
+            publicResp.setWebElementDtoList(inputList);
+        }
+        NextOprDto nextOprDto = webElementService.getCallAfterOpr(eventInfo.getMenu(), eventInfo.getPage(), eventInfo.getElement());
+        publicResp.setNextOprDto(nextOprDto);
 
         publicResp.setRtnCode("0000");
         publicResp.setRtnMsg("success");

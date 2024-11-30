@@ -5,9 +5,9 @@ INSERT INTO web_element(menu, page, element_parent, element_seq, "element", elem
 ('MenuMaintain', 'start_page', 'inputArea', 1, 'funDiv', 'div', '输入区域', 'class="inputArea"'),
 ('MenuMaintain', 'start_page', 'funDiv', 1, 'addMenu', 'button', '新增菜单', 'class="inputArea_sub_button"'),
 ('MenuMaintain', 'start_page', 'inputArea', 2, 'menuTable', 'table', '菜单列表', 'class="output_table"'),
-('MenuMaintain', 'start_page', 'menuTable', 995, 'dsp_ele_button', 'table_record_button', '维护页面元素', 'class="label_button"'),
-('MenuMaintain', 'start_page', 'menuTable', 996, 'dsp_eve_button', 'table_record_button', '维护页面事件', 'class="label_button"'),
-('MenuMaintain', 'start_page', 'menuTable', 997, 'dsp_dta_button', 'table_record_button', '维护元素数据', 'class="label_button"'),
+('MenuMaintain', 'start_page', 'menuTable', 995, 'dsp_ele_button', 'table_record_button', '元素', 'class="label_button"'),
+('MenuMaintain', 'start_page', 'menuTable', 996, 'dsp_eve_button', 'table_record_button', '事件', 'class="label_button"'),
+('MenuMaintain', 'start_page', 'menuTable', 997, 'dsp_dta_button', 'table_record_button', '数据', 'class="label_button"'),
 ('MenuMaintain', 'start_page', 'menuTable', 998, 'edt_menu_button', 'table_record_button', '编辑', 'class="label_button"'),
 ('MenuMaintain', 'start_page', 'menuTable', 999, 'del_menu_button', 'table_record_button', '删除', 'class="label_button"'),
 -- 点击“新增菜单”按钮后的弹窗内容
@@ -29,7 +29,7 @@ INSERT INTO web_element(menu, page, element_parent, element_seq, "element", elem
 ('MenuMaintain', 'edt_menu_sbw', 'edt_menu_sub_window_swFooter', 1, 'edtMenuButton', 'button', '提交', 'class="inputArea_sub_button"'),
 
 -- 点击表格记录中的“维护页面元素”按钮后显示内容
-('MenuMaintain', 'ele_page', 'inputArea', 201, 'eleTableDiv', 'div', '', ''),
+('MenuMaintain', 'ele_page', 'inputArea', 201, 'eleTableDiv', 'div', '', 'class="inputArea"'),
 ('MenuMaintain', 'ele_page', 'eleTableDiv', 1, 'addEle', 'button', '新增页面元素', 'class="inputArea_sub_button"'),
 ('MenuMaintain', 'ele_page', 'eleTableDiv', 2, 'eleTable', 'table', '元素列表', 'class="output_table"'),
 ('MenuMaintain', 'ele_page', 'eleTable', 998, 'edt_ele_button', 'table_record_button', '编辑', 'class="label_button"'),
@@ -61,18 +61,16 @@ INSERT INTO web_element(menu, page, element_parent, element_seq, "element", elem
 ('MenuMaintain', 'edt_ele_sbw', 'edt_ele_sbw_div', 9, 'element_attr', 'input', '属性', ''),
 ('MenuMaintain', 'edt_ele_sbw', 'edt_ele_sub_window_swFooter', 1, 'edtEleButton', 'button', '提交', 'class="inputArea_sub_button"'),
 
-
-
 -- 点击表格记录中的“维护页面元素”按钮后显示内容
-('MenuMaintain', 'ele_page', 'inputArea', 201, 'evnTableDiv', 'div', '', ''),
-('MenuMaintain', 'ele_page', 'evnTableDiv', 1, 'addEle', 'button', '新增页面事件', 'class="inputArea_sub_button"'),
-('MenuMaintain', 'ele_page', 'evnTableDiv', 2, 'evnTable', 'table', '元素事件列表', 'class="output_table"'),
-('MenuMaintain', 'ele_page', 'evnTable', 998, 'edt_evn_button', 'table_record_button', '编辑', 'class="label_button"'),
-('MenuMaintain', 'ele_page', 'evnTable', 999, 'del_evn_button', 'table_record_button', '删除', 'class="label_button"'),
+('MenuMaintain', 'evn_page', 'inputArea', 201, 'evnTableDiv', 'div', '', 'class="inputArea"'),
+('MenuMaintain', 'evn_page', 'evnTableDiv', 1, 'addEvn', 'button', '新增页面事件', 'class="inputArea_sub_button"'),
+('MenuMaintain', 'evn_page', 'evnTableDiv', 2, 'evnTable', 'table', '元素事件列表', 'class="output_table"'),
+('MenuMaintain', 'evn_page', 'evnTable', 998, 'edt_evn_button', 'table_record_button', '编辑', 'class="label_button"'),
+('MenuMaintain', 'evn_page', 'evnTable', 999, 'del_evn_button', 'table_record_button', '删除', 'class="label_button"'),
 -- 点击“新增页面元素”按钮后的弹窗内容
 ('MenuMaintain', 'add_evn_sbw', 'body', 1, 'add_evn_sub_window', 'subWindow', '新增页面元素', ''),
 ('MenuMaintain', 'add_evn_sbw', 'add_evn_sub_window_swBody', 1, 'add_evn_sbw_div', 'div', '', 'class="showWithRowDiv"'),
-('MenuMaintain', 'add_evn_sbw', 'add_evn_sbw_div', 1, 'webEventId', 'input', 'web_element_id', ''),
+('MenuMaintain', 'add_evn_sbw', 'add_evn_sbw_div', 1, 'webEventId', 'input', 'web_event_id', ''),
 ('MenuMaintain', 'add_evn_sbw', 'add_evn_sbw_div', 2, 'menu', 'input', '菜单', ''),
 ('MenuMaintain', 'add_evn_sbw', 'add_evn_sbw_div', 3, 'page', 'input', '页面', ''),
 ('MenuMaintain', 'add_evn_sbw', 'add_evn_sbw_div', 4, 'element', 'input', '元素', ''),
@@ -94,7 +92,37 @@ INSERT INTO web_element(menu, page, element_parent, element_seq, "element", elem
 ('MenuMaintain', 'edt_evn_sbw', 'edt_evn_sbw_div', 7, 'request_bean', 'input', '请求处理的bean', ''),
 ('MenuMaintain', 'edt_evn_sbw', 'edt_evn_sbw_div', 8, 'next_page', 'input', '跳转显示页', ''),
 ('MenuMaintain', 'edt_evn_sbw', 'edt_evn_sbw_div', 9, 'param', 'input', '参数(JSON)', ''),
-('MenuMaintain', 'edt_evn_sbw', 'edt_evn_sub_window_swFooter', 1, 'edtEvnButton', 'button', '提交', 'class="inputArea_sub_button"');
+('MenuMaintain', 'edt_evn_sbw', 'edt_evn_sub_window_swFooter', 1, 'edtEvnButton', 'button', '提交', 'class="inputArea_sub_button"'),
+
+
+-- 点击表格记录中的“维护页面元素”按钮后显示内容
+('MenuMaintain', 'dta_page', 'inputArea', 201, 'dtaTableDiv', 'div', '', 'class="inputArea"'),
+('MenuMaintain', 'dta_page', 'dtaTableDiv', 1, 'addDta', 'button', '新增页面事件', 'class="inputArea_sub_button"'),
+('MenuMaintain', 'dta_page', 'dtaTableDiv', 2, 'dtaTable', 'table', '元素事件列表', 'class="output_table"'),
+('MenuMaintain', 'dta_page', 'dtaTable', 998, 'edt_dta_button', 'table_record_button', '编辑', 'class="label_button"'),
+('MenuMaintain', 'dta_page', 'dtaTable', 999, 'del_dta_button', 'table_record_button', '删除', 'class="label_button"'),
+-- 点击“新增页面元素”按钮后的弹窗内容
+('MenuMaintain', 'add_dta_sbw', 'body', 1, 'add_dta_sub_window', 'subWindow', '新增页面数据', ''),
+('MenuMaintain', 'add_dta_sbw', 'add_dta_sub_window_swBody', 1, 'add_dta_sbw_div', 'div', '', 'class="showWithRowDiv"'),
+('MenuMaintain', 'add_dta_sbw', 'add_dta_sbw_div', 1, 'webDataId', 'input', 'web_data_id', ''),
+('MenuMaintain', 'add_dta_sbw', 'add_dta_sbw_div', 2, 'menu', 'input', '菜单', ''),
+('MenuMaintain', 'add_dta_sbw', 'add_dta_sbw_div', 3, 'page', 'input', '页面', ''),
+('MenuMaintain', 'add_dta_sbw', 'add_dta_sbw_div', 4, 'element', 'input', '元素', ''),
+('MenuMaintain', 'add_dta_sbw', 'add_dta_sbw_div', 5, 'dataType', 'input', '数据类型', ''),
+('MenuMaintain', 'add_dta_sbw', 'add_dta_sbw_div', 6, 'dataAttr', 'input', '数据属性', ''),
+('MenuMaintain', 'add_dta_sbw', 'add_dta_sbw_div', 7, 'express', 'input', '表达式', ''),
+('MenuMaintain', 'add_dta_sbw', 'add_dta_sub_window_swFooter', 1, 'addDtaButton', 'button', '提交', 'class="inputArea_sub_button"'),
+-- 点击表格记录中的“编辑”按钮后的弹窗内容
+('MenuMaintain', 'edt_dta_sbw', 'body', 1, 'edt_dta_sub_window', 'subWindow', '编辑页面元素', ''),
+('MenuMaintain', 'edt_dta_sbw', 'edt_dta_sub_window_swBody', 1, 'edt_dta_sbw_div', 'div', '', 'class="showWithRowDiv"'),
+('MenuMaintain', 'edt_dta_sbw', 'edt_dta_sbw_div', 1, 'web_data_id', 'input', 'web_data_id', ''),
+('MenuMaintain', 'edt_dta_sbw', 'edt_dta_sbw_div', 2, 'menu', 'input', '菜单', ''),
+('MenuMaintain', 'edt_dta_sbw', 'edt_dta_sbw_div', 3, 'page', 'input', '页面', ''),
+('MenuMaintain', 'edt_dta_sbw', 'edt_dta_sbw_div', 4, 'element', 'input', '元素', ''),
+('MenuMaintain', 'edt_dta_sbw', 'edt_dta_sbw_div', 5, 'data_type', 'input', '数据类型', ''),
+('MenuMaintain', 'edt_dta_sbw', 'edt_dta_sbw_div', 6, 'data_attr', 'input', '数据属性', ''),
+('MenuMaintain', 'edt_dta_sbw', 'edt_dta_sbw_div', 7, 'express', 'input', '表达式', ''),
+('MenuMaintain', 'edt_dta_sbw', 'edt_dta_sub_window_swFooter', 1, 'edtDtaButton', 'button', '提交', 'class="inputArea_sub_button"');
 
 DELETE FROM web_event;
 INSERT INTO web_event(menu, page, "element", event_type, request_type, request_bean, next_page, trigger_type, trigger_element, trigger_element_type, param)VALUES
@@ -105,9 +133,9 @@ INSERT INTO web_event(menu, page, "element", event_type, request_type, request_b
 ('MenuMaintain', 'start_page', 'del_menu_button', 'click', 'buttonReq', 'delNewMenu', NULL, NULL, NULL, NULL, NULL),
 ('MenuMaintain', 'add_menu_sbw', 'addMenuButton', 'click', 'buttonReq', 'addNewMenu', NULL, NULL, NULL, NULL, NULL),
 ('MenuMaintain', 'edt_menu_sbw', 'edtMenuButton', 'click', 'buttonReq', 'edtNewMenu', NULL, NULL, NULL, NULL, NULL),
-('MenuMaintain', 'start_page', 'dsp_ele_button', 'click', 'webDataReq', 'getWebElement', 'ele_page', NULL, NULL, NULL, NULL),
-('MenuMaintain', 'start_page', 'dsp_eve_button', 'click', 'webDataReq', 'getWebElement', 'ele_page', NULL, NULL, NULL, NULL),
-('MenuMaintain', 'start_page', 'dsp_dta_button', 'click', 'webDataReq', 'getWebElement', 'ele_page', NULL, NULL, NULL, NULL),
+('MenuMaintain', 'start_page', 'dsp_ele_button', 'click', 'webDataReq', 'getWebElement', '25', NULL, NULL, NULL, NULL),
+('MenuMaintain', 'start_page', 'dsp_eve_button', 'click', 'webDataReq', 'getWebElement', '54', NULL, NULL, NULL, NULL),
+('MenuMaintain', 'start_page', 'dsp_dta_button', 'click', 'webDataReq', 'getWebElement', '83', NULL, NULL, NULL, NULL),
 
 ('MenuMaintain', 'ele_page', 'addEle', 'click', 'swDataReq', 'xxxx', 'add_ele_sbw', NULL, NULL, NULL, NULL),
 ('MenuMaintain', 'ele_page', 'edt_ele_button', 'click', 'swDataReq', 'MenuMaintain', 'edt_ele_sbw', NULL, NULL, NULL, '{"valueFromSelectedRecord":true}'),
@@ -115,11 +143,95 @@ INSERT INTO web_event(menu, page, "element", event_type, request_type, request_b
 ('MenuMaintain', 'add_ele_sbw', 'addEleButton', 'click', 'buttonReq', 'addNewEle', NULL, NULL, NULL, NULL, NULL),
 ('MenuMaintain', 'edt_ele_sbw', 'edtEleButton', 'click', 'buttonReq', 'edtNewEle', NULL, NULL, NULL, NULL, NULL),
 
-('MenuMaintain', 'ele_page', 'addEvn', 'click', 'swDataReq', 'xxxx', 'add_evn_sbw', NULL, NULL, NULL, NULL),
-('MenuMaintain', 'ele_page', 'edt_evn_button', 'click', 'swDataReq', 'MenuMaintain', 'edt_ele_sbw', NULL, NULL, NULL, '{"valueFromSelectedRecord":true}'),
-('MenuMaintain', 'ele_page', 'del_evn_button', 'click', 'buttonReq', 'delNewEvn', NULL, NULL, NULL, NULL, NULL),
+('MenuMaintain', 'evn_page', 'addEvn', 'click', 'swDataReq', 'xxxx', 'add_evn_sbw', NULL, NULL, NULL, NULL),
+('MenuMaintain', 'evn_page', 'edt_evn_button', 'click', 'swDataReq', 'MenuMaintain', 'edt_evn_sbw', NULL, NULL, NULL, '{"valueFromSelectedRecord":true}'),
+('MenuMaintain', 'evn_page', 'del_evn_button', 'click', 'buttonReq', 'delNewEvn', NULL, NULL, NULL, NULL, NULL),
 ('MenuMaintain', 'add_evn_sbw', 'addEvnButton', 'click', 'buttonReq', 'addNewEvn', NULL, NULL, NULL, NULL, NULL),
-('MenuMaintain', 'edt_evn_sbw', 'edtEvnButton', 'click', 'buttonReq', 'edtNewEvn', NULL, NULL, NULL, NULL, NULL);
+('MenuMaintain', 'edt_evn_sbw', 'edtEvnButton', 'click', 'buttonReq', 'edtNewEvn', NULL, NULL, NULL, NULL, NULL),
+
+('MenuMaintain', 'dta_page', 'addDta', 'click', 'swDataReq', 'xxxx', 'add_dta_sbw', NULL, NULL, NULL, NULL),
+('MenuMaintain', 'dta_page', 'edt_dta_button', 'click', 'swDataReq', 'MenuMaintain', 'edt_dta_sbw', NULL, NULL, NULL, '{"valueFromSelectedRecord":true}'),
+('MenuMaintain', 'dta_page', 'del_dta_button', 'click', 'buttonReq', 'delNewDta', NULL, NULL, NULL, NULL, NULL),
+('MenuMaintain', 'add_dta_sbw', 'addDtaButton', 'click', 'buttonReq', 'addNewDta', NULL, NULL, NULL, NULL, NULL),
+('MenuMaintain', 'edt_dta_sbw', 'edtDtaButton', 'click', 'buttonReq', 'edtNewDta', NULL, NULL, NULL, NULL, NULL);
+
+delete from web_call_after;
+INSERT INTO web_call_after(menu, page, process_bean, process_status, opr_type, request_type, request_bean, param)VALUES
+('MenuMaintain', 'start_page_sub_add_menu', 'addNewMenu', 'false', 'showMessage', NULL, NULL, '{"msg":"新增菜单失败"}'),
+('MenuMaintain', 'start_page_sub_add_menu', 'addNewMenu', 'success', 'showMessage', NULL, NULL, '{"msg":"已成功新增菜单"}'),
+('MenuMaintain', 'start_page_sub_add_menu', 'addNewMenu', 'success', 'closeSw', '', '', '{"subWindowId":"add_menu_sub_window_subWindowBackGround"}'),
+('MenuMaintain', 'start_page_sub_add_menu', 'addNewMenu', 'success', 'request', 'menuReq', 'MenuMaintain', ''),
+
+('MenuMaintain', 'start_page_sub_edt_menu', 'edtNewMenu', 'false', 'showMessage', NULL, NULL, '{"msg":"更新菜单失败"}'),
+('MenuMaintain', 'start_page_sub_edt_menu', 'edtNewMenu', 'success', 'showMessage', NULL, NULL, '{"msg":"已成功更新菜单"}'),
+('MenuMaintain', 'start_page_sub_edt_menu', 'edtNewMenu', 'success', 'closeSw', '', '', '{"subWindowId":"edt_menu_sub_window_subWindowBackGround"}'),
+('MenuMaintain', 'start_page_sub_edt_menu', 'edtNewMenu', 'success', 'request', 'menuReq', 'MenuMaintain', ''),
+
+('MenuMaintain', 'start_page', 'delNewMenu', 'false', 'showMessage', NULL, NULL, '{"msg":"删除菜单失败"}'),
+('MenuMaintain', 'start_page', 'delNewMenu', 'success', 'showMessage', NULL, NULL, '{"msg":"已成功删除菜单"}'),
+('MenuMaintain', 'start_page', 'delNewMenu', 'success', 'request', 'menuReq', 'MenuMaintain', ''),
+
+-- 元素
+('MenuMaintain', 'add_ele_sbw', 'addNewEle', 'false', 'showMessage', NULL, NULL, '{"msg":"新增元素失败"}'),
+('MenuMaintain', 'add_ele_sbw', 'addNewEle', 'success', 'showMessage', NULL, NULL, '{"msg":"已成功新增元素"}'),
+('MenuMaintain', 'add_ele_sbw', 'addNewEle', 'success', 'closeSw', '', '', '{"subWindowId":"add_ele_sub_window_subWindowBackGround"}'),
+('MenuMaintain', 'add_ele_sbw', 'addNewEle', 'success', 'request', 'menuReq', 'MenuMaintain', ''),
+
+('MenuMaintain', 'edt_ele_sbw', 'edtNewEle', 'false', 'showMessage', NULL, NULL, '{"msg":"更新元素失败"}'),
+('MenuMaintain', 'edt_ele_sbw', 'edtNewEle', 'success', 'showMessage', NULL, NULL, '{"msg":"已成功更新元素"}'),
+('MenuMaintain', 'edt_ele_sbw', 'edtNewEle', 'success', 'closeSw', '', '', '{"subWindowId":"edt_ele_sub_window_subWindowBackGround"}'),
+('MenuMaintain', 'edt_ele_sbw', 'edtNewEle', 'success', 'request', 'webDataReq', 'getWebElement', ''),
+
+('MenuMaintain', 'start_page', 'delNewEle', 'false', 'showMessage', NULL, NULL, '{"msg":"删除元素失败"}'),
+('MenuMaintain', 'start_page', 'delNewEle', 'success', 'showMessage', NULL, NULL, '{"msg":"已成功删除元素"}'),
+('MenuMaintain', 'start_page', 'delNewEle', 'success', 'request', 'menuReq', 'MenuMaintain', ''),
+-- 事件
+('MenuMaintain', 'add_evn_sbw', 'addNewEvn', 'false', 'showMessage', NULL, NULL, '{"msg":"新增事件失败"}'),
+('MenuMaintain', 'add_evn_sbw', 'addNewEvn', 'success', 'showMessage', NULL, NULL, '{"msg":"已成功新增事件"}'),
+('MenuMaintain', 'add_evn_sbw', 'addNewEvn', 'success', 'closeSw', '', '', '{"subWindowId":"add_evn_sub_window_subWindowBackGround"}'),
+('MenuMaintain', 'add_evn_sbw', 'addNewEvn', 'success', 'request', 'menuReq', 'MenuMaintain', ''),
+
+('MenuMaintain', 'edt_evn_sbw', 'edtNewEvn', 'false', 'showMessage', NULL, NULL, '{"msg":"更新事件失败"}'),
+('MenuMaintain', 'edt_evn_sbw', 'edtNewEvn', 'success', 'showMessage', NULL, NULL, '{"msg":"已成功更新事件"}'),
+('MenuMaintain', 'edt_evn_sbw', 'edtNewEvn', 'success', 'closeSw', '', '', '{"subWindowId":"edt_evn_sub_window_subWindowBackGround"}'),
+('MenuMaintain', 'edt_evn_sbw', 'edtNewEvn', 'success', 'request', 'menuReq', 'MenuMaintain', ''),
+
+('MenuMaintain', 'start_page', 'delNewEvn', 'false', 'showMessage', NULL, NULL, '{"msg":"删除事件失败"}'),
+('MenuMaintain', 'start_page', 'delNewEvn', 'success', 'showMessage', NULL, NULL, '{"msg":"已成功删除事件"}'),
+('MenuMaintain', 'start_page', 'delNewEvn', 'success', 'request', 'menuReq', 'MenuMaintain', ''),
+-- 数据配置
+('MenuMaintain', 'add_dta_sbw', 'addNewDta', 'false', 'showMessage', NULL, NULL, '{"msg":"新增数据配置失败"}'),
+('MenuMaintain', 'add_dta_sbw', 'addNewDta', 'success', 'showMessage', NULL, NULL, '{"msg":"已成功新增数据配置"}'),
+('MenuMaintain', 'add_dta_sbw', 'addNewDta', 'success', 'closeSw', '', '', '{"subWindowId":"add_dta_sub_window_subWindowBackGround"}'),
+('MenuMaintain', 'add_dta_sbw', 'addNewDta', 'success', 'request', 'menuReq', 'MenuMaintain', ''),
+
+('MenuMaintain', 'edt_dta_sbw', 'edtNewDta', 'false', 'showMessage', NULL, NULL, '{"msg":"更新数据配置失败"}'),
+('MenuMaintain', 'edt_dta_sbw', 'edtNewDta', 'success', 'showMessage', NULL, NULL, '{"msg":"已成功更新数据配置"}'),
+('MenuMaintain', 'edt_dta_sbw', 'edtNewDta', 'success', 'closeSw', '', '', '{"subWindowId":"edt_dta_sub_window_subWindowBackGround"}'),
+('MenuMaintain', 'edt_dta_sbw', 'edtNewDta', 'success', 'request', 'menuReq', 'MenuMaintain', ''),
+
+('MenuMaintain', 'start_page', 'delNewDta', 'false', 'showMessage', NULL, NULL, '{"msg":"删除数据配置失败"}'),
+('MenuMaintain', 'start_page', 'delNewDta', 'success', 'showMessage', NULL, NULL, '{"msg":"已成功删除数据配置"}'),
+('MenuMaintain', 'start_page', 'delNewDta', 'success', 'request', 'menuReq', 'MenuMaintain', ''),
+
+('MenuMaintain', 'start_page', 'dsp_eve_button', 'success', 'removeEle', '', '', '{"removeEleId":"eleTableDiv"}'),
+('MenuMaintain', 'start_page', 'dsp_eve_button', 'success', 'removeEle', '', '', '{"removeEleId":"dtaTableDiv"}'),
+('MenuMaintain', 'start_page', 'dsp_ele_button', 'success', 'removeEle', '', '', '{"removeEleId":"evnTableDiv"}'),
+('MenuMaintain', 'start_page', 'dsp_ele_button', 'success', 'removeEle', '', '', '{"removeEleId":"dtaTableDiv"}'),
+('MenuMaintain', 'start_page', 'dsp_dta_button', 'success', 'removeEle', '', '', '{"removeEleId":"evnTableDiv"}'),
+('MenuMaintain', 'start_page', 'dsp_dta_button', 'success', 'removeEle', '', '', '{"removeEleId":"eleTableDiv"}');
+
+
+DELETE FROM web_data;
+INSERT INTO web_data(menu, page, "element", data_type, data_attr, express)VALUES
+('MenuMaintain', 'start_page', 'menuTable', 'sql', NULL, 'select * from web_menu'),
+('MenuMaintain', 'start_page', 'body_record_list', 'sql', NULL, 'select * from web_menu'),
+('MenuMaintain', 'ele_page', 'eleTable', 'sql', NULL, 'select * from web_element where menu=#menu#'),
+('MenuMaintain', 'evn_page', 'evnTable', 'sql', NULL, 'select * from web_event where menu=#menu#'),
+('MenuMaintain', 'dta_page', 'dtaTable', 'sql', NULL, 'select * from web_data where menu=#menu#');
+
+
+
 
 DELETE FROM web_element;
 INSERT INTO web_element (menu, page, element_parent, element_seq, "element", element_type, element_desc, element_attr) VALUES

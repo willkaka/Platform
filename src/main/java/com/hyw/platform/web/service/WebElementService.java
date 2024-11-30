@@ -10,6 +10,7 @@ import com.hyw.platform.funbean.WebTableDataReqFun;
 import com.hyw.platform.web.model.*;
 import com.hyw.platform.web.req.PublicReq;
 import com.hyw.platform.web.resp.EventInfo;
+import com.hyw.platform.web.resp.NextOprDto;
 import com.hyw.platform.web.resp.webElement.WebElementDto;
 import com.hyw.platform.web.resp.webElement.TableNormal;
 import com.hyw.platform.web.util.WebUtil;
@@ -45,6 +46,40 @@ public class WebElementService {
             List<WebElementDto> webElementDtos = convert2Dto(webElement,publicReq);
             if(CollectionUtils.isNotEmpty(webElementDtos)) webElementDtoDtoList.addAll(webElementDtos);
         }
+        return webElementDtoDtoList;
+    }
+
+    public NextOprDto getCallAfterOpr(String menu, String page, String reqMapping){
+        List<WebCallAfter> webCallAfterList = dataService.list(new NQueryWrapper<WebCallAfter>()
+                .eq(WebCallAfter::getMenu, menu)
+                .eq(WebCallAfter::getPage, page)
+                .eq(WebCallAfter::getProcessStatus, "success")
+                .eq(WebCallAfter::getProcessBean, reqMapping));
+        List<EventInfo> eventInfoList = new ArrayList<>();
+        for(WebCallAfter webCallAfter:webCallAfterList){
+            EventInfo eventInfo = new EventInfo();
+            eventInfo.setMenu(webCallAfter.getMenu());
+            eventInfo.setPage(webCallAfter.getPage());
+            eventInfo.setEvent(webCallAfter.getOprType());
+            eventInfo.setReqType(webCallAfter.getRequestType());
+            eventInfo.setReqMapping(webCallAfter.getRequestBean());
+            if(org.apache.commons.lang3.StringUtils.isNotBlank(webCallAfter.getParam())) {
+                eventInfo.setParamMap(JSON.parseObject(webCallAfter.getParam()));
+            }
+            eventInfoList.add(eventInfo);
+        }
+        NextOprDto nextOprDto = new NextOprDto();
+        nextOprDto.setEventInfoList(eventInfoList);
+        return nextOprDto;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<WebElementDto> getPageElementsById(String menu, String id, String parentElement,PublicReq publicReq){
+        List<WebElementDto> webElementDtoDtoList = new ArrayList<>();
+        WebElement webElement = dataService.getOne(new NQueryWrapper<WebElement>()
+                    .eq(WebElement::getWebElementId, id));
+        List<WebElementDto> webElementDtos = convert2Dto(webElement,publicReq);
+        if(CollectionUtils.isNotEmpty(webElementDtos)) webElementDtoDtoList.addAll(webElementDtos);
         return webElementDtoDtoList;
     }
 
