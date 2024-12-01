@@ -30,11 +30,23 @@ function nextOpr(PublicResp,nextOprDto){
             }
         }
         if(null != eventInfo && eventInfo.event == "request"){
+            if(eventInfo.paramMap == null){
+                eventInfo.paramMap = {};
+            }
+        //{"element":"dsp_eve_button","event":"click","menu":"MenuMaintain","nextPage":"54","page":"start_page",
+        // "reqMapping":"getWebElement","reqPage":0,"reqType":"webDataReq","withPage":false}
+
+        // {"event":"request","menu":"MenuMaintain","page":"edt_ele_sbw","reqMapping":"getWebElement","reqPage":0,"reqType":"webDataReq","withPage":false}
             executeEventMethod(eventInfo,null);
         }
         if(null != eventInfo && eventInfo.event == "closeSw"){
             let subWindowId = eventInfo.paramMap["subWindowId"];
             hideById(subWindowId); //add_sub_window
+        }
+
+        if(null != eventInfo && eventInfo.event == "removeEle"){
+            let subWindowId = eventInfo.paramMap["removeEleId"];
+            removeElementById(subWindowId);
         }
     }
 }

@@ -50,7 +50,7 @@ public class BaseInfoController {
     @RequestMapping(value = {"/", "", "index"})
     public String startRequest(Model model) {
         model.addAttribute("webSiteName", Constant.WEB_SITE_TITLE);
-        return "index_test";
+        return "index";
     }
 
     /**
@@ -188,7 +188,12 @@ public class BaseInfoController {
         }
         Map<String,Object> param = eventInfo.getParamMap();
         String page = eventInfo.getNextPage();
-        if(StringUtils.isNotBlank(page)){
+        String refreshFlag = (String) param.getOrDefault("refreshFlag","N");
+        if("Y".equalsIgnoreCase(refreshFlag)){
+            String refreshPage = (String) param.get("refreshPage");
+            List<WebElementDto> inputList = webElementService.getPageElementsById(eventInfo.getMenu(), refreshPage, null, publicReq);
+            publicResp.setWebElementDtoList(inputList);
+        }else if(StringUtils.isNotBlank(page)){
             List<WebElementDto> inputList = webElementService.getPageElementsById(eventInfo.getMenu(), page, null, publicReq);
             publicResp.setWebElementDtoList(inputList);
         }else {
