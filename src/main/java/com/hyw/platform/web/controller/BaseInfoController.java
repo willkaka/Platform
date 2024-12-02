@@ -1,6 +1,6 @@
 package com.hyw.platform.web.controller;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 import com.hyw.platform.exception.BizException;
 import com.hyw.platform.funbean.RequestFun;
 import com.hyw.platform.web.req.PublicReq;
@@ -47,7 +47,7 @@ public class BaseInfoController {
     @RequestMapping(value = {"/", "", "index"})
     public String startRequest(Model model) {
         model.addAttribute("webSiteName", Constant.WEB_SITE_TITLE);
-        return "index";
+        return "index_test";
     }
 
     /**
@@ -217,12 +217,10 @@ public class BaseInfoController {
 
         //取输入区域元素清单，固定从body开始
         List<WebElementDto> inputList = webElementService.getPageElementsByParentEle(eventInfo.getMenu(), nextPage,null,publicReq);
-        if(CollectionUtils.isNotEmpty(inputList) && param!=null && param.size()>0) {
-            inputList.forEach(in -> {
-                param.forEach((k, v) -> {
-                    if (k.equals(in.getId())) in.setDefValue(v.toString());
-                });
-            });
+        if(CollectionUtils.isNotEmpty(inputList) && param!=null && !param.isEmpty()) {
+            inputList.forEach(in -> param.forEach((k, v) -> {
+                if (k.equals(in.getId())) in.setDefValue(v.toString());
+            }));
         }
         publicResp.setWebElementDtoList(inputList);
         NextOprDto nextOprDto = new NextOprDto();
@@ -236,9 +234,8 @@ public class BaseInfoController {
 
     private NextOprDto getNextOpr(Map<String,Object> param){
         if(param==null) return null;
-        String str = JSONObject.toJSONString(param.get("nextOprDto"));
+        String str = JSON.toJSONString(param.get("nextOprDto"));
         if(StringUtils.isBlank(str)) return null;
-        NextOprDto nextOprDto = JSONObject.parseObject(str,NextOprDto.class);
-        return nextOprDto;
+        return JSON.parseObject(str,NextOprDto.class);
     }
 }
