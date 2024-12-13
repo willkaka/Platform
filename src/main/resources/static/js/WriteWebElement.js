@@ -78,6 +78,7 @@ function writeWebElementRoute(parentEleId,elementInfo,eventInfo){
     if(elementInfo.type == "Group") writeGroup(parentEle,elementInfo);
     if(elementInfo.type == "Menu") writeMenu(parentEle,elementInfo);
     if(elementInfo.type == "div") writeDiv(parentEle,elementInfo);
+    if(elementInfo.type == "divTitle") writeDivTitle(parentEle,elementInfo);
     if(elementInfo.type == "button") writeButton(parentEle,elementInfo);
 
     if(elementInfo.type == "table") writeTableLabel(parentEle,elementInfo);
@@ -85,6 +86,7 @@ function writeWebElementRoute(parentEleId,elementInfo,eventInfo){
     if(elementInfo.type == "table_record_radio") writeTableRadio(parentEle,elementInfo);
 
     if(elementInfo.type == "input") writeInput(parentEle,elementInfo,eventInfo);
+    if(elementInfo.type == "inputWithoutLabel") writeInputWithoutLabel(parentEle,elementInfo,eventInfo);
     if(elementInfo.type == "inputFile") writeInputFile(parentEle,elementInfo);
     if(elementInfo.type == "dropDown") writeDropDown(parentEle,elementInfo);
     if(elementInfo.type == "inputDataList") writeInputDataList(parentEle,elementInfo);
@@ -102,6 +104,17 @@ function writeDiv(parentEle,elementInfo){
 
     parentEle.appendChild(element_div);
 }
+
+function writeDivTitle(parentEle,elementInfo){
+    let element_div = document.createElement("div");
+    element_div.setAttribute("id",elementInfo.id); //id
+    setAttr(element_div,elementInfo.attrMap); // 属性配置
+    setEventListener(element_div,elementInfo.eventInfoList); //事件
+    element_div.innerHTML = elementInfo.desc;//名称
+
+    parentEle.appendChild(element_div);
+}
+
 /**
   *    <div class="menuDropDown">
            <a class="menuDropButton" href="#">下拉菜单</a>
@@ -139,6 +152,26 @@ function writeMenu(parentEle,elementInfo){
     setAttr(element_a,elementInfo.attrMap); // 属性配置
     setEventListener(element_a,elementInfo.eventInfoList); //事件
     parentEle.appendChild(element_a);
+}
+
+/**
+ * 在父元素插入生成的输入框 div label/input
+ **/
+function writeInputWithoutLabel(parentEle,elementInfo,eventInfo){
+    let input = document.createElement("input");
+    input.setAttribute("id",elementInfo.id);
+    if(null != elementInfo.desc){
+        input.setAttribute("placeholder",elementInfo.desc);
+    }
+    if(null != elementInfo.defValue){
+        input.setAttribute("value",elementInfo.defValue);
+    }
+    if(eventInfo!=null && eventInfo.paramMap!=null && eventInfo.paramMap["valueFromSelectedRecord"]){
+        input.setAttribute("value", eventInfo.paramMap[elementInfo.id])
+        input.setAttribute("defaultValue", eventInfo.paramMap[elementInfo.id])
+    }
+    input.setAttribute("class","inputArea_sub_input");
+    appendChildAtSeq(parentEle,input,elementInfo.seq);
 }
 
 /**

@@ -5,6 +5,7 @@ import com.hyw.gdata.NQueryWrapper;
 import com.hyw.platform.exception.BizException;
 import com.hyw.platform.funbean.RequestFun;
 import com.hyw.platform.web.model.WebCallAfter;
+import com.hyw.platform.web.model.WebEvent;
 import com.hyw.platform.web.req.PublicReq;
 import com.hyw.platform.web.resp.EventInfo;
 import com.hyw.platform.web.resp.NextOprDto;
@@ -203,6 +204,9 @@ public class BaseInfoController {
             publicResp.setWebElementDtoList(inputList);
         }
         NextOprDto nextOprDto = webElementService.getCallAfterOpr(eventInfo.getMenu(), eventInfo.getPage(), eventInfo.getElement());
+        for(EventInfo eventInfo1:nextOprDto.getEventInfoList()){
+            eventInfo1.getParamMap().putAll(param);
+        }
         publicResp.setNextOprDto(nextOprDto);
 
         publicResp.setRtnCode("0000");

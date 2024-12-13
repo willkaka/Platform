@@ -9,6 +9,7 @@ import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.ui.Model;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -49,15 +50,20 @@ public class WebLogAspect {
             sb.append("Method    : ").append(joinPoint.getSignature().getName()).append("\n");
             sb.append("Header    : {").append("\n");
             Enumeration<String> requestHeader = request.getHeaderNames();
+            String traceId = null;
             while (requestHeader.hasMoreElements()) {
                 String headerKey = requestHeader.nextElement();
                 if(headerKey.length()<=2) continue;
                 // 打印所有Header值
                 sb.append("    ").append(headerKey).append(" : ").append(request.getHeader(headerKey)).append("\n");
+                if("trace-id".equalsIgnoreCase(headerKey)){
+                    traceId = request.getHeader(headerKey);
+                }
             }
             sb.append("}").append("\n");
             sb.append("Params    : ").append(getParams(joinPoint)).append("\n");
             sb.append("URI       : ").append(request.getMethod()).append(" ").append(request.getRequestURI()).append("\n");
+            MDC.put("traceId", traceId);
             // 记录下请求内容
             logger.info(sb.toString());
         } catch (Exception e) {
@@ -82,6 +88,7 @@ public class WebLogAspect {
             sb.append("Result    : ").append(getResult(ret));
             sb.append("\n-----------------------------结束调用:-----------------------------\n");
             logger.info(sb.toString());
+            MDC.remove("traceId");
         } catch (Exception e) {
             logger.warn("切面处理后错误", e);
         }

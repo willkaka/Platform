@@ -30,6 +30,7 @@ public class DelNewEle extends RequestFunUnit<String, DelNewEle.QueryVariable> {
     public void checkVariable(DelNewEle.QueryVariable variable){
         //输入检查
 
+        BizException.trueThrow(StringUtils.isBlank(variable.getWebElementId()),"id,不允许为空值!");
         BizException.trueThrow(StringUtils.isBlank(variable.getMenu()),"菜单,不允许为空值!");
         BizException.trueThrow(StringUtils.isBlank(variable.getElement()),"元素,不允许为空值!");
         BizException.trueThrow(StringUtils.isBlank(variable.getElementParent()),"父级元素不允许为空值!");
@@ -38,6 +39,7 @@ public class DelNewEle extends RequestFunUnit<String, DelNewEle.QueryVariable> {
     @Override
     public String execLogic(PublicReq publicReq, DelNewEle.QueryVariable dto){
         WebElement webElement = dataService.getOne(new NQueryWrapper<WebElement>()
+                .eq(WebElement::getWebElementId, dto.getWebElementId())
                 .eq(WebElement::getMenu, dto.getMenu())
                 .eq(WebElement::getPage, dto.getPage())
                 .eq(WebElement::getElementParent, dto.getElementParent())
@@ -58,6 +60,7 @@ public class DelNewEle extends RequestFunUnit<String, DelNewEle.QueryVariable> {
     @Setter
     @Accessors(chain = true)
     public static class QueryVariable extends RequestPubDto {
+        private String webElementId;
         private String menu;
         private String page;
         private String elementParent;

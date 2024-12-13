@@ -14,6 +14,7 @@ import com.hyw.platform.web.resp.PublicResp;
 import com.hyw.platform.web.service.WebElementService;
 import com.hyw.platform.web.util.ObjectUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -80,6 +81,14 @@ public abstract class RequestFunUnit<D, V extends RequestPubDto> implements Requ
             ValueObject value = entry.getValue();
             String modifiedKey = com.hyw.platform.web.util.StringUtils.camelCaseToUnderline( key );
             camelFieldMap.put(modifiedKey, value);
+        }
+        if(requestDto.getEventInfo() != null && MapUtils.isNotEmpty(requestDto.getEventInfo().getParamMap())){
+            for (Map.Entry<String, Object> entry : requestDto.getEventInfo().getParamMap().entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                String modifiedKey = com.hyw.platform.web.util.StringUtils.camelCaseToUnderline( key );
+                camelFieldMap.put(modifiedKey, new ValueObject().setValue(value));
+            }
         }
         List<Field> fields = ObjectUtil.getAllFieldList(variable.getClass());
         for(Field field:fields){
@@ -178,6 +187,14 @@ public abstract class RequestFunUnit<D, V extends RequestPubDto> implements Requ
                     eventInfo.setParamMap(JSON.parseObject(webCallAfter.getParam()));
                 }
                 eventInfoList.add(eventInfo);
+            }
+            if(requestDto.getEventInfo()!=null && MapUtils.isNotEmpty(requestDto.getEventInfo().getParamMap())) {
+                for (EventInfo eventInfo : eventInfoList) {
+                    if(MapUtils.isEmpty(eventInfo.getParamMap())){
+                        eventInfo.setParamMap(new HashMap<>());
+                    }
+                    eventInfo.getParamMap().putAll(requestDto.getEventInfo().getParamMap());
+                }
             }
             returnDto.setNextOprDto(new NextOprDto().setEventInfoList(eventInfoList));
             return returnDto;

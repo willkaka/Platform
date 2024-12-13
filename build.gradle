@@ -17,8 +17,8 @@ configurations {
 repositories {
     mavenCentral()
     flatDir{
-//        dirs 'D:\\ideaSpace\\jars'
-        dirs 'E:\\javasource\\jars'
+        dirs 'D:\\ideaSpace\\jars'
+//        dirs 'E:\\javasource\\jars'
     }
 }
 

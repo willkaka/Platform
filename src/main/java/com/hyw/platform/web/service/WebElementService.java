@@ -16,6 +16,7 @@ import com.hyw.platform.web.resp.webElement.TableNormal;
 import com.hyw.platform.web.util.WebUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -275,6 +276,13 @@ public class WebElementService {
                     for (String key : paramMap.keySet()) {
                         if (StringUtils.isNotBlank(key)) {
                             sql = sql.replaceAll("#" + key + "#", "'" + paramMap.get(key) + "'");
+                        }
+                    }
+                }
+                if(publicReq.getWebValueDto()!=null && MapUtils.isNotEmpty(publicReq.getWebValueDto().getWebInputValueMap())){
+                    for (String key : publicReq.getWebValueDto().getWebInputValueMap().keySet()) {
+                        if (StringUtils.isNotBlank(key)) {
+                            sql = sql.replaceAll("#" + key + "#", "'" + publicReq.getWebValueDto().getWebInputValueMap().get(key).getValue() + "'");
                         }
                     }
                 }
