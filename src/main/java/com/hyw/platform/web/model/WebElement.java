@@ -21,6 +21,12 @@ public class WebElement {
      * null
      */
     //menu
+    private String elementNo;
+
+    /**
+     * null
+     */
+    //menu
     private String menu;
 
     /**
@@ -39,7 +45,7 @@ public class WebElement {
      * null
      */
     //element_seq
-    private Integer elementSeq;
+    private Integer sortNo;
 
     /**
      * null
@@ -64,5 +70,7 @@ public class WebElement {
      */
     //element_attr
     private String elementAttr;
+
+    private String param;
 
 }

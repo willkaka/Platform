@@ -56,24 +56,6 @@ public class WebEvent {
     /**
      * null
      */
-    //trigger_type
-    private String triggerType;
-
-    /**
-     * null
-     */
-    //trigger_element
-    private String triggerElement;
-
-    /**
-     * null
-     */
-    //trigger_element_type
-    private String triggerElementType;
-
-    /**
-     * null
-     */
     //next_page
     private String nextPage;
 

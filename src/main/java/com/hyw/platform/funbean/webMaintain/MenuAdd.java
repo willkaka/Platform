@@ -15,9 +15,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service("delNewMenu")
+@Service("menuAdd")
 @Slf4j
-public class DelNewMenu extends RequestFunUnit<String, DelNewMenu.QueryVariable> {
+public class MenuAdd extends RequestFunUnit<String, MenuAdd.QueryVariable> {
 
     @Autowired
     private DataService dataService;
@@ -27,26 +27,35 @@ public class DelNewMenu extends RequestFunUnit<String, DelNewMenu.QueryVariable>
      * @param variable 参数
      */
     @Override
-    public void checkVariable(DelNewMenu.QueryVariable variable){
+    public void checkVariable(MenuAdd.QueryVariable variable){
         //输入检查
         BizException.trueThrow(StringUtils.isBlank(variable.getMenuParent()),"父级菜单不允许为空值!");
 
         BizException.trueThrow(StringUtils.isBlank(variable.getMenu()),"菜单,不允许为空值!");
 
-        BizException.trueThrow(StringUtils.isBlank(variable.getMenuSeq()),"菜单序号,不允许为空值!");
+//        BizException.trueThrow(StringUtils.isBlank(variable.getSortNo()),"菜单序号,不允许为空值!");
         BizException.trueThrow(StringUtils.isBlank(variable.getMenuDesc()),"菜单名称,不允许为空值!");
 
     }
 
     @Override
-    public String execLogic(PublicReq publicReq, DelNewMenu.QueryVariable dto){
+    public String execLogic(PublicReq publicReq, MenuAdd.QueryVariable dto){
+        @SuppressWarnings("unchecked")
+        WebMenu webMenuTemp = dataService.getOne(new NQueryWrapper<WebMenu>().orderByDesc(WebMenu::getMenuNo));
+        int maxMenuNo = webMenuTemp==null?0:Integer.parseInt(webMenuTemp.getMenuNo().replace("MN",""));
+        String menuNo = String.format("MN%04d",maxMenuNo+1);
 
-        WebMenu webMenu = dataService.getOne(new NQueryWrapper<WebMenu>()
-                .eq(WebMenu::getMenu, dto.getMenu())
-                .eq(WebMenu::getMenuParent, dto.getMenuParent()));
-        BizException.trueThrow(webMenu==null,"查无记录!");
+        @SuppressWarnings("unchecked")
+        WebMenu webMenuTemp2 = dataService.getOne(new NQueryWrapper<WebMenu>().orderByDesc(WebMenu::getSortNo));
+        int sortNo = webMenuTemp2==null?0:webMenuTemp2.getSortNo();
 
-        dataService.delete(webMenu,"webMenuId");
+        WebMenu webMenu = new WebMenu();
+        webMenu.setMenuNo(menuNo);
+        webMenu.setMenuParent(dto.getMenuParent());
+        webMenu.setSortNo(sortNo+1);
+        webMenu.setMenu(dto.getMenu());
+        webMenu.setMenuDesc(dto.getMenuDesc());
+        dataService.save(webMenu);
 
         return "";
     }
@@ -58,9 +67,9 @@ public class DelNewMenu extends RequestFunUnit<String, DelNewMenu.QueryVariable>
     @Setter
     @Accessors(chain = true)
     public static class QueryVariable extends RequestPubDto {
-        private String menuParent;
-        private String menuSeq;
         private String menu;
+        private String sortNo;
+        private String menuParent;
         private String menuDesc;
     }
 }

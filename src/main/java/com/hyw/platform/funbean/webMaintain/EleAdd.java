@@ -12,12 +12,13 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service("delNewEle")
+@Service("eleAdd")
 @Slf4j
-public class DelNewEle extends RequestFunUnit<String, DelNewEle.QueryVariable> {
+public class EleAdd extends RequestFunUnit<String, EleAdd.QueryVariable> {
 
     @Autowired
     private DataService dataService;
@@ -27,28 +28,32 @@ public class DelNewEle extends RequestFunUnit<String, DelNewEle.QueryVariable> {
      * @param variable 参数
      */
     @Override
-    public void checkVariable(DelNewEle.QueryVariable variable){
+    public void checkVariable(EleAdd.QueryVariable variable){
         //输入检查
 
-        BizException.trueThrow(StringUtils.isBlank(variable.getWebElementId()),"id,不允许为空值!");
         BizException.trueThrow(StringUtils.isBlank(variable.getMenu()),"菜单,不允许为空值!");
         BizException.trueThrow(StringUtils.isBlank(variable.getElement()),"元素,不允许为空值!");
         BizException.trueThrow(StringUtils.isBlank(variable.getElementParent()),"父级元素不允许为空值!");
     }
 
     @Override
-    public String execLogic(PublicReq publicReq, DelNewEle.QueryVariable dto){
-        WebElement webElement = dataService.getOne(new NQueryWrapper<WebElement>()
-                .eq(WebElement::getWebElementId, dto.getWebElementId())
-                .eq(WebElement::getMenu, dto.getMenu())
-                .eq(WebElement::getPage, dto.getPage())
-                .eq(WebElement::getElementParent, dto.getElementParent())
-                .eq(WebElement::getElementSeq, dto.getElementSeq())
-                .eq(WebElement::getElement, dto.getElement())
-        );
-        BizException.trueThrow(webElement==null,"查无记录!");
+    public String execLogic(PublicReq publicReq, EleAdd.QueryVariable dto){
+        @SuppressWarnings("unchecked")
+        WebElement webElementTemp = dataService.getOne(new NQueryWrapper<WebElement>().orderByDesc(WebElement::getElementNo));
+        int maxMenuNo = webElementTemp==null?0:Integer.parseInt(webElementTemp.getElementNo().replace("EM",""));
+        String menuNo = String.format("EM%06d",maxMenuNo+1);
 
-        dataService.delete(webElement,"webElementId");
+        @SuppressWarnings("unchecked")
+        WebElement webElementTemp2 = dataService.getOne(new NQueryWrapper<WebElement>()
+                .eq(WebElement::getMenu, dto.getMenu())
+                .orderByDesc(WebElement::getSortNo));
+        int sortNo = webElementTemp2==null?0:webElementTemp2.getSortNo();
+
+        WebElement webElement = new WebElement();
+        BeanUtils.copyProperties(dto, webElement);
+        webElement.setElementNo(menuNo);
+        webElement.setSortNo(sortNo+1);
+        dataService.save(webElement);
 
         return "";
     }
@@ -60,7 +65,6 @@ public class DelNewEle extends RequestFunUnit<String, DelNewEle.QueryVariable> {
     @Setter
     @Accessors(chain = true)
     public static class QueryVariable extends RequestPubDto {
-        private String webElementId;
         private String menu;
         private String page;
         private String elementParent;

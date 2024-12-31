@@ -10,6 +10,7 @@ import com.hyw.platform.web.resp.webElement.TableNormal;
 import com.hyw.platform.web.service.WebElementService;
 import com.hyw.platform.web.util.ObjectUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.Field;
@@ -124,7 +125,11 @@ public abstract class RequestTableDataUnit<V extends RequestPubDto> implements W
      * @return ReturnDto
      */
     public TableNormal returnData(PublicReq publicReq, TableNormal data, V variable){
+        if(publicReq.getEventInfo()!=null && MapUtils.isNotEmpty(publicReq.getEventInfo().getParamMap()) &&
+                publicReq.getEventInfo().getParamMap().containsKey("rtnElement")){
+            String rtnElement = (String) publicReq.getEventInfo().getParamMap().get("rtnElement");
 
+        }
         return data;
     }
 

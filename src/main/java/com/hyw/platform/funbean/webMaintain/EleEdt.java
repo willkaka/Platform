@@ -16,9 +16,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service("edtNewEle")
+@Service("eleEdt")
 @Slf4j
-public class EdtNewEle extends RequestFunUnit<String, EdtNewEle.QueryVariable> {
+public class EleEdt extends RequestFunUnit<String, EleEdt.QueryVariable> {
 
     @Autowired
     private DataService dataService;
@@ -28,7 +28,7 @@ public class EdtNewEle extends RequestFunUnit<String, EdtNewEle.QueryVariable> {
      * @param variable 参数
      */
     @Override
-    public void checkVariable(EdtNewEle.QueryVariable variable){
+    public void checkVariable(EleEdt.QueryVariable variable){
         //输入检查
         BizException.trueThrow(StringUtils.isBlank(variable.getMenu()),"菜单,不允许为空值!");
         BizException.trueThrow(StringUtils.isBlank(variable.getElement()),"元素,不允许为空值!");
@@ -38,13 +38,13 @@ public class EdtNewEle extends RequestFunUnit<String, EdtNewEle.QueryVariable> {
     }
 
     @Override
-    public String execLogic(PublicReq publicReq, EdtNewEle.QueryVariable dto){
+    public String execLogic(PublicReq publicReq, EleEdt.QueryVariable dto){
         WebElement webElement = dataService.getOne(new NQueryWrapper<WebElement>()
                 .eq(WebElement::getWebElementId, dto.getDefaultWebElementId()));
         BizException.trueThrow(webElement==null,"查无记录!");
 
         BeanUtils.copyProperties(dto, webElement);
-        dataService.updateById(webElement,"webElementId");
+        dataService.updateById(webElement);
         return "";
     }
 
@@ -57,20 +57,22 @@ public class EdtNewEle extends RequestFunUnit<String, EdtNewEle.QueryVariable> {
     public static class QueryVariable extends RequestPubDto {
         // 修改后的新值
         private String webElementId;
+        private String elementNo;
+        private Integer sortNo;
         private String menu;
         private String page;
         private String elementParent;
-        private Integer elementSeq;
         private String element;
         private String elementType;
         private String elementDesc;
         private String elementAttr;
         // 原值
         private String defaultWebElementId;
+        private String defaultElementNo;
+        private Integer defaultSortNo;
         private String defaultMenu;
         private String defaultPage;
         private String defaultElementParent;
-        private Integer defaultElementSeq;
         private String defaultElement;
         private String defaultElementType;
         private String defaultElementDesc;

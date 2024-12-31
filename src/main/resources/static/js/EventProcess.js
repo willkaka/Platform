@@ -20,6 +20,8 @@ function executeEventMethod(eventInfo,sourceElement) {
         if(!del){
             return;
         }
+        // 因会将事件参数传到后续处理动作中，因此此处已弹窗确认后将标志改为false,不影响后续处理。
+        eventInfo.paramMap["showConfirmSW"]=false;
     }
 
     // 取事件源信息，并保存在eventInfo中

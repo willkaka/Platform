@@ -1,5 +1,7 @@
 package com.hyw.platform.web.resp.webElement;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.hyw.gdata.DataService;
 import com.hyw.gdata.NQueryWrapper;
 import com.hyw.platform.exception.BizException;
@@ -12,8 +14,10 @@ import com.ql.util.express.ExpressRunner;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +29,10 @@ public class WebElementDto {
      * 页面元素id
      */
     private String id;
+    /**
+     * 页面元素编号
+     */
+    private String elementNo;
     /**
      * 页面元素位置-菜单
      */
@@ -40,7 +48,7 @@ public class WebElementDto {
     /**
      * 页面元素序号
      */
-    private Integer seq;
+    private Integer sortNo;
     /**
      * 页面元素类型
      * group-菜单组
@@ -67,6 +75,10 @@ public class WebElementDto {
      */
     private Map<String,String> attrMap;
     /**
+     * 控制参数
+     */
+    private Map<String,Object> param;
+    /**
      * 页面元素事件定义
      */
     private List<EventInfo> eventInfoList;
@@ -82,13 +94,15 @@ public class WebElementDto {
 
     public WebElementDto(WebElement webElement){
         this.id=webElement.getElement();
+        this.elementNo= webElement.getElementNo();
         this.pId=webElement.getElementParent();
         this.menu=webElement.getMenu();
         this.page=webElement.getPage();
-        this.seq=webElement.getElementSeq();
+        this.sortNo =webElement.getSortNo();
         this.desc=webElement.getElementDesc();
         this.type=webElement.getElementType();
         this.attrMap= ConvertEleData.getAttrMap(webElement.getElementAttr(), ";", "=");
+        this.param = StringUtils.isBlank(webElement.getParam())?new HashMap<>():new HashMap<>(JSON.parseObject(webElement.getParam()));
     }
 
     /**

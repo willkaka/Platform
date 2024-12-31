@@ -1,7 +1,6 @@
 package com.hyw.platform.funbean.webMaintain;
 
 import com.hyw.gdata.DataService;
-import com.hyw.gdata.NQueryWrapper;
 import com.hyw.platform.exception.BizException;
 import com.hyw.platform.funbean.abs.RequestFunUnit;
 import com.hyw.platform.funbean.abs.RequestPubDto;
@@ -16,9 +15,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service("edtNewEvn")
+@Service("evnAdd")
 @Slf4j
-public class EdtNewEvn extends RequestFunUnit<String, EdtNewEvn.QueryVariable> {
+public class EvnAdd extends RequestFunUnit<String, EvnAdd.QueryVariable> {
 
     @Autowired
     private DataService dataService;
@@ -28,23 +27,20 @@ public class EdtNewEvn extends RequestFunUnit<String, EdtNewEvn.QueryVariable> {
      * @param variable 参数
      */
     @Override
-    public void checkVariable(EdtNewEvn.QueryVariable variable){
+    public void checkVariable(EvnAdd.QueryVariable variable){
         //输入检查
+
         BizException.trueThrow(StringUtils.isBlank(variable.getMenu()),"菜单,不允许为空值!");
         BizException.trueThrow(StringUtils.isBlank(variable.getElement()),"元素,不允许为空值!");
         BizException.trueThrow(StringUtils.isBlank(variable.getEventType()),"事件类型不允许为空值!");
-
-        BizException.trueThrow(!variable.getWebEventId().equals(variable.getDefaultWebEventId()),"web_event_id不允许修改!");
     }
 
     @Override
-    public String execLogic(PublicReq publicReq, EdtNewEvn.QueryVariable dto){
-        WebEvent webEvent = dataService.getOne(new NQueryWrapper<WebEvent>()
-                .eq(WebEvent::getWebEventId, dto.getDefaultWebEventId()));
-        BizException.trueThrow(webEvent==null,"查无记录!");
-
+    public String execLogic(PublicReq publicReq, EvnAdd.QueryVariable dto){
+        WebEvent webEvent = new WebEvent();
         BeanUtils.copyProperties(dto, webEvent);
-        dataService.updateById(webEvent,"webEventId");
+        dataService.save(webEvent);
+
         return "";
     }
 
@@ -55,8 +51,6 @@ public class EdtNewEvn extends RequestFunUnit<String, EdtNewEvn.QueryVariable> {
     @Setter
     @Accessors(chain = true)
     public static class QueryVariable extends RequestPubDto {
-        // 修改后的新值
-        private String webEventId;
         private String menu;
         private String page;
         private String element;
@@ -65,15 +59,5 @@ public class EdtNewEvn extends RequestFunUnit<String, EdtNewEvn.QueryVariable> {
         private String requestBean;
         private String nextPage;
         private String param;
-        // 原值
-        private String defaultWebEventId;
-        private String defaultMenu;
-        private String defaultPage;
-        private String defaultElement;
-        private String defaultEventType;
-        private String defaultRequestType;
-        private String defaultRequestBean;
-        private String defaultNextPage;
-        private String defaultParam;
     }
 }

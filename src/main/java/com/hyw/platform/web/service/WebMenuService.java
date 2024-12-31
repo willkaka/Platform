@@ -32,13 +32,12 @@ public class WebMenuService {
         @SuppressWarnings("unchecked")
         List<WebMenu> webMenuList = dataService.list(new NQueryWrapper<WebMenu>()
                 .eq(WebMenu::getMenuParent, parentMenu)
-                .orderByAsc(WebMenu::getWebMenuId));
+                .orderByAsc(WebMenu::getSortNo));
         for (WebMenu webMenu : webMenuList) {
             WebElementDto webElementDto = new WebElementDto();
             webElementDto.setPId("root".equals(webMenu.getMenuParent()) ? "menuArea" : webMenu.getMenuParent());
             webElementDto.setId(webMenu.getMenu());
             webElementDto.setType("root".equals(webMenu.getMenuParent()) ? "Group" : "Menu");
-            webElementDto.setId(webMenu.getMenu());
             webElementDto.setDesc(webMenu.getMenuDesc());
             webElementDto.setEventInfoList(getEventInfoList(webMenu.getMenu(),"menuEvent"));
             webElementDto.setSubElementList(getMenu(webMenu.getMenu()));

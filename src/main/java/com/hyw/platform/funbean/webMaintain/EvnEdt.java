@@ -1,10 +1,10 @@
 package com.hyw.platform.funbean.webMaintain;
 
 import com.hyw.gdata.DataService;
+import com.hyw.gdata.NQueryWrapper;
 import com.hyw.platform.exception.BizException;
 import com.hyw.platform.funbean.abs.RequestFunUnit;
 import com.hyw.platform.funbean.abs.RequestPubDto;
-import com.hyw.platform.web.model.WebElement;
 import com.hyw.platform.web.model.WebEvent;
 import com.hyw.platform.web.req.PublicReq;
 import lombok.Getter;
@@ -16,9 +16,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service("addNewEvn")
+@Service("evnEdt")
 @Slf4j
-public class AddNewEvn extends RequestFunUnit<String, AddNewEvn.QueryVariable> {
+public class EvnEdt extends RequestFunUnit<String, EvnEdt.QueryVariable> {
 
     @Autowired
     private DataService dataService;
@@ -28,20 +28,23 @@ public class AddNewEvn extends RequestFunUnit<String, AddNewEvn.QueryVariable> {
      * @param variable 参数
      */
     @Override
-    public void checkVariable(AddNewEvn.QueryVariable variable){
+    public void checkVariable(EvnEdt.QueryVariable variable){
         //输入检查
-
         BizException.trueThrow(StringUtils.isBlank(variable.getMenu()),"菜单,不允许为空值!");
         BizException.trueThrow(StringUtils.isBlank(variable.getElement()),"元素,不允许为空值!");
         BizException.trueThrow(StringUtils.isBlank(variable.getEventType()),"事件类型不允许为空值!");
+
+        BizException.trueThrow(!variable.getWebEventId().equals(variable.getDefaultWebEventId()),"web_event_id不允许修改!");
     }
 
     @Override
-    public String execLogic(PublicReq publicReq, AddNewEvn.QueryVariable dto){
-        WebEvent webEvent = new WebEvent();
-        BeanUtils.copyProperties(dto, webEvent);
-        dataService.save(webEvent);
+    public String execLogic(PublicReq publicReq, EvnEdt.QueryVariable dto){
+        WebEvent webEvent = dataService.getOne(new NQueryWrapper<WebEvent>()
+                .eq(WebEvent::getWebEventId, dto.getDefaultWebEventId()));
+        BizException.trueThrow(webEvent==null,"查无记录!");
 
+        BeanUtils.copyProperties(dto, webEvent);
+        dataService.updateById(webEvent,"webEventId");
         return "";
     }
 
@@ -52,6 +55,8 @@ public class AddNewEvn extends RequestFunUnit<String, AddNewEvn.QueryVariable> {
     @Setter
     @Accessors(chain = true)
     public static class QueryVariable extends RequestPubDto {
+        // 修改后的新值
+        private String webEventId;
         private String menu;
         private String page;
         private String element;
@@ -60,5 +65,15 @@ public class AddNewEvn extends RequestFunUnit<String, AddNewEvn.QueryVariable> {
         private String requestBean;
         private String nextPage;
         private String param;
+        // 原值
+        private String defaultWebEventId;
+        private String defaultMenu;
+        private String defaultPage;
+        private String defaultElement;
+        private String defaultEventType;
+        private String defaultRequestType;
+        private String defaultRequestBean;
+        private String defaultNextPage;
+        private String defaultParam;
     }
 }

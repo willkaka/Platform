@@ -75,10 +75,10 @@ public class WebElementService {
     }
 
     @SuppressWarnings("unchecked")
-    public List<WebElementDto> getPageElementsById(String menu, String id, String parentElement,PublicReq publicReq){
+    public List<WebElementDto> getPageElementsById(String id, PublicReq publicReq){
         List<WebElementDto> webElementDtoDtoList = new ArrayList<>();
         WebElement webElement = dataService.getOne(new NQueryWrapper<WebElement>()
-                    .eq(WebElement::getWebElementId, id));
+                    .eq(WebElement::getElementNo, id));
         List<WebElementDto> webElementDtos = convert2Dto(webElement,publicReq);
         if(CollectionUtils.isNotEmpty(webElementDtos)) webElementDtoDtoList.addAll(webElementDtos);
         return webElementDtoDtoList;
@@ -162,7 +162,7 @@ public class WebElementService {
         if(webData==null || WebUtil.isBlank(webData.getExpress())) return dataMap;
 
         if("optionList".equals(webData.getDataAttr())) {
-            JSONArray jsonArray = JSONArray.parseArray(webData.getExpress());
+            JSONArray jsonArray = JSON.parseArray(webData.getExpress());
             for (int i = 0; i < jsonArray.size(); i++) {
                 dataMap.put((String) jsonArray.getJSONObject(i).get("value"), (String) jsonArray.getJSONObject(i).get("text"));
             }
@@ -330,7 +330,7 @@ public class WebElementService {
                 for(TableFieldInfo t:tableFieldInfoList){
                     headFieldMap.put(t.getFieldName(),t.getComment());
                     WebElementDto webElementDto = new WebElementDto(webElement);
-                    webElementDto.setSeq(seq++);
+                    webElementDto.setSortNo(seq++);
                     webElementDto.setType("input");
                     webElementDto.setId(t.getFieldName());
                     webElementDto.setDesc(t.getComment());

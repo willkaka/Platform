@@ -8,6 +8,11 @@ function sucFreshAll(PublicResp,eventInfo){
     let rtnCode = PublicResp.rtnCode;
     let elementDtoList = PublicResp.webElementDtoList;
     if(null!=elementDtoList){
+        // 菜单事件，清空输入输出区域元素
+        if(eventInfo!=null && eventInfo.reqType=="menuReq"){
+            clearChildren("inputArea");
+            clearChildren("outputArea");
+        }
         loopElementList(elementDtoList,eventInfo);
     }
     let nextOprDto = PublicResp.nextOprDto;
@@ -85,6 +90,7 @@ function writeWebElementRoute(parentEleId,elementInfo,eventInfo){
     if(elementInfo.type == "table_record_button") writeTableButton(parentEle,elementInfo);
     if(elementInfo.type == "table_record_radio") writeTableRadio(parentEle,elementInfo);
 
+    if(elementInfo.type == "textarea") writeTextArea(parentEle,elementInfo,eventInfo);
     if(elementInfo.type == "input") writeInput(parentEle,elementInfo,eventInfo);
     if(elementInfo.type == "inputWithoutLabel") writeInputWithoutLabel(parentEle,elementInfo,eventInfo);
     if(elementInfo.type == "inputFile") writeInputFile(parentEle,elementInfo);
@@ -175,6 +181,19 @@ function writeInputWithoutLabel(parentEle,elementInfo,eventInfo){
 }
 
 /**
+ * 填充输出区域_平铺  textarea
+ * @param rtnMap
+ */
+function writeTextArea(parentEle,elementInfo,eventInfo){
+    let textArea = document.createElement("textarea");
+    textArea.setAttribute("id",elementInfo.id);
+    textArea.setAttribute("class","output_textArea");
+    setAttr(textArea,elementInfo.attrMap);
+    textArea.innerHTML = elementInfo.data;
+    parentEle.appendChild(textArea);
+}
+
+/**
  * 在父元素插入生成的输入框 div label/input
  **/
 function writeInput(parentEle,elementInfo,eventInfo){
@@ -205,6 +224,10 @@ function writeInput(parentEle,elementInfo,eventInfo){
     }
     input.setAttribute("class","inputArea_sub_input");
     groupDiv.appendChild(input);
+
+    if(elementInfo.param != null && elementInfo.param["hide"]!=null && elementInfo.param["hide"]){
+        groupDiv.setAttribute("class","display-none");
+    }
 //    parentEle.appendChild(groupDiv);
     appendChildAtSeq(parentEle,groupDiv,elementInfo.seq);
 }
@@ -565,12 +588,15 @@ function writeTableLabel(parentEle,elementInfo){
     element_thead_tr.setAttribute("id",elementInfo.id+"_thead_tr");
     element_thead.appendChild(element_thead_tr);
 
-    let element_thead_th = document.createElement("th");
-    element_thead_th.setAttribute("class","output_table_th");
-    element_thead_th.setAttribute("colName","序号");
-    element_thead_th.innerHTML = "序号";//名称
-    element_thead_tr.appendChild(element_thead_th);
-    colSizeMap["序号"] = element_thead_th.clientWidth+7;
+    // 判断是否需要额外增加“序号”字段
+    if(elementInfo.param != null && elementInfo.param["showSeq"]!=null && elementInfo.param["showSeq"]){
+        let element_thead_th = document.createElement("th");
+        element_thead_th.setAttribute("class","output_table_th");
+        element_thead_th.setAttribute("colName","序号");
+        element_thead_th.innerHTML = "序号";//名称
+        element_thead_tr.appendChild(element_thead_th);
+        colSizeMap["序号"] = element_thead_th.clientWidth+7;
+    }
 
     //取第一条记录的字段名称作为表头
     let colList;
@@ -585,6 +611,10 @@ function writeTableLabel(parentEle,elementInfo){
         }
         element_thead_th.setAttribute("colName",fieldName);
         element_thead_tr.appendChild(element_thead_th);
+        // 配置隐藏字段
+        if(elementInfo.param != null && elementInfo.param["hideFields"]!=null && elementInfo.param["hideFields"].includes(fieldName)){
+            element_thead_th.setAttribute("class","display-none");
+        }
 
         //修正
         let colWidth = element_thead_th.clientWidth;
@@ -638,12 +668,15 @@ function writeTableLabel(parentEle,elementInfo){
         element_tbody.appendChild(element_table_tr);
 
         //第1列，固定为”序号“
-        let element_table_td = document.createElement("td");
-        element_table_td.setAttribute("class","output_table_td_0");
-        element_table_td.innerHTML = begSeq+i+1;//字段名  序号
-        element_table_td.width = colSizeMap["序号"];
-        element_table_td.setAttribute("colName","序号");
-        element_table_tr.appendChild(element_table_td);
+        // 判断是否需要额外增加“序号”字段
+        if(elementInfo.param != null && elementInfo.param["showSeq"]!=null && elementInfo.param["showSeq"]){
+            let element_table_td = document.createElement("td");
+            element_table_td.setAttribute("class","output_table_td_0");
+            element_table_td.innerHTML = begSeq+i+1;//字段名  序号
+            element_table_td.width = colSizeMap["序号"];
+            element_table_td.setAttribute("colName","序号");
+            element_table_tr.appendChild(element_table_td);
+        }
 
         for(let fieldName in headMap){
             let value = recordMap[fieldName];
@@ -656,6 +689,10 @@ function writeTableLabel(parentEle,elementInfo){
             }
             element_table_td.innerHTML = value;//字段显示值
             element_table_tr.appendChild(element_table_td);
+            // 配置隐藏字段
+            if(elementInfo.param != null && elementInfo.param["hideFields"]!=null && elementInfo.param["hideFields"].includes(fieldName)){
+                element_table_td.setAttribute("class","display-none");
+            }
 
             let colWidth = element_table_td.clientWidth;
             if(colSizeMap == null || colSizeMap[fieldName]==null || colSizeMap[fieldName] != null && colSizeMap[fieldName]<colWidth){

@@ -5,7 +5,6 @@ import com.hyw.platform.exception.BizException;
 import com.hyw.platform.funbean.abs.RequestFunUnit;
 import com.hyw.platform.funbean.abs.RequestPubDto;
 import com.hyw.platform.web.model.WebData;
-import com.hyw.platform.web.model.WebEvent;
 import com.hyw.platform.web.req.PublicReq;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,9 +15,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service("addNewDta")
+@Service("dtaAdd")
 @Slf4j
-public class AddNewDta extends RequestFunUnit<String, AddNewDta.QueryVariable> {
+public class DtaAdd extends RequestFunUnit<String, DtaAdd.QueryVariable> {
 
     @Autowired
     private DataService dataService;
@@ -28,7 +27,7 @@ public class AddNewDta extends RequestFunUnit<String, AddNewDta.QueryVariable> {
      * @param variable 参数
      */
     @Override
-    public void checkVariable(AddNewDta.QueryVariable variable){
+    public void checkVariable(DtaAdd.QueryVariable variable){
         //输入检查
 
         BizException.trueThrow(StringUtils.isBlank(variable.getMenu()),"菜单,不允许为空值!");
@@ -37,7 +36,7 @@ public class AddNewDta extends RequestFunUnit<String, AddNewDta.QueryVariable> {
     }
 
     @Override
-    public String execLogic(PublicReq publicReq, AddNewDta.QueryVariable dto){
+    public String execLogic(PublicReq publicReq, DtaAdd.QueryVariable dto){
         WebData webData = new WebData();
         BeanUtils.copyProperties(dto, webData);
         dataService.save(webData);

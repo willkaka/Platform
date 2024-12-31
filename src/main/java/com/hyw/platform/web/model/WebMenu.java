@@ -11,34 +11,11 @@ import lombok.experimental.Accessors;
 //@TableName("web_menu_info
 public class WebMenu {
 
-    /**
-     * null
-     */
-    //web_menu_info_id
     private Integer webMenuId;
-
-    /**
-     * null
-     */
-    //menu_group
-    private String menuParent;
-
-    /**
-     * null
-     */
-    //menu_seq
-    private Integer menuSeq;
-
-    /**
-     * null
-     */
-    //menu
+    private String menuNo;
+    private Integer sortNo;
     private String menu;
-
-    /**
-     * null
-     */
-    //menu_desc
+    private String menuParent;
     private String menuDesc;
 
 }

@@ -11,6 +11,7 @@ import com.hyw.platform.web.req.ValueObject;
 import com.hyw.platform.web.resp.EventInfo;
 import com.hyw.platform.web.resp.NextOprDto;
 import com.hyw.platform.web.resp.PublicResp;
+import com.hyw.platform.web.resp.webElement.WebElementDto;
 import com.hyw.platform.web.service.WebElementService;
 import com.hyw.platform.web.util.ObjectUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -167,38 +168,55 @@ public abstract class RequestFunUnit<D, V extends RequestPubDto> implements Requ
     public PublicResp returnData(PublicReq requestDto, D data, V variable, PublicResp resp){
         if(resp!=null){
             return resp;
-        }else {
-            PublicResp returnDto = new PublicResp();
-
-            List<WebCallAfter> webCallAfterList = dataService.list(new NQueryWrapper<WebCallAfter>()
-                    .eq(WebCallAfter::getMenu, requestDto.getEventInfo().getMenu())
-                    .eq(WebCallAfter::getPage, requestDto.getEventInfo().getPage())
-                    .eq(WebCallAfter::getProcessStatus, "success")
-                    .eq(WebCallAfter::getProcessBean, requestDto.getEventInfo().getReqMapping()));
-            List<EventInfo> eventInfoList = new ArrayList<>();
-            for(WebCallAfter webCallAfter:webCallAfterList){
-                EventInfo eventInfo = new EventInfo();
-                eventInfo.setMenu(webCallAfter.getMenu());
-                eventInfo.setPage(webCallAfter.getPage());
-                eventInfo.setEvent(webCallAfter.getOprType());
-                eventInfo.setReqType(webCallAfter.getRequestType());
-                eventInfo.setReqMapping(webCallAfter.getRequestBean());
-                if(StringUtils.isNotBlank(webCallAfter.getParam())) {
-                    eventInfo.setParamMap(JSON.parseObject(webCallAfter.getParam()));
-                }
-                eventInfoList.add(eventInfo);
-            }
-            if(requestDto.getEventInfo()!=null && MapUtils.isNotEmpty(requestDto.getEventInfo().getParamMap())) {
-                for (EventInfo eventInfo : eventInfoList) {
-                    if(MapUtils.isEmpty(eventInfo.getParamMap())){
-                        eventInfo.setParamMap(new HashMap<>());
-                    }
-                    eventInfo.getParamMap().putAll(requestDto.getEventInfo().getParamMap());
-                }
-            }
-            returnDto.setNextOprDto(new NextOprDto().setEventInfoList(eventInfoList));
-            return returnDto;
         }
+
+        PublicResp returnDto = new PublicResp();
+        if(requestDto.getEventInfo() != null && StringUtils.isNotBlank(requestDto.getEventInfo().getNextPage())){
+            List<WebElementDto> inputList = webElementService.getPageElementsById(requestDto.getEventInfo().getNextPage(), requestDto);
+            returnDto.setWebElementDtoList(inputList);
+            WebElementDto curElement = null;
+            for(WebElementDto webElementDto:inputList){
+                if(webElementDto.getElementNo().equals(requestDto.getEventInfo().getNextPage())){
+                    curElement = webElementDto;
+                    break;
+                }
+            }
+            if(curElement!=null){
+                if("textarea".equalsIgnoreCase(curElement.getType())){
+                    curElement.setData(data);
+                }
+            }
+        }
+
+        List<WebCallAfter> webCallAfterList = dataService.list(new NQueryWrapper<WebCallAfter>()
+                .eq(WebCallAfter::getMenu, requestDto.getEventInfo().getMenu())
+                .eq(WebCallAfter::getPage, requestDto.getEventInfo().getPage())
+                .eq(WebCallAfter::getProcessStatus, "success")
+                .eq(WebCallAfter::getProcessBean, requestDto.getEventInfo().getReqMapping()));
+        List<EventInfo> eventInfoList = new ArrayList<>();
+        for(WebCallAfter webCallAfter:webCallAfterList){
+            EventInfo eventInfo = new EventInfo();
+            eventInfo.setMenu(webCallAfter.getMenu());
+            eventInfo.setPage(webCallAfter.getPage());
+            eventInfo.setEvent(webCallAfter.getOprType());
+            eventInfo.setReqType(webCallAfter.getRequestType());
+            eventInfo.setReqMapping(webCallAfter.getRequestBean());
+            if(StringUtils.isNotBlank(webCallAfter.getParam())) {
+                eventInfo.setParamMap(JSON.parseObject(webCallAfter.getParam()));
+            }
+            eventInfoList.add(eventInfo);
+        }
+        if(requestDto.getEventInfo()!=null && MapUtils.isNotEmpty(requestDto.getEventInfo().getParamMap())) {
+            for (EventInfo eventInfo : eventInfoList) {
+                if(MapUtils.isEmpty(eventInfo.getParamMap())){
+                    eventInfo.setParamMap(new HashMap<>());
+                }
+                eventInfo.getParamMap().putAll(requestDto.getEventInfo().getParamMap());
+            }
+        }
+        returnDto.setNextOprDto(new NextOprDto().setEventInfoList(eventInfoList));
+        return returnDto;
+
     }
 
     /**

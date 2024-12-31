@@ -16,6 +16,7 @@ import com.hyw.platform.web.service.WebMenuService;
 import com.hyw.platform.constant.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -115,6 +117,20 @@ public class BaseInfoController {
 
         log.info("开始执行{}", eventId);
         publicResp = ((RequestFun) context.getBean(eventId)).execute(requestDto);
+
+        EventInfo eventInfo = requestDto.getEventInfo();
+        if(eventInfo!=null) {
+            NextOprDto nextOprDto = webElementService.getCallAfterOpr(eventInfo.getMenu(), eventInfo.getPage(), eventInfo.getElement());
+            for (EventInfo eventInfo1 : nextOprDto.getEventInfoList()) {
+                if(MapUtils.isEmpty(eventInfo1.getParamMap())){
+                    eventInfo1.setParamMap(new HashMap<>());
+                }
+                if(MapUtils.isNotEmpty(eventInfo.getParamMap())) {
+                    eventInfo1.getParamMap().putAll(eventInfo.getParamMap());
+                }
+            }
+            publicResp.setNextOprDto(nextOprDto);
+        }
         return publicResp;
     }
 
@@ -192,10 +208,10 @@ public class BaseInfoController {
         String refreshFlag = (String) param.getOrDefault("refreshFlag","N");
         if("Y".equalsIgnoreCase(refreshFlag)){
             String refreshPage = (String) param.get("refreshPage");
-            List<WebElementDto> inputList = webElementService.getPageElementsById(eventInfo.getMenu(), refreshPage, null, publicReq);
+            List<WebElementDto> inputList = webElementService.getPageElementsById(refreshPage, publicReq);
             publicResp.setWebElementDtoList(inputList);
         }else if(StringUtils.isNotBlank(page)){
-            List<WebElementDto> inputList = webElementService.getPageElementsById(eventInfo.getMenu(), page, null, publicReq);
+            List<WebElementDto> inputList = webElementService.getPageElementsById(page, publicReq);
             publicResp.setWebElementDtoList(inputList);
         }else {
             String parentEle = (String) param.getOrDefault("parentEle", null);
