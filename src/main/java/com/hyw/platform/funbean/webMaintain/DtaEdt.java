@@ -44,7 +44,7 @@ public class DtaEdt extends RequestFunUnit<String, DtaEdt.QueryVariable> {
         BizException.trueThrow(webData==null,"查无记录!");
 
         BeanUtils.copyProperties(dto, webData);
-        dataService.updateById(webData,"webDataId");
+        dataService.updateById(webData);
         return "";
     }
 

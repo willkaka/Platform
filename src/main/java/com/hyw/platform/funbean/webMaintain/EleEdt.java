@@ -66,6 +66,7 @@ public class EleEdt extends RequestFunUnit<String, EleEdt.QueryVariable> {
         private String elementType;
         private String elementDesc;
         private String elementAttr;
+        private String param;
         // 原值
         private String defaultWebElementId;
         private String defaultElementNo;
@@ -77,5 +78,6 @@ public class EleEdt extends RequestFunUnit<String, EleEdt.QueryVariable> {
         private String defaultElementType;
         private String defaultElementDesc;
         private String defaultElementAttr;
+        private String defaultParam;
     }
 }

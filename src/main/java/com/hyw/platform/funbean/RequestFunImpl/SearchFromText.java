@@ -44,7 +44,7 @@ public class SearchFromText extends RequestTableDataUnit<SearchFromText.QueryVar
             List<String> pathList = readDirFile(dirFile, dto.getSearchText());
             for (String path : pathList) {
                 Map<String, Object> record = new HashMap<>();
-                record.put("路径", path);
+                record.put("fullPath", path);
                 dataMaps.add(record);
             }
         }
@@ -54,7 +54,7 @@ public class SearchFromText extends RequestTableDataUnit<SearchFromText.QueryVar
 
         //表头
         Map<String,String> headFieldMap = new LinkedHashMap<>();
-        headFieldMap.put("路径","路径");
+        headFieldMap.put("fullPath","路径");
         tableNormal.getHeadMap().putAll(headFieldMap);
         return tableNormal;
     }

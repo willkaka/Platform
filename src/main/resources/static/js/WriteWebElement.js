@@ -99,7 +99,19 @@ function writeWebElementRoute(parentEleId,elementInfo,eventInfo){
     if(elementInfo.type == "selectOption") writeSelectOption(parentEle,elementInfo);
     if(elementInfo.type == "multipleSelect") writeMultipleSelect(parentEle,elementInfo);
 
+    if(elementInfo.type == "span") writeSpan(parentEle,elementInfo);
+
     if(elementInfo.type == "subWindow") writeSubWindow(parentEle,elementInfo);
+}
+
+function writeSpan(parentEle,elementInfo){
+    let element_span = document.createElement("span");
+    element_span.setAttribute("id",elementInfo.id); //id
+    element_span.innerHTML = elementInfo.desc;//名称
+    setAttr(element_span,elementInfo.attrMap); // 属性配置
+    setEventListener(element_span,elementInfo.eventInfoList); //事件
+
+    parentEle.appendChild(element_span);
 }
 
 function writeDiv(parentEle,elementInfo){
@@ -107,6 +119,10 @@ function writeDiv(parentEle,elementInfo){
     element_div.setAttribute("id",elementInfo.id); //id
     setAttr(element_div,elementInfo.attrMap); // 属性配置
     setEventListener(element_div,elementInfo.eventInfoList); //事件
+
+    if(elementInfo.param != null && elementInfo.param["showText"]!=null && elementInfo.param["showText"]){
+        element_div.innerHTML = elementInfo.desc;//名称
+    }
 
     parentEle.appendChild(element_div);
 }
@@ -217,6 +233,9 @@ function writeInput(parentEle,elementInfo,eventInfo){
     }
     if(null != elementInfo.defValue){
         input.setAttribute("value",elementInfo.defValue);
+    }
+    if(null != elementInfo.attrMap){
+        setAttr(input,elementInfo.attrMap);
     }
     if(eventInfo!=null && eventInfo.paramMap!=null && eventInfo.paramMap["valueFromSelectedRecord"]){
         input.setAttribute("value", eventInfo.paramMap[elementInfo.id])
@@ -791,8 +810,9 @@ function writeTableButton(parentEle,elementInfo){
         row++;
         tbody_tr = document.getElementById(elementInfo.pid+"_tbody_tr_"+row);
     }
-
-    theadTd.width = tdWidth;
+    if(tdWidth!=0){
+        theadTd.width = tdWidth;
+    }
 }
 
 //分页按钮

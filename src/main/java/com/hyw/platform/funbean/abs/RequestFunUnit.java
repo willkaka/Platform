@@ -15,6 +15,7 @@ import com.hyw.platform.web.resp.webElement.WebElementDto;
 import com.hyw.platform.web.service.WebElementService;
 import com.hyw.platform.web.util.ObjectUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -175,14 +176,12 @@ public abstract class RequestFunUnit<D, V extends RequestPubDto> implements Requ
             List<WebElementDto> inputList = webElementService.getPageElementsById(requestDto.getEventInfo().getNextPage(), requestDto);
             returnDto.setWebElementDtoList(inputList);
             WebElementDto curElement = null;
-            for(WebElementDto webElementDto:inputList){
-                if(webElementDto.getElementNo().equals(requestDto.getEventInfo().getNextPage())){
-                    curElement = webElementDto;
-                    break;
-                }
+            if(requestDto.getEventInfo().getParamMap().containsKey("dataFillToEle")) {
+                String dataFillToElementName = (String) requestDto.getEventInfo().getParamMap().get("dataFillToEle");
+                curElement = getEleByName(inputList, dataFillToElementName);
             }
-            if(curElement!=null){
-                if("textarea".equalsIgnoreCase(curElement.getType())){
+            if (curElement != null) {
+                if ("textarea".equalsIgnoreCase(curElement.getType())) {
                     curElement.setData(data);
                 }
             }
@@ -217,6 +216,21 @@ public abstract class RequestFunUnit<D, V extends RequestPubDto> implements Requ
         returnDto.setNextOprDto(new NextOprDto().setEventInfoList(eventInfoList));
         return returnDto;
 
+    }
+
+    private WebElementDto getEleByName(List<WebElementDto> inputList, String dataFillToElementName){
+        for (WebElementDto webElementDto : inputList) {
+            if (webElementDto.getId().equals(dataFillToElementName)) {
+                return webElementDto;
+            }
+            if(CollectionUtils.isNotEmpty(webElementDto.getSubElementList())){
+                WebElementDto dto = getEleByName(webElementDto.getSubElementList(), dataFillToElementName);
+                if(dto!=null){
+                    return dto;
+                }
+            }
+        }
+        return null;
     }
 
     /**

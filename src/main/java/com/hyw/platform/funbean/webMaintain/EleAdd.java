@@ -73,5 +73,6 @@ public class EleAdd extends RequestFunUnit<String, EleAdd.QueryVariable> {
         private String elementType;
         private String elementDesc;
         private String elementAttr;
+        private String param;
     }
 }
