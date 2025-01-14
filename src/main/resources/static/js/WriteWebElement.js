@@ -206,6 +206,7 @@ function writeTextArea(parentEle,elementInfo,eventInfo){
     textArea.setAttribute("class","output_textArea");
     setAttr(textArea,elementInfo.attrMap);
     textArea.innerHTML = elementInfo.data;
+    textArea.innerHTML = textArea.innerHTML.replace(/\n/g, "<br>");
     parentEle.appendChild(textArea);
 }
 

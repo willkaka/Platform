@@ -339,6 +339,7 @@ body{
 .output_textArea{
     width:100%;
     height:600px;
+    white-space: pre-wrap;
 }
 /* ----------- page box ------------------------ */
 .page-box{

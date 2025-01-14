@@ -39,7 +39,7 @@ public class CallAfterDel extends RequestFunUnit<String, CallAfterDel.QueryVaria
                 .eq(WebCallAfter::getWebCallAfterId, dto.getWebCallAfterId()));
         Assert.isTrue(webCallAfter!=null,"查无记录!");
 
-        dataService.delete(webCallAfter, "webCallAfterId");
+        dataService.deleteById(webCallAfter);
         return "";
     }
 
