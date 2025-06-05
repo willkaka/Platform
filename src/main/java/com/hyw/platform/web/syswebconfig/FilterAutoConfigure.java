@@ -16,6 +16,15 @@ import javax.servlet.ServletException;
 @ConditionalOnClass({HttpHeaderFilter.class, MdcFilter.class})
 public class FilterAutoConfigure {
 
+    @Bean
+    public FilterRegistrationBean<HttpHeaderFilter> customFilter() {
+        FilterRegistrationBean<HttpHeaderFilter> registration = new FilterRegistrationBean<>();
+        registration.setFilter(new HttpHeaderFilter());
+        registration.addUrlPatterns("/*"); // 所有URL
+        registration.setOrder(1); // 执行顺序
+        return registration;
+    }
+
     /**
      * 配置默认的http encoding ， UTF-8 且强制request,response到utf-8;
      * 若不需要默认实现则将enabled设置为false并自行注入一个CharacterEncodingFilter;

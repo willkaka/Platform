@@ -32,7 +32,8 @@ function sendJsonByAjax(requestUrl, requestType, requestParam, contentType, proc
 
         // 报文头
         headers: {
-                'trace-id': generateCustomSerialNumber() // 添加 traceId 到请求的 headers 中
+                'X-TRACE-ID': generateCustomSerialNumber(), // 添加 traceId 到请求的 headers 中
+                'X-USER-ID': getCookie(userNameKey) // 添加 traceId 到请求的 headers 中
             },
 
         // 传送文件时 传 {let formData = new FormData(); let files = param.inputValue["file"];ReqJsonDto
@@ -48,7 +49,7 @@ function sendJsonByAjax(requestUrl, requestType, requestParam, contentType, proc
         success:function (PublicResp) {
             // 后台主机响应正常
             if (PublicResp.rtnCode === RTN_CODE_SUC) {
-                sucFun(PublicResp,eventInfo);
+                sucFun(PublicResp,eventInfo,requestParam);
 
             // 后台主机响应异常
             } else {

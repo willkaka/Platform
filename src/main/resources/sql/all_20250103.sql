@@ -68,6 +68,49 @@ CREATE TABLE web_data (
 
 CREATE INDEX wd_ind_01 on web_data (menu,page,element);
 
+
+
+CREATE TABLE service_host (
+    service_host_id integer primary key,
+    host_name varchar(20),
+    host_url varchar(200),
+    host_desc varchar(100));
+
+CREATE INDEX sh_ind_01 on service_host (host_name);
+
+CREATE TABLE service_interface (
+    service_interface_id integer primary key,
+    host_name varchar(20),
+    interface_name varchar(50),
+    interface_path varchar(100),
+    request_method varchar(50),
+    interface_desc varchar(100),
+    charset varchar(20));
+
+CREATE INDEX si_ind_01 on service_interface (host_name);
+CREATE INDEX si_ind_02 on service_interface (interface_name);
+
+CREATE TABLE service_interface_data (
+    service_interface_data_id integer primary key,
+    interface_name varchar(50),
+    data_type varchar(10),
+    field_name varchar(50),
+    field_type varchar(50),
+    field_desc varchar(100));
+
+CREATE INDEX sid_ind_01 on service_interface (interface_name,data_type);
+
+
+DROP TABLE user_info;
+CREATE TABLE user_info (
+    user_info_id integer primary key,
+    user_id varchar(50),
+    user_name varchar(100),
+    password varchar(100));
+CREATE INDEX ui_ind_user_id on user_info (user_id);
+CREATE INDEX ui_ind_user_name on user_info (user_name);
+
+
 -- ---------------------------------------------------
 DELETE FROM web_menu;
 INSERT INTO web_menu(menu_no, sort_no, menu, menu_parent, menu_desc)VALUES

@@ -4,7 +4,7 @@
   * eventInfo 原事件信息
   * {"rtnCode":"","nextOprDto":{"eventInfoList":[]},"webElementDtoList":[]}
  **/
-function sucFreshAll(PublicResp,eventInfo){
+function sucFreshAll(PublicResp,eventInfo,requestParam){
     let rtnCode = PublicResp.rtnCode;
     let elementDtoList = PublicResp.webElementDtoList;
     if(null!=elementDtoList){
@@ -17,11 +17,11 @@ function sucFreshAll(PublicResp,eventInfo){
     }
     let nextOprDto = PublicResp.nextOprDto;
     if(null != nextOprDto){
-        nextOpr(PublicResp,nextOprDto);
+        nextOpr(PublicResp,nextOprDto,requestParam);
     }
 }
 
-function nextOpr(PublicResp,nextOprDto){
+function nextOpr(PublicResp,nextOprDto,requestParam){
     let eventInfoList = nextOprDto["eventInfoList"];
     if(null == eventInfoList) return;
     for(let i=0;i<eventInfoList.length;i++){
@@ -52,6 +52,23 @@ function nextOpr(PublicResp,nextOprDto){
         if(null != eventInfo && eventInfo.event == "removeEle"){
             let subWindowId = eventInfo.paramMap["removeEleId"];
             removeElementById(subWindowId);
+        }
+        if(null != eventInfo && eventInfo.event == "loginSucSetUserInfo"){
+            //"{"reqParm":{},"curMenu":"","userName":"",
+            //  "webValueDto":{"curMenu":"",
+            //    "webInputValueMap":{"userId":{"value":"admin","defValue":""},"password":{"value":"123456","defValue":""}}},
+            //  "eventInfo":{"event":"click","reqType":"buttonReq","reqMapping":"userLogin","reqMethod":null,"menu":"root","page":"start_page","element":"login","triggerType":null,"triggerElement":null,"triggerElementType":null,"nextPage":null,"selectedValue":null,"withPage":false,"reqPage":0,"recordMap":null,"paramMap":null,"triggerParamMap":null,"relEleId":null,"relEleType":null,"relEleChgType":null}}"
+            let reqJson = JSON.parse(requestParam);
+            let reqWebValue = reqJson.webValueDto;
+            let userFieldDto = reqWebValue.webInputValueMap["userId"];
+            let userId = userFieldDto.value;
+            setCookie(userNameKey, userId, 1);
+            const userLabel = document.getElementById('userNameLabel'); // 获取标签元素
+            if (userId) {
+               userLabel.textContent = userId; // 显示用户名
+            } else {
+               userLabel.textContent = "未登录用户"; // 默认文本
+            }
         }
     }
 }
@@ -206,7 +223,7 @@ function writeTextArea(parentEle,elementInfo,eventInfo){
     textArea.setAttribute("class","output_textArea");
     setAttr(textArea,elementInfo.attrMap);
     textArea.innerHTML = elementInfo.data;
-    textArea.innerHTML = textArea.innerHTML.replace(/\n/g, "<br>");
+//    textArea.innerHTML = textArea.innerHTML.replace(/\n/g, "<br>");
     parentEle.appendChild(textArea);
 }
 

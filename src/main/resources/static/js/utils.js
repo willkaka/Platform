@@ -246,3 +246,44 @@ function getStringPX(str){
 
     return strWidth;
 }
+
+/**
+ * 检查字符串是否为数字
+ * @param str 字符串
+ * @param decimalNum 小数位数
+ * @return boolean
+ */
+function checkStringIsNumber(str, decimalNum){
+    if(str == null || str == ""){
+        return false;
+    }
+    if(decimalNum == null || decimalNum == ""){
+        decimalNum = 0;
+    }
+    let reg = new RegExp("^[0-9]+(.[0-9]{"+decimalNum+"})?$");
+    return reg.test(str);
+}
+
+/**
+ * 检查字符串长度
+ * @param str 字符串
+ * @param length 长度
+ * @return boolean
+ */
+function checkStringLength(str, length){
+    if(str == null || str == ""){
+        return true;
+    }
+    return str.length <= length;
+}
+
+/**
+ * 检查字符串是否为空
+ * @param str 字符串
+ */
+function checkStringNotEmpty(str){
+    if(str == null || str == ""){
+        return false;
+    }
+    return true;
+}

@@ -1,20 +1,17 @@
 
 /**
  * 设置点击事件处理方法
- * @param eventInfo
- * @param recordMap
+ * @param eventInfo 绑定在页面元素事件的事件定义信息
+ * @param sourceElement 发生事件的元素
  */
-//function executeEventMethod(eventInfo,recordMap) {
-function executeEventMethod(eventInfo,sourceElement) {
-    //需要取出当前页面的所有数据传给后台：
-    //1.选择的菜单/导航
-    //2.输入信息
-    //target：触发事件的元素。currentTarget：事件绑定的元素。
+function executeEventMethod(eventInfo, sourceElement) {
+    // 取事件源信息
     var event = window.event || arguments[0];
     var eventEle = event.currentTarget;
     eventInfo.reqPage = 0;
 
-    //弹窗确认
+    // 判断该事件需要如何处理：
+    // 1. 需要先 弹窗确认，客户取消则退出事件，否则继续后续处理
     if(eventInfo!=null && eventInfo.paramMap!=null && eventInfo.paramMap["showConfirmSW"]){
         let del = confirm(eventInfo.paramMap["confirmCnt"]);
         if(!del){
@@ -38,8 +35,6 @@ function executeEventMethod(eventInfo,sourceElement) {
     requestObj.userName = getCookie(userNameKey);
     let param = getCurPageInfo(eventInfo);
     requestObj.webValueDto = param;
-    // 把原值保存在 eventInfo.recordMap.curValue
-//    eventInfo = putChangeValue(param,eventInfo);
     requestObj.eventInfo = eventInfo; //事件信息
     let requestJsonStr = JSON.stringify(requestObj); // obj -> string
 

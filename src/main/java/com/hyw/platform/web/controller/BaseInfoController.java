@@ -1,9 +1,11 @@
 package com.hyw.platform.web.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.hyw.gdata.DataService;
 import com.hyw.gdata.NQueryWrapper;
 import com.hyw.platform.exception.BizException;
 import com.hyw.platform.funbean.RequestFun;
+import com.hyw.platform.web.model.ServiceInterface;
 import com.hyw.platform.web.model.WebCallAfter;
 import com.hyw.platform.web.model.WebEvent;
 import com.hyw.platform.web.req.PublicReq;
@@ -11,6 +13,7 @@ import com.hyw.platform.web.resp.EventInfo;
 import com.hyw.platform.web.resp.NextOprDto;
 import com.hyw.platform.web.resp.PublicResp;
 import com.hyw.platform.web.resp.webElement.WebElementDto;
+import com.hyw.platform.web.service.CallInterface;
 import com.hyw.platform.web.service.WebElementService;
 import com.hyw.platform.web.service.WebMenuService;
 import com.hyw.platform.constant.Constant;
@@ -19,6 +22,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,6 +44,10 @@ public class BaseInfoController {
     private WebMenuService webMenuService;
     @Autowired
     private WebElementService webElementService;
+    @Autowired
+    private DataService dataService;
+    @Autowired
+    private CallInterface callInterface;
 
     @Autowired
     ApplicationContext context;
@@ -114,11 +122,23 @@ public class BaseInfoController {
             publicResp.setRtnMsg("未配置该按钮请求(" + eventId + ")的处理方法！");
             return publicResp;
         }
-
         log.info("开始执行{}", eventId);
-        publicResp = ((RequestFun) context.getBean(eventId)).execute(requestDto);
 
         EventInfo eventInfo = requestDto.getEventInfo();
+        boolean callInterfaceFlag = false;
+        if(null != eventInfo) {
+            Map<String,Object> paramMap = eventInfo.getParamMap();
+            if(paramMap!=null && paramMap.containsKey("host")) {
+                String host = paramMap.get("host").toString();
+                callInterfaceFlag = true;
+                // 取调用服务的接口信息
+                publicResp = callInterface.call(host, eventId, JSON.toJSONString(requestDto));
+            }
+        }
+
+        if(!callInterfaceFlag) {
+            publicResp = ((RequestFun) context.getBean(eventId)).execute(requestDto);
+        }
         if(eventInfo!=null) {
             NextOprDto nextOprDto = webElementService.getCallAfterOpr(eventInfo.getMenu(), eventInfo.getPage(), eventInfo.getElement());
             for (EventInfo eventInfo1 : nextOprDto.getEventInfoList()) {

@@ -10,19 +10,47 @@ var userNameKey="userName";
  * 初始化页面内容
  */
 function initPageInfo(){
-    let reqMapping = "initPageInfo";
-    let reqType = "normal";
-    let reqMethod = "post";
-    sendRequest(reqMapping,reqType,reqMethod,"{}");
+    if(getCookie(userNameKey) != null && getCookie(userNameKey)!=""){
+        let reqMapping = "initPageInfo";
+        let reqType = "normal";
+        let reqMethod = "post";
+        sendRequest(reqMapping,reqType,reqMethod,"{}");
+        setUserInfo();
+    }else{
+        showLoginWindow();
+    }
+}
+
+function setUserInfo(){
+    const userLabel = document.getElementById('userNameLabel'); // 获取标签元素
+    const userId = getCookie(userNameKey); // 获取用户ID
+    if (userId) {
+       userLabel.textContent = userId; // 显示用户名
+    } else {
+       userLabel.textContent = "未登录用户"; // 默认文本
+    }
 }
 
 function showLoginWindow(){
-    if(getCookie(userNameKey) != null && getCookie(userNameKey) != ""){
-        alert("您 " + getCookie(userNameKey) + " 已登录！");
+    if(getCookie(userNameKey) != null && getCookie(userNameKey)!=""){
         return;
     }
-
-//    showLoginModal();
+    let reqMapping = "buttonReq";
+    let reqType = "normal";
+    let reqMethod = "post";
+    let eventInfo = {
+        element:"loginWebReq",
+        event:"menuReq",
+        menu:"root",
+        page:"loginPage",
+        reqMapping:"post",
+        reqType:"swDataReq"
+    }
+    let requestParm = '{"eventId":"loginWebReq","reqParm":{}}';
+    let requestObj = JSON.parse(requestParm);  //string -> obj
+    requestObj.eventInfo = eventInfo; //事件信息
+//    sendRequest(reqMapping,reqType,reqMethod,JSON.stringify(requestObj));
+    sendJsonByAjax('menuReq/loginWebReq','post', JSON.stringify(requestObj),"application/json;charset=utf-8",null,sucFreshAll,eventInfo);
 }
 
 function setCookie(cname,cvalue,exdays){

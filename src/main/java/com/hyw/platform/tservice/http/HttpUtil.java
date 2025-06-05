@@ -35,7 +35,7 @@ public class HttpUtil {
     }
 
 
-    public static String upload(String url, Map<String, String> strParams, File file) {
+    public static String upload(String url, Map<String, String> strParams, File file) throws IOException{
         String boundary = UUID.randomUUID().toString(); // 文件边界
         String filename = file.getName();
         StringBuffer result = new StringBuffer();
@@ -85,8 +85,6 @@ public class HttpUtil {
                 }
                 System.out.println(result.toString());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         } finally {
             connection.disconnect();
         }
@@ -94,7 +92,7 @@ public class HttpUtil {
     }
 
 
-    public static String post(String url, String content) {
+    public static String post(String url, String content) throws IOException{
         StringBuffer result = new StringBuffer();
         HttpURLConnection connection = null;
         try {
@@ -128,8 +126,6 @@ public class HttpUtil {
                 }
                 System.out.println(result.toString());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         } finally {
             connection.disconnect();
         }

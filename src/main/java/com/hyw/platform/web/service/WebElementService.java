@@ -2,6 +2,7 @@ package com.hyw.platform.web.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.hyw.gdata.DataService;
 import com.hyw.gdata.NQueryWrapper;
 import com.hyw.gdata.dto.TableFieldInfo;
@@ -9,10 +10,12 @@ import com.hyw.platform.funbean.WebDataReqFun;
 import com.hyw.platform.funbean.WebTableDataReqFun;
 import com.hyw.platform.web.model.*;
 import com.hyw.platform.web.req.PublicReq;
+import com.hyw.platform.web.req.ValueObject;
 import com.hyw.platform.web.resp.EventInfo;
 import com.hyw.platform.web.resp.NextOprDto;
 import com.hyw.platform.web.resp.webElement.WebElementDto;
 import com.hyw.platform.web.resp.webElement.TableNormal;
+import com.hyw.platform.web.util.HttpUtil;
 import com.hyw.platform.web.util.WebUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -22,6 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Slf4j
@@ -32,6 +38,9 @@ public class WebElementService {
     private ApplicationContext context;
     @Autowired
     private DataService dataService;
+
+    private static final String FORMATTER_DATE = "yyyy-MM-dd";
+    private static final String FORMATTER_DATETIME = "yyyy-MM-dd HH:mm:ss";
 
     @SuppressWarnings("unchecked")
     public List<WebElementDto> getPageElementsByParentEle(String menu, String page, String parentElement,PublicReq publicReq){
@@ -133,6 +142,15 @@ public class WebElementService {
         WebElementDto webElementDto = new WebElementDto(webElement);
         webElementDto.setEventInfoList(getEventInfoList(webElement.getMenu(),webElement.getPage(),webElement.getElement()));
 
+        if(MapUtils.isNotEmpty(webElementDto.getAttrMap())){
+            for (Map.Entry<String,String> entry : webElementDto.getAttrMap().entrySet()) {
+                String attrKey = entry.getKey();
+                String attrValue = entry.getValue();
+                attrValue = parseValue(attrValue);
+                webElementDto.getAttrMap().put(attrKey, attrValue);
+            }
+        }
+
         if("table".equalsIgnoreCase(webElement.getElementType())){
             createTable(webElementDto,webElement,publicReq);
         }else if("inputList".equalsIgnoreCase(webElement.getElementType())){
@@ -176,19 +194,87 @@ public class WebElementService {
         }else if("fun".equals(webData.getDataAttr())) {
             String funBean = webData.getExpress();
             Map<String,Object> dataMapObject = ((WebDataReqFun) context.getBean(funBean)).execute(publicReq);
-//            for(String key:dataMapObject.keySet()){
-//                String fieldName = key;
-//                FieldAttr fieldAttr = (FieldAttr) dataMapObject.get(key);
-//                dataMap.put(fieldName,fieldAttr.getColumnName());
-//            }
             for(String key:dataMapObject.keySet()){
                 dataMap.put(key,(String)dataMapObject.get(key));
             }
+        }else if("callInterface".equals(webData.getDataType())) {
+            dataMap = callInterface(webData.getDataAttr(), webData.getExpress(), publicReq);
         }
         return dataMap;
     }
 
+    private Map<String, String> callInterface(String interfaceName, String interfaceParam, PublicReq publicReq){
+        ServiceInterface serviceInterface = dataService.getOne(new NQueryWrapper<ServiceInterface>()
+               .eq(ServiceInterface::getInterfaceName,interfaceName));
+        if(serviceInterface==null) return null;
 
+        ServiceHost serviceHost = dataService.getOne(new NQueryWrapper<ServiceHost>()
+              .eq(ServiceHost::getHostName,serviceInterface.getHostName()));
+        if(serviceHost==null) return null;
+
+        List<ServiceInterfaceData> dataList = dataService.list(new NQueryWrapper<ServiceInterfaceData>()
+              .eq(ServiceInterfaceData::getInterfaceName,interfaceName)
+                .eq(ServiceInterfaceData::getDataType,"input"));
+        if(CollectionUtils.isEmpty(dataList)) return null;
+        Map<String,Object> param = getAllInputData(publicReq);
+        JSONObject dataJson = JSON.parseObject(interfaceParam);
+        if(dataJson.containsKey("inputParam")) {
+            Map<String, Object> paramMap = dataJson.getJSONObject("inputParam");
+            param.putAll(paramMap);
+        }
+        //组装url(接口地址+接口路径)
+        String url = serviceHost.getHostUrl() + serviceInterface.getInterfacePath();
+        JSONObject respJson = HttpUtil.getHttpRequestData(url, serviceInterface.getRequestMethod(), serviceInterface.getCharset(),
+                getDefinedParam(dataList,param));
+
+        String dataPosition = dataJson.getString("dataPosition");
+        String dataType = dataJson.getString("dataType");
+        String keyField = dataJson.getString("keyField");
+        String valueField = dataJson.getString("valueField");
+        Map<String,String> rtnMap = new HashMap<>();
+        if("list".equalsIgnoreCase(dataType)){
+            assert respJson != null;
+            JSONArray jsonArray = respJson.getJSONArray(dataPosition);
+            for(Object object:jsonArray){
+                JSONObject jsonObject = (JSONObject) object;
+                String fieldName = jsonObject.getString(keyField);
+                String fieldValue = jsonObject.getString(valueField);
+                rtnMap.put(fieldName,fieldValue);
+            }
+        }
+        return rtnMap;
+    }
+
+    private JSONObject getDefinedParam(List<ServiceInterfaceData> dataList, Map<String,Object> allInputData){
+        Map<String,Object> param = new HashMap<>();
+        for(ServiceInterfaceData data:dataList){
+            if(allInputData.containsKey(data.getFieldName())){
+                param.put(data.getFieldName(),allInputData.get(data.getFieldName()));
+            }
+        }
+        return JSON.parseObject(JSON.toJSONString(param));
+    }
+
+    private Map<String,Object> getAllInputData(PublicReq publicReq){
+        Map<String, Object> rtnMap = new HashMap<>();
+
+        Map<String, ValueObject> webInputValueMap = publicReq.getWebValueDto().getWebInputValueMap();
+        for (Map.Entry<String, ValueObject> entry : webInputValueMap.entrySet()) {
+            String key = entry.getKey();
+            ValueObject value = entry.getValue();
+            String modifiedKey = com.hyw.platform.web.util.StringUtils.camelCaseToUnderline( key );
+            rtnMap.put(modifiedKey, value.getValue());
+        }
+        if(publicReq.getEventInfo() != null && MapUtils.isNotEmpty(publicReq.getEventInfo().getParamMap())){
+            for (Map.Entry<String, Object> entry : publicReq.getEventInfo().getParamMap().entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                String modifiedKey = com.hyw.platform.web.util.StringUtils.camelCaseToUnderline( key );
+                rtnMap.put(modifiedKey, value);
+            }
+        }
+        return rtnMap;
+    }
     /**
      * 取事件信息
      * @param menu 菜单
@@ -363,8 +449,32 @@ public class WebElementService {
         String[] attrs = s.split(separator);
         for (String attrExpress : attrs) {
             String[] express = attrExpress.split(connector);
-            attrMap.put(express[0], express[1].replace("\"", ""));
+            String value = express[1].replace("\"", "");
+            value = parseValue(value);
+            attrMap.put(express[0], value);
         }
         return attrMap;
+    }
+
+    private String parseValue(String value){
+        Map<String,Object> variablesMap = new HashMap<>();
+        variablesMap.put("curDate", LocalDate.now().format(DateTimeFormatter.ofPattern(FORMATTER_DATE)));
+        variablesMap.put("curDateTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern(FORMATTER_DATETIME)));
+        variablesMap.put("preDate", LocalDate.now().minusDays(1L).format(DateTimeFormatter.ofPattern(FORMATTER_DATE)));
+        variablesMap.put("preDateTime", LocalDateTime.now().minusDays(1L).format(DateTimeFormatter.ofPattern(FORMATTER_DATETIME)));
+        variablesMap.put("curMonthFirstDateTime", LocalDate.now().withDayOfMonth(1).atStartOfDay().format(DateTimeFormatter.ofPattern(FORMATTER_DATETIME)));
+        variablesMap.put("lastMonthFirstDate", LocalDate.now().minusMonths(1L).withDayOfMonth(1).format(DateTimeFormatter.ofPattern(FORMATTER_DATE)));
+        variablesMap.put("lastMonthFirstDateTime", LocalDate.now().minusMonths(1L).withDayOfMonth(1).atStartOfDay().format(DateTimeFormatter.ofPattern(FORMATTER_DATETIME)));
+        variablesMap.put("lastMonthLastDate", LocalDate.now().withDayOfMonth(1).minusMonths(1L).format(DateTimeFormatter.ofPattern(FORMATTER_DATE)));
+        // 替换
+        String newValue = value;
+        for (Map.Entry<String,Object> entry : variablesMap.entrySet()) {
+            String key = entry.getKey();
+            Object paramValue = entry.getValue();
+            if(value.contains("#{"+key+"}")){
+                newValue = newValue.replace(("#{"+key+"}"), (CharSequence) paramValue);
+            }
+        }
+        return newValue;
     }
 }
