@@ -1,11 +1,9 @@
 package com.hyw.platform.funbean.abs;
 
 import com.hyw.platform.exception.BizException;
-import com.hyw.platform.funbean.RequestFun;
 import com.hyw.platform.funbean.WebTableDataReqFun;
 import com.hyw.platform.web.req.PublicReq;
 import com.hyw.platform.web.req.ValueObject;
-import com.hyw.platform.web.resp.PublicResp;
 import com.hyw.platform.web.resp.webElement.TableNormal;
 import com.hyw.platform.web.service.WebElementService;
 import com.hyw.platform.web.util.ObjectUtil;
@@ -65,7 +63,7 @@ public abstract class RequestTableDataUnit<V extends RequestPubDto> implements W
     private V getVariable(PublicReq publicReq){
         V var = newInstanceVariable();
         //处理参数
-        Map<String, ValueObject> inputValue = publicReq.getWebValueDto().getWebInputValueMap();
+        Map<String, ValueObject> inputValue = publicReq.getValueMap();
         List<Field> fields = ObjectUtil.getAllFieldList(var.getClass());
         for(Field field:fields){
             String fieldName = field.getName();

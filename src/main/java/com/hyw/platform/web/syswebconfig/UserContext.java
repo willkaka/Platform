@@ -1,5 +1,7 @@
 package com.hyw.platform.web.syswebconfig;
 
+import org.slf4j.MDC;
+
 public final class UserContext {
     public static final String NAME = UserContext.class.getName() + "_ADMIN_NAME_KEY";
     public static final String MOBILE = UserContext.class.getName() + "_MOBILE_KEY";

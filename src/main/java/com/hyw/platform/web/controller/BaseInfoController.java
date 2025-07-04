@@ -1,8 +1,10 @@
 package com.hyw.platform.web.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.hyw.gdata.DataService;
 import com.hyw.gdata.NQueryWrapper;
+import com.hyw.gdata.dto.TableFieldInfo;
 import com.hyw.platform.exception.BizException;
 import com.hyw.platform.funbean.RequestFun;
 import com.hyw.platform.web.model.ServiceInterface;
@@ -12,6 +14,7 @@ import com.hyw.platform.web.req.PublicReq;
 import com.hyw.platform.web.resp.EventInfo;
 import com.hyw.platform.web.resp.NextOprDto;
 import com.hyw.platform.web.resp.PublicResp;
+import com.hyw.platform.web.resp.webElement.TableNormal;
 import com.hyw.platform.web.resp.webElement.WebElementDto;
 import com.hyw.platform.web.service.CallInterface;
 import com.hyw.platform.web.service.WebElementService;
@@ -31,10 +34,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @Slf4j
@@ -126,18 +126,31 @@ public class BaseInfoController {
 
         EventInfo eventInfo = requestDto.getEventInfo();
         boolean callInterfaceFlag = false;
+        JSONObject jsonObject = new JSONObject();
         if(null != eventInfo) {
             Map<String,Object> paramMap = eventInfo.getParamMap();
             if(paramMap!=null && paramMap.containsKey("host")) {
                 String host = paramMap.get("host").toString();
                 callInterfaceFlag = true;
                 // 取调用服务的接口信息
-                publicResp = callInterface.call(host, eventId, JSON.toJSONString(requestDto));
+                jsonObject = callInterface.call(host, eventId, requestDto);
             }
         }
 
         if(!callInterfaceFlag) {
             publicResp = ((RequestFun) context.getBean(eventId)).execute(requestDto);
+        }
+        String page = eventInfo.getNextPage();
+        if(StringUtils.isBlank(page) && MapUtils.isNotEmpty(eventInfo.getParamMap()) && eventInfo.getParamMap().containsKey("nextPage")){
+            page = eventInfo.getParamMap().get("nextPage").toString();
+        }
+        if(StringUtils.isNotBlank(page)){
+            PublicReq publicReq = new PublicReq();
+            List<WebElementDto> inputList = webElementService.getPageElementsById(page, publicReq);
+            if(jsonObject!=null && jsonObject.size()>0){
+                setElementValue(inputList,jsonObject,eventInfo);
+            }
+            publicResp.setWebElementDtoList(inputList);
         }
         if(eventInfo!=null) {
             NextOprDto nextOprDto = webElementService.getCallAfterOpr(eventInfo.getMenu(), eventInfo.getPage(), eventInfo.getElement());
@@ -154,6 +167,69 @@ public class BaseInfoController {
         return publicResp;
     }
 
+    /**
+     * 递归遍历元素，将JSONObject中的对应值填充到元素中
+     */
+    private void setElementValue(List<WebElementDto> dtoList, JSONObject jsonObject, EventInfo eventInfo) {
+        for(WebElementDto dto:dtoList){
+            if(CollectionUtils.isNotEmpty(dto.getSubElementList())){
+                setElementValue(dto.getSubElementList(),jsonObject, eventInfo);
+                if(!"table".equalsIgnoreCase(dto.getType())) {
+                    continue;
+                }
+            }
+            if("div".equalsIgnoreCase(dto.getType()) || "divTitle".equalsIgnoreCase(dto.getType())){
+                continue;
+            }
+            if(eventInfo != null && eventInfo.getParamMap()!=null && "table".equalsIgnoreCase(dto.getType())) {
+                // "dataToEle":"loanTable","dataToElePos":"data","dataToEleType":"list"
+                String dataToEle = (String) eventInfo.getParamMap().get("dataToEle");
+                if(dto.getId().equals(dataToEle)) {
+                    String dataKey;
+                    String dataToElePos = (String) eventInfo.getParamMap().get("dataToElePos");
+                    JSONObject subJson = jsonObject;
+                    if (StringUtils.isNotBlank(dataToElePos) && dataToElePos.contains(".")) {
+                        String[] dataToElePosArr = dataToElePos.split("\\.");
+                        for(int i=0;i<dataToElePosArr.length-1;i++){
+                            subJson = subJson.getJSONObject(dataToElePosArr[i]);
+                        }
+                        dataKey = dataToElePosArr[dataToElePosArr.length-1];
+                    }else{
+                        dataKey = dataToElePos;
+                    }
+                    String dataToEleType = (String) eventInfo.getParamMap().get("dataToEleType");
+                    if ("list".equalsIgnoreCase(dataToEleType) && subJson.containsKey(dataKey)) {
+                        TableNormal tableNormal = (TableNormal) dto.getData();
+                        //记录
+                        List tableDataList = subJson.getJSONArray(dataKey);
+                        tableNormal.getRecordList().addAll(tableDataList);
+                    }
+                    continue;
+                }
+            }
+            if(jsonObject.containsKey(dto.getId())){
+                Object value = jsonObject.get(dto.getId());
+                dto.setDefValue(value==null?null:value.toString());
+                continue;
+            }
+            if(jsonObject.containsKey("data")){
+                JSONObject dataJson = jsonObject.getJSONObject("data");
+                if(MapUtils.isNotEmpty(dto.getParam()) && dto.getParam().containsKey("dataField")){
+                    String dataField = (String) dto.getParam().get("dataField");
+                    if(dataJson.containsKey(dataField)){
+                        Object value = dataJson.get(dataField);
+                        dto.setDefValue(value==null?null:value.toString());
+                        continue;
+                    }
+                }
+                if(dataJson.containsKey(dto.getId())){
+                    Object value = dataJson.get(dto.getId());
+                    dto.setDefValue(value==null?null:value.toString());
+                    continue;
+                }
+            }
+        }
+    }
 
     /**
      * 菜单请求

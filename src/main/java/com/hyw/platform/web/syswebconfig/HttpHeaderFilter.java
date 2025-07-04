@@ -1,6 +1,7 @@
 package com.hyw.platform.web.syswebconfig;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.MDC;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -24,6 +25,11 @@ public class HttpHeaderFilter extends OncePerRequestFilter {
             response.addHeader(WebConstants.HEADER_FOR_TRACE_ID, traceId);
             MyThreadContext.put(MyThreadContext.LOG_LEVEL, request.getHeader(WebConstants.HEADER_FOR_LOG_LEVEL));
             filterChain.doFilter(request, response);
+
+            String userId = request.getHeader(WebConstants.HEADER_FOR_USER_ID);
+            if (StringUtils.isNotEmpty(userId)) {
+                MyThreadContext.put(UserContext.ID, userId);
+            }
         } finally {
             MyThreadContext.removeTraceId();
             MyThreadContext.remove(MyThreadContext.LOG_LEVEL);

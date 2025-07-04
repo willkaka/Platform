@@ -164,20 +164,139 @@ function getCurPageInfo(eventInfo){
  * @return Map
  **/
 function getInputValueMap(eventInfo){
-    let nodeValueMap = {};
+    // 取标签属性含有out="Y"的页面元素值
+    let nodeValueMap = getOutFlagEleValue(eventInfo);
+    // 如果nodeValueMap为空，则仍按旧方式获取页面数据
+    if(nodeValueMap==null || Object.keys(nodeValueMap).length == 0){
+        if(nodeValueMap==null){
+            nodeValueMap = {};
+        }
+        //取标签为 input 的页面元素
+        let map = getNodeValueMap("input");
+        for(let key in map){
+            nodeValueMap[key] = map[key];
+        }
 
-    //取标签为 input 的页面元素
+        //取标签为 select 的页面元素
+        map = getNodeValueMap("select");
+        for(let key in map){
+            nodeValueMap[key] = map[key];
+        }
+    }
+    return nodeValueMap;
+}
+
+function getAllInputValueMap(){
+    let nodeValueMap = {};
+    // 取标签为 input 的页面元素
     let map = getNodeValueMap("input");
     for(let key in map){
         nodeValueMap[key] = map[key];
     }
-
     //取标签为 select 的页面元素
     map = getNodeValueMap("select");
     for(let key in map){
         nodeValueMap[key] = map[key];
     }
     return nodeValueMap;
+}
+
+/**
+ * 取页面所有标签，属性含有out="Y"的值
+ **/
+function getOutFlagEleValue(eventInfo){
+    let keyValueMap = {};
+    // eventInfo.sourceElement为空退出
+    if(eventInfo.reqType == "menuReq"){
+        return keyValueMap;
+    }
+    // 取eventInfo事件元素的上一层父元素，直到元素id以contentArea或className为subWindowBackGround开始为止
+    let parentEle = document.getElementById(eventInfo.element);
+    while (parentEle &&!parentEle.id.startsWith("contentArea") && !parentEle.className.startsWith("subWindowBackGround")) {
+        parentEle = parentEle.parentNode;
+    }
+    // 遍历页面所有元素，找到属性out="Y"的元素
+    nodeAllChildren(parentEle,keyValueMap);
+
+    if(eventInfo != null && eventInfo.paramMap!=null && eventInfo.paramMap["tableRecord"] != null){
+        for(let key in eventInfo.paramMap["tableRecord"]){
+            keyValueMap[key] = eventInfo.paramMap["tableRecord"][key];
+        }
+    }
+    return keyValueMap;
+}
+
+/**
+ * 递归遍历所有子元素
+ **/
+function nodeAllChildren(node, keyValueMap){
+    if(node == null) return;
+    let childNodes = node.childNodes;
+    let children = [];
+    for (let i = 0; i < childNodes.length; i++) {
+        let childNode = childNodes[i];
+        let childNodeChildren = childNode.childNodes;
+        if(childNodeChildren.length>0){
+            // 如果元素属性list不为空，其子元素需要单独Map存放
+            if(childNode.getAttribute("list")!=null){
+                let childNodeMap = {};
+                nodeAllChildren(childNode,childNodeMap);
+                // 获取 list 属性的值
+                const listKey = childNode.getAttribute("list");
+                // 检查 keyValueMap[listKey] 是否为 undefined，如果是则初始化为空数组
+                if (!keyValueMap[listKey]) {
+                    keyValueMap[listKey] = [];
+                }
+                // 将 childNodeMap 推入数组
+                keyValueMap[listKey].push(childNodeMap);
+            }else{
+                nodeAllChildren(childNode,keyValueMap);
+            }
+        }
+        // 如果tag为input,select
+        if(childNode.tagName == "INPUT"){
+            if("file"===childNode.type){
+                keyValueMap[childNode.id] = childNode.files;//支持多文件上传
+            }else{
+                let valueObject = {};
+                valueObject["value"] = childNode.value;
+                valueObject["defValue"] = childNode.defaultValue;
+                keyValueMap[childNode.id] = valueObject;
+            }
+        }
+        if(childNode.tagName == "SELECT"){
+            //判断select/option是否为多选
+            let isMultipleSelect = jQuery("#"+childNode.id).attr("multiple");
+            if("multiple" == isMultipleSelect){
+                let selectedValueMap;
+                for(optionIndex=0;optionIndex<childNode.length;optionIndex++){
+                    if(childNode.options[optionIndex].selected){
+                        if(selectedValueMap==null) {selectedValueMap =new Array(); }
+                        selectedValueMap.push(childNode.options[optionIndex].value);
+                    }
+                }
+                let valueObject = {};
+                valueObject["value"] = selectedValueMap;
+                valueObject["defValue"] = "";
+                keyValueMap[childNode.id] = valueObject;
+            }else{
+                let index = childNode.selectedIndex; // 选中索引
+                if(index >= 0){
+                    let text = childNode.options[index].text; // 选中文本
+                    let valueObject = {};
+                    valueObject["value"] = childNode.options[index].value; // 选中值
+                    valueObject["defValue"] = "";
+                    keyValueMap[childNode.id] = valueObject;
+                }else{
+                    let valueObject = {};
+                    valueObject["value"] = "";
+                    valueObject["defValue"] = "";
+                    keyValueMap[childNode.id] = valueObject;
+                }
+            }
+        }
+    }
+    return children;
 }
 
 /**
@@ -286,4 +405,18 @@ function checkStringNotEmpty(str){
         return false;
     }
     return true;
+}
+
+// 实现一个简单的对象克隆函数
+function cloneObject(obj) {
+    if (typeof obj !== 'object' || obj === null) {
+        return obj;
+    }
+    let clone = Array.isArray(obj) ? [] : {};
+    for (let key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            clone[key] = cloneObject(obj[key]);
+        }
+    }
+    return clone;
 }

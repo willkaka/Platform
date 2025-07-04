@@ -27,11 +27,12 @@ public class GetLibFromDb implements WebDataReqFun {
 
     @Override
     public Map<String,Object> execute(PublicReq publicReq){
-        WebValueDto webValueDto = publicReq.getWebValueDto();
-        if(webValueDto==null || webValueDto.getWebInputValueMap()==null || !webValueDto.getWebInputValueMap().containsKey("dbName")){
+        Map<String, ValueObject> valueMap = publicReq.getValueMap();
+        if(valueMap.isEmpty() ||
+                !valueMap.containsKey("dbName") ){
             return new HashMap<>();
         }
-        String dbName = webValueDto.getWebInputValueMap().get("dbName").getValue().toString();
+        String dbName = valueMap.get("dbName").getValue().toString();
         Connection connection = configDatabaseInfoService.getConnection(dbName,null);
         List<String> libs = DbUtil.getLibraryNames(connection);
         dataService.closeConnection(connection);

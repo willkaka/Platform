@@ -14,7 +14,7 @@ public class WebData {
      * null
      */
     //web_element_data_id
-    private Integer webDataId;
+    private String webDataId;
 
     /**
      * null

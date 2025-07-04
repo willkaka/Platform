@@ -15,7 +15,7 @@ public class WebCallAfter {
      * null
      */
     //web_call_after_id
-    private Integer webCallAfterId;
+    private String webCallAfterId;
 
     /**
      * null

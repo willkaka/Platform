@@ -1,10 +1,18 @@
 package com.hyw.platform.tservice.http;
 
+import com.hyw.platform.web.syswebconfig.MyThreadContext;
+import com.hyw.platform.web.syswebconfig.UserContext;
+import com.hyw.platform.web.syswebconfig.WebConstants;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+
+import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
 
 public class HttpUtil {
 
@@ -53,6 +61,8 @@ public class HttpUtil {
             connection.setRequestProperty("connection", "Keep-Alive");
             connection.setRequestProperty("Charset", CHARSET);
             connection.setRequestProperty("Content-Type", "multipart/form-data" + ";boundary=" + boundary);
+            connection.setRequestProperty(WebConstants.HEADER_FOR_TRACE_ID, MyThreadContext.getTraceId());
+            connection.setRequestProperty(WebConstants.HEADER_FOR_USER_ID, UserContext.id());
             connection.connect();
             try (DataOutputStream dos = new DataOutputStream(connection.getOutputStream());
                  InputStream is = new FileInputStream(file)) {
@@ -92,8 +102,8 @@ public class HttpUtil {
     }
 
 
-    public static String post(String url, String content) throws IOException{
-        StringBuffer result = new StringBuffer();
+    public static String post(String url, String content) {
+        StringBuilder result = new StringBuilder();
         HttpURLConnection connection = null;
         try {
             URL url1 = new URL(url);
@@ -113,28 +123,34 @@ public class HttpUtil {
             connection.setRequestProperty("accept", "*/*");
             connection.setRequestProperty("connection", "Keep-Alive");
             connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+            //设置报文头
+            connection.setRequestProperty(WebConstants.HEADER_FOR_TRACE_ID, MyThreadContext.getTraceId());
+            connection.setRequestProperty(WebConstants.HEADER_FOR_USER_ID, UserContext.id());
             connection.connect();
-            try (OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream(), CHARSET)) {
+            try (OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream(), StandardCharsets.UTF_8)) {
                 out.append(content);
                 out.flush();
             }
             try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream(), CHARSET))) {
+                    new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     result.append(line);
                 }
-                System.out.println(result.toString());
             }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "POST请求发生错误", e);
         } finally {
-            connection.disconnect();
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
+        LOGGER.info("POST请求返回值：" + result);
         return result.toString();
     }
 
-
     public static String get(String url) {
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder stringBuffer = new StringBuilder();
         HttpURLConnection connection = null;
         try {
             URL url1 = new URL(url);
@@ -143,21 +159,26 @@ public class HttpUtil {
             connection.setRequestMethod(GET);
             //设置连接超时时间
             connection.setReadTimeout(TIME_OUT);
+            //设置报文头
+            connection.setRequestProperty(WebConstants.HEADER_FOR_TRACE_ID, MyThreadContext.getTraceId());
+            connection.setRequestProperty(WebConstants.HEADER_FOR_USER_ID, UserContext.id());
             //开始连接
             connection.connect();
             try (BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream(), CHARSET))) {
+                    new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = bufferedReader.readLine()) != null) {
                     stringBuffer.append(line);
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "GET请求发生错误", e);
         } finally {
-            connection.disconnect();
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
-        System.out.println("GET请求返回值：" + stringBuffer.toString());
+        LOGGER.info("GET请求返回值：" + stringBuffer);
         return stringBuffer.toString();
     }
 

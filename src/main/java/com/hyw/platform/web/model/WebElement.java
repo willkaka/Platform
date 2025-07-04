@@ -15,7 +15,7 @@ public class WebElement {
      * null
      */
     //web_element_info_id
-    private Integer webElementId;
+    private String webElementId;
 
     /**
      * null

@@ -233,11 +233,7 @@ function writeTextArea(parentEle,elementInfo,eventInfo){
 function writeInput(parentEle,elementInfo,eventInfo){
     let groupDiv = document.createElement("div");
     groupDiv.setAttribute("class","inputArea_div_grp");
-    if(null == elementInfo.attrMap){
-        groupDiv.setAttribute("class","inputArea_div_grp");
-    }else{
-        setAttr(groupDiv,elementInfo.attrMap);
-    }
+    groupDiv.setAttribute("class","inputArea_div_grp");
 
     let label = document.createElement("label");
     label.setAttribute("class","inputArea_sub_label");
@@ -251,6 +247,16 @@ function writeInput(parentEle,elementInfo,eventInfo){
     }
     if(null != elementInfo.defValue){
         input.setAttribute("value",elementInfo.defValue);
+    }
+    // 从页面中取值
+    if(elementInfo.param!=null && elementInfo.param["valueFrmWeb"]){
+        let webFieldName = elementInfo.param["valueFrmWeb"];
+        let webFieldValueMap = getAllInputValueMap();
+        for(let key in webFieldValueMap){
+            if(key == webFieldName){
+                input.setAttribute("value",webFieldValueMap[key].value);
+            }
+        }
     }
     if(null != elementInfo.attrMap){
         setAttr(input,elementInfo.attrMap);
@@ -457,7 +463,6 @@ function writeButton(parentEle,elementInfo){
     span.innerHTML = elementInfo.desc;//名称
     button.appendChild(span);
 
-//    parentEle.appendChild(button);
     appendChildAtSeq(parentEle,button,elementInfo.seq);
 }
 //
@@ -676,14 +681,14 @@ function writeTableLabel(parentEle,elementInfo){
     element_tbody.setAttribute("id",elementInfo.id+"_tbody");
     body_table.appendChild(element_tbody);
 
-    let trEvent = null;
+    let trEventList = [];
     if(elementInfo.eventInfoList != null){
         let events = elementInfo.eventInfoList;
         for(let j=0;j<events.length;j++){
             if(events[j].event == "record_click"){
-                trEvent = events[j];
+                let trEvent = events[j];
                 trEvent.event="click";
-                break;
+                trEventList.push(trEvent);
             }
         }
     }
@@ -698,9 +703,12 @@ function writeTableLabel(parentEle,elementInfo){
         let recordMap = recordList[i];//记录
         let element_table_tr = document.createElement("tr");
         element_table_tr.setAttribute("id",elementInfo.id+"_tbody_tr_"+i);
-        if(trEvent != null){
-            //由于bind的特性，需要copy对象绑定。
-            element_table_tr.addEventListener(trEvent.event,executeEventMethod.bind(this,copy(trEvent),element_table_tr),false);
+        if(trEventList !=null && trEventList.length>0){
+            for(let j=0;j<trEventList.length;j++){
+                let trEvent = trEventList[j];
+                //由于bind的特性，需要copy对象绑定。
+                element_table_tr.addEventListener(trEvent.event,executeEventMethod.bind(this,copy(trEvent),element_table_tr),false);
+            }
         }
         element_tbody.appendChild(element_table_tr);
 

@@ -8,6 +8,7 @@ import com.hyw.platform.funbean.abs.RequestPubDto;
 import com.hyw.platform.funbean.abs.RequestTableDataUnit;
 import com.hyw.platform.iservice.ConfigDatabaseInfoService;
 import com.hyw.platform.web.req.PublicReq;
+import com.hyw.platform.web.req.ValueObject;
 import com.hyw.platform.web.req.WebValueDto;
 import com.hyw.platform.web.resp.webElement.TableNormal;
 import lombok.Getter;
@@ -37,17 +38,17 @@ public class GetFieldFromTabStr implements WebDataReqFun {
     public Map<String,Object> execute(PublicReq publicReq){
         Map<String,Object> changedEleMap = new LinkedHashMap<>();
 
-        WebValueDto webValueDto = publicReq.getWebValueDto();
-        if(webValueDto==null || webValueDto.getWebInputValueMap()==null ||
-                !webValueDto.getWebInputValueMap().containsKey("dbName") ||
-                !webValueDto.getWebInputValueMap().containsKey("libName") ||
-                !webValueDto.getWebInputValueMap().containsKey("tableName") ){
+        Map<String, ValueObject> valueMap = publicReq.getValueMap();
+        if(valueMap.isEmpty() ||
+                !valueMap.containsKey("dbName") ||
+                !valueMap.containsKey("libName") ||
+                !valueMap.containsKey("tableName") ){
             return changedEleMap;
         }
 
-        String selectedDb = webValueDto.getWebInputValueMap().get("dbName").getValue().toString();
-        String selectedLib = webValueDto.getWebInputValueMap().get("libName").getValue().toString();
-        String tableName = webValueDto.getWebInputValueMap().get("tableName").getValue().toString();
+        String selectedDb = valueMap.get("dbName").getValue().toString();
+        String selectedLib = valueMap.get("libName").getValue().toString();
+        String tableName = valueMap.get("tableName").getValue().toString();
 
         if(StringUtils.isBlank(selectedDb) || StringUtils.isBlank(selectedLib) || StringUtils.isBlank(tableName)){
             return changedEleMap;

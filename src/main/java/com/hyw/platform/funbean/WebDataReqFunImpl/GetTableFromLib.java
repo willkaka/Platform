@@ -5,6 +5,7 @@ import com.hyw.gdata.utils.DbUtil;
 import com.hyw.platform.funbean.WebDataReqFun;
 import com.hyw.platform.iservice.ConfigDatabaseInfoService;
 import com.hyw.platform.web.req.PublicReq;
+import com.hyw.platform.web.req.ValueObject;
 import com.hyw.platform.web.req.WebValueDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +25,14 @@ public class GetTableFromLib implements WebDataReqFun {
 
     @Override
     public Map<String,Object> execute(PublicReq publicReq){
-        WebValueDto webValueDto = publicReq.getWebValueDto();
-        if(webValueDto==null || webValueDto.getWebInputValueMap()==null || !webValueDto.getWebInputValueMap().containsKey("dbName")
-                || !webValueDto.getWebInputValueMap().containsKey("libName")){
+        Map<String, ValueObject> valueMap = publicReq.getValueMap();
+        if(valueMap.isEmpty() ||
+                !valueMap.containsKey("dbName") ||
+                !valueMap.containsKey("libName") ){
             return new HashMap<>();
         }
-        String dbName = webValueDto.getWebInputValueMap().get("dbName").getValue().toString();
-        String libName = webValueDto.getWebInputValueMap().get("libName").getValue().toString();
+        String dbName = valueMap.get("dbName").getValue().toString();
+        String libName = valueMap.get("libName").getValue().toString();
 
         Connection connection = configDatabaseInfoService.getConnection(dbName,libName);
         List<String> tables = DbUtil.getTableNames(connection, libName);

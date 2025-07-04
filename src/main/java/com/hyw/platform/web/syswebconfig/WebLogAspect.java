@@ -64,6 +64,8 @@ public class WebLogAspect {
             sb.append("Params    : ").append(getParams(joinPoint)).append("\n");
             sb.append("URI       : ").append(request.getMethod()).append(" ").append(request.getRequestURI()).append("\n");
             MDC.put(MyThreadContext.MDC_TRACE_ID, traceId);
+
+            MyThreadContext.put(UserContext.ID, request.getHeader(WebConstants.HEADER_FOR_USER_ID));
             // 记录下请求内容
             logger.info(sb.toString());
         } catch (Exception e) {

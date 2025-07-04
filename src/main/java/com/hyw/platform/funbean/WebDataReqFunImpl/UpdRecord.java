@@ -41,7 +41,7 @@ public class UpdRecord implements RequestFun {
         String refreshEle = paramMap.get("refreshEle").toString();
         String closeSW = paramMap.get("closeSW").toString();
 
-        Map<String, ValueObject> inputValue = requestDto.getWebValueDto().getWebInputValueMap();
+        Map<String, ValueObject> inputValue = requestDto.getValueMap();
         int updCount = dataService.executeSql(getUpdateSql(tableName,inputValue));
         if(updCount>0){
             returnDto.setRtnMsg("已成功更新"+updCount+"条记录！");
@@ -58,8 +58,8 @@ public class UpdRecord implements RequestFun {
         }
         if(StringUtils.isNotBlank(refreshEle) && StringUtils.isNotBlank(refreshPage)) {
             Map<String,Object> rtnParamMap = new HashMap<>();
-            for(String key:requestDto.getWebValueDto().getWebInputValueMap().keySet()){
-                ValueObject valueObject = requestDto.getWebValueDto().getWebInputValueMap().get(key);
+            for(String key:requestDto.getValueMap().keySet()){
+                ValueObject valueObject = requestDto.getValueMap().get(key);
                 rtnParamMap.put(key,valueObject.getValue());
             }
             eventInfoList.add(new EventInfo().setEvent("request")//refreshElement

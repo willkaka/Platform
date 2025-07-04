@@ -52,8 +52,8 @@ public class DelRecord implements RequestFun {
         List<EventInfo> eventInfoList = new ArrayList<>();
         if(StringUtils.isNotBlank(refreshEle) && StringUtils.isNotBlank(refreshPage)) {
             Map<String,Object> rtnParamMap = new HashMap<>();
-            for(String key:requestDto.getWebValueDto().getWebInputValueMap().keySet()){
-                ValueObject valueObject = requestDto.getWebValueDto().getWebInputValueMap().get(key);
+            for(String key:requestDto.getValueMap().keySet()){
+                ValueObject valueObject = requestDto.getValueMap().get(key);
                 rtnParamMap.put(key,valueObject.getValue());
             }
             eventInfoList.add(new EventInfo().setEvent("request")//refreshElement

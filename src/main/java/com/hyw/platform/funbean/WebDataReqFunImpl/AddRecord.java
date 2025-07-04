@@ -35,7 +35,7 @@ public class AddRecord implements RequestFun {
         String refreshPage = paramMap.get("refreshPage").toString();
         String refreshEle = paramMap.get("refreshEle").toString();
         String closeSW = paramMap.get("closeSW").toString();
-        Map<String,String> inputValue = requestDto.getWebValueDto().getValue();
+        Map<String,String> inputValue = requestDto.getCurValueStrMap();
 
         List<TableFieldInfo> tableFieldInfoList = dataService.getTableFieldList(tableName);
         String insertSql = SqlGenUtil.getInsertSql(tableName,tableFieldInfoList,inputValue);
@@ -57,8 +57,8 @@ public class AddRecord implements RequestFun {
         }
         if(StringUtils.isNotBlank(refreshEle) && StringUtils.isNotBlank(refreshPage)) {
             Map<String,Object> rtnParamMap = new HashMap<>();
-            for(String key:requestDto.getWebValueDto().getWebInputValueMap().keySet()){
-                ValueObject valueObject = requestDto.getWebValueDto().getWebInputValueMap().get(key);
+            for(String key:requestDto.getValueMap().keySet()){
+                ValueObject valueObject = requestDto.getValueMap().get(key);
                 rtnParamMap.put(key,valueObject.getValue());
             }
             eventInfoList.add(new EventInfo().setEvent("request")//refreshElement

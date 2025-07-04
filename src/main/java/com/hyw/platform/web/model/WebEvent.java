@@ -15,7 +15,7 @@ public class WebEvent {
      * null
      */
     //web_event_info_id
-    private Integer webEventId;
+    private String webEventId;
 
     /**
      * null

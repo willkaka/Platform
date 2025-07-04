@@ -18,7 +18,18 @@ function executeEventMethod(eventInfo, sourceElement) {
             return;
         }
         // 因会将事件参数传到后续处理动作中，因此此处已弹窗确认后将标志改为false,不影响后续处理。
-        eventInfo.paramMap["showConfirmSW"]=false;
+//        eventInfo.paramMap["showConfirmSW"]=false;
+    }
+
+    // 2. 按钮实现：新增一行
+    if(eventInfo.reqType == "addNewRecord"){
+        insertIntoNewLine(eventInfo);
+        return;
+    }
+    // 3. 按钮实现：删除一行
+    if(eventInfo.reqType == "delRecordLine"){
+        delRecordLine(eventInfo);
+        return;
     }
 
     // 取事件源信息，并保存在eventInfo中
@@ -55,6 +66,101 @@ function executeEventMethod(eventInfo, sourceElement) {
     }
     sendJsonByAjax(eventInfo.reqType+'/'+eventInfo.reqMapping,'post', data,contentType,processData,sucFreshAll,eventInfo);
 }
+
+function insertIntoNewLine(eventInfo){
+    // 获取事件发生的元素
+    var event = window.event || arguments[0];
+    var eventEle = event.currentTarget;
+    let copyDivId = eventInfo.paramMap["targetDiv"];
+    // 获取事件元素的上一层父元素，直到元素id以copyDivId开始为止
+    let parentEle = eventEle.parentNode;
+    while (eventEle.parentNode && !eventEle.parentNode.id.startsWith(copyDivId)) {
+        parentEle = parentEle.parentNode;
+    }
+    // 将id的前部分copyDivId替换为空，得到当前list的号码
+    let listNum = parentEle.id.replace(copyDivId,"");
+
+    let divNew = parentEle.cloneNode(true);
+    // 删除divNew下的所有元素
+    while (divNew.firstChild) {
+        divNew.removeChild(divNew.firstChild);
+    }
+    // 遍历parentEle下的所有元素，拷贝到divNew中
+    for (let i = 0; i < parentEle.childNodes.length; i++) {
+        let childNode = parentEle.childNodes[i];
+        // 属性type值为addRecordLineButton的元素不拷贝
+        if (childNode.getAttribute("defType") && childNode.getAttribute("defType") == "addRecordLineButton") {
+            divNew.appendChild(childNode);
+            // id以delRecordLineButton_开头的元素不拷贝
+        }else if(childNode.id && childNode.id.startsWith("delRecordLineButton_")){
+        }else{
+            divNew.appendChild(childNode.cloneNode(true));
+        }
+    }
+
+    // 设置新元素的id
+    divNew.id = copyDivId + (parseInt(listNum)+1);
+    // 新增"-"按钮
+    // 定义事件信息
+    let eventInfoList = [];
+    let eventInfoCopy = cloneObject(eventInfo);
+    eventInfoCopy.reqType = "delRecordLine";
+    eventInfoCopy.element = "delRecordLineButton_"+(parseInt(listNum)+1);
+    eventInfoList.push(eventInfoCopy);
+    let elementInfo = {
+        "id": "delRecordLineButton_"+(parseInt(listNum)+1),
+        "desc":"-",
+        "eventInfoList":eventInfoList,
+        "attrMap":{
+            "class":"inputArea_sub_button"
+        },
+        "seq":998
+    }
+    writeButton(divNew,elementInfo);
+    // "+"按钮
+//    divNew.appendChild(eventEle);
+    // 插入到事件元素的后面
+    parentEle.parentNode.appendChild(divNew);
+}
+
+function delRecordLine(eventInfo){
+    // 获取事件发生的元素
+    var event = window.event || arguments[0];
+    var eventEle = event.currentTarget;
+    let copyDivId = eventInfo.paramMap["targetDiv"];
+    // 获取事件元素的上一层父元素，直到元素id以copyDivId开始为止
+    let parentEle = eventEle.parentNode;
+    while (eventEle.parentNode && !eventEle.parentNode.id.startsWith(copyDivId)) {
+        parentEle = parentEle.parentNode;
+    }
+    // 将id的前部分copyDivId替换为空，得到当前list的号码
+    let listNum = parentEle.id.replace(copyDivId,"");
+    // 按id号找到前一行元素，如果前一个id不存在则再找前一个id，直到找到为止
+    let index = parseInt(listNum) - 1;
+    let preRecordLine = document.getElementById(copyDivId + index);
+    while (preRecordLine == null && index > 1) {
+        index = index - 1;
+        preRecordLine = document.getElementById(copyDivId + index);
+    }
+
+    // 遍历parentEle下的所有元素，找到属性type值为addRecordLineButton的元素
+    let addButEle;
+    for (let i = 0; i < parentEle.childNodes.length; i++) {
+        let childNode = parentEle.childNodes[i];
+        // 属性type值为addRecordLineButton的元素
+        if (childNode.getAttribute("defType") && childNode.getAttribute("defType") == "addRecordLineButton") {
+            addButEle = childNode;
+            break;
+        }
+    }
+    if(addButEle!=null && preRecordLine!=null){
+        // 把addButEle移动到preRecordLine后面
+        preRecordLine.append(addButEle);
+    }
+    // 删除元素
+    parentEle.parentNode.removeChild(parentEle);
+}
+
 
 /**
  * 取事件源信息，并保存在eventInfo中
@@ -94,14 +200,16 @@ function getSourceElementInfo(eventEle, eventInfo){
     }else if(eventEle.tagName == "TR"){
         if(null == eventInfo.paramMap) eventInfo.paramMap = {};
         let childList = eventEle.childNodes;
+        let colNameValueMap = {};
         for (let i=0;i<childList.length;i++){
             let node = childList[i];
             let colName = node.getAttribute("colName");
             let colValue = node.innerText;
             if(colName != null){
-                eventInfo.paramMap[colName] = colValue;
+                colNameValueMap[colName] = colValue;
             }
         }
+        eventInfo.paramMap["tableRecord"] = colNameValueMap;
     }else{
         if(eventInfo.type == "menuReq"){
             curMenuId = eventInfo.id;

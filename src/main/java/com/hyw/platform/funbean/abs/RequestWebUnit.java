@@ -1,8 +1,11 @@
 package com.hyw.platform.funbean.abs;
 
+import com.alibaba.fastjson.JSONObject;
 import com.hyw.platform.exception.BizException;
 import com.hyw.platform.funbean.RequestFun;
 import com.hyw.platform.web.req.PublicReq;
+import com.hyw.platform.web.req.ValueObject;
+import com.hyw.platform.web.req.WebValueDto;
 import com.hyw.platform.web.resp.PublicResp;
 import com.hyw.platform.web.util.ObjectUtil;
 import lombok.Getter;
@@ -48,12 +51,19 @@ public abstract class RequestWebUnit<D, V extends RequestWebUnit.Variable> imple
     private V getVariable(PublicReq requestDto){
         V param = newInstanceVariable();
         //处理参数
-        Map<String,String> inputValue = requestDto.getWebValueDto().getValue();
+        JSONObject inputValue = requestDto.getWebValueDto();
         List<Field> fields = ObjectUtil.getAllFieldList(param.getClass());
         for(Field field:fields){
             String fieldName = field.getName();
             if(inputValue.containsKey(fieldName)){
-                String value = inputValue.get(fieldName);
+                Object value = null;
+                Object valueObject = inputValue.get(fieldName);
+                if(valueObject instanceof ValueObject){
+                    ValueObject webValueDto = (ValueObject) valueObject;
+                    value = webValueDto.getValue();
+                }else if(valueObject instanceof List){
+//                    List<ValueObject> list = ((List) valueObject).toArray();
+                }
                 try {
                     if (!field.isAccessible()) { field.setAccessible(true); }
                     field.set(param,value);

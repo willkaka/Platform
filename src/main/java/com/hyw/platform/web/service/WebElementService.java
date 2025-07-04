@@ -3,6 +3,9 @@ package com.hyw.platform.web.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.hyw.gdata.DataService;
 import com.hyw.gdata.NQueryWrapper;
 import com.hyw.gdata.dto.TableFieldInfo;
@@ -15,12 +18,15 @@ import com.hyw.platform.web.resp.EventInfo;
 import com.hyw.platform.web.resp.NextOprDto;
 import com.hyw.platform.web.resp.webElement.WebElementDto;
 import com.hyw.platform.web.resp.webElement.TableNormal;
+import com.hyw.platform.web.util.ExpressContext;
+import com.hyw.platform.web.util.ExpressUtil;
 import com.hyw.platform.web.util.HttpUtil;
 import com.hyw.platform.web.util.WebUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONTokener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -38,6 +44,8 @@ public class WebElementService {
     private ApplicationContext context;
     @Autowired
     private DataService dataService;
+    @Autowired
+    private CallInterface callInterface;
 
     private static final String FORMATTER_DATE = "yyyy-MM-dd";
     private static final String FORMATTER_DATETIME = "yyyy-MM-dd HH:mm:ss";
@@ -85,9 +93,13 @@ public class WebElementService {
 
     @SuppressWarnings("unchecked")
     public List<WebElementDto> getPageElementsById(String id, PublicReq publicReq){
+        String[] eleInfos = id.split("#");
         List<WebElementDto> webElementDtoDtoList = new ArrayList<>();
         WebElement webElement = dataService.getOne(new NQueryWrapper<WebElement>()
-                    .eq(WebElement::getElementNo, id));
+                    .eq(WebElement::getMenu, eleInfos[0])
+                    .eq(WebElement::getPage, eleInfos[1])
+                    .eq(WebElement::getElement, eleInfos[2])
+        );
         List<WebElementDto> webElementDtos = convert2Dto(webElement,publicReq);
         if(CollectionUtils.isNotEmpty(webElementDtos)) webElementDtoDtoList.addAll(webElementDtos);
         return webElementDtoDtoList;
@@ -198,35 +210,26 @@ public class WebElementService {
                 dataMap.put(key,(String)dataMapObject.get(key));
             }
         }else if("callInterface".equals(webData.getDataType())) {
-            dataMap = callInterface(webData.getDataAttr(), webData.getExpress(), publicReq);
+//            dataMap = callInterface(webData.getDataAttr(), webData.getExpress(), publicReq);
+
+            JSONObject reqJson = new JSONObject();
+            Map<String,Object> param = getAllInputData(publicReq);
+            JSONObject dataJson = JSON.parseObject(webData.getExpress());
+            if(dataJson.containsKey("inputParam")) {
+                Map<String, Object> paramMap = dataJson.getJSONObject("inputParam");
+                param.putAll(paramMap);
+            }
+            publicReq.getWebValueDto().put("params", param);
+
+            String[] params = webData.getDataAttr().split("#");
+            JSONObject jsonResp = callInterface.call(params[0], params[1], publicReq);
+
+            dataMap = respJsonToMap(dataJson, jsonResp);
         }
         return dataMap;
     }
 
-    private Map<String, String> callInterface(String interfaceName, String interfaceParam, PublicReq publicReq){
-        ServiceInterface serviceInterface = dataService.getOne(new NQueryWrapper<ServiceInterface>()
-               .eq(ServiceInterface::getInterfaceName,interfaceName));
-        if(serviceInterface==null) return null;
-
-        ServiceHost serviceHost = dataService.getOne(new NQueryWrapper<ServiceHost>()
-              .eq(ServiceHost::getHostName,serviceInterface.getHostName()));
-        if(serviceHost==null) return null;
-
-        List<ServiceInterfaceData> dataList = dataService.list(new NQueryWrapper<ServiceInterfaceData>()
-              .eq(ServiceInterfaceData::getInterfaceName,interfaceName)
-                .eq(ServiceInterfaceData::getDataType,"input"));
-        if(CollectionUtils.isEmpty(dataList)) return null;
-        Map<String,Object> param = getAllInputData(publicReq);
-        JSONObject dataJson = JSON.parseObject(interfaceParam);
-        if(dataJson.containsKey("inputParam")) {
-            Map<String, Object> paramMap = dataJson.getJSONObject("inputParam");
-            param.putAll(paramMap);
-        }
-        //组装url(接口地址+接口路径)
-        String url = serviceHost.getHostUrl() + serviceInterface.getInterfacePath();
-        JSONObject respJson = HttpUtil.getHttpRequestData(url, serviceInterface.getRequestMethod(), serviceInterface.getCharset(),
-                getDefinedParam(dataList,param));
-
+    private Map<String,String> respJsonToMap(JSONObject dataJson, JSONObject respJson){
         String dataPosition = dataJson.getString("dataPosition");
         String dataType = dataJson.getString("dataType");
         String keyField = dataJson.getString("keyField");
@@ -234,31 +237,38 @@ public class WebElementService {
         Map<String,String> rtnMap = new HashMap<>();
         if("list".equalsIgnoreCase(dataType)){
             assert respJson != null;
-            JSONArray jsonArray = respJson.getJSONArray(dataPosition);
+            String[] dataPositions = dataPosition.split("\\.");
+            String lastDataPosition = dataPositions[dataPositions.length-1];
+            for(String dataPositionItem:dataPositions){
+                if(dataPositionItem.equals(lastDataPosition)) break;
+                respJson = respJson.getJSONObject(dataPositionItem);
+            }
+            JSONArray jsonArray = respJson.getJSONArray(lastDataPosition);
             for(Object object:jsonArray){
                 JSONObject jsonObject = (JSONObject) object;
                 String fieldName = jsonObject.getString(keyField);
-                String fieldValue = jsonObject.getString(valueField);
-                rtnMap.put(fieldName,fieldValue);
+                ExpressContext context = new ExpressContext();
+                context.put("dto",jsonObject);
+                Object value = ExpressUtil.run(valueField, context);
+                rtnMap.put(fieldName,value==null?null:value.toString());
+            }
+        }else if("map".equalsIgnoreCase(dataType)){
+            assert respJson!= null;
+            String[] dataPositions = dataPosition.split("\\.");
+            String lastDataPosition = dataPositions[dataPositions.length-1];
+            Map<String,Object> map = respJson.getJSONObject(lastDataPosition);
+            for(String key:map.keySet()){
+                rtnMap.put(key,map.get(key).toString());
             }
         }
         return rtnMap;
     }
 
-    private JSONObject getDefinedParam(List<ServiceInterfaceData> dataList, Map<String,Object> allInputData){
-        Map<String,Object> param = new HashMap<>();
-        for(ServiceInterfaceData data:dataList){
-            if(allInputData.containsKey(data.getFieldName())){
-                param.put(data.getFieldName(),allInputData.get(data.getFieldName()));
-            }
-        }
-        return JSON.parseObject(JSON.toJSONString(param));
-    }
 
     private Map<String,Object> getAllInputData(PublicReq publicReq){
         Map<String, Object> rtnMap = new HashMap<>();
 
-        Map<String, ValueObject> webInputValueMap = publicReq.getWebValueDto().getWebInputValueMap();
+        Map<String, ValueObject> webInputValueMap = publicReq.getValueMap();
         for (Map.Entry<String, ValueObject> entry : webInputValueMap.entrySet()) {
             String key = entry.getKey();
             ValueObject value = entry.getValue();
@@ -365,10 +375,10 @@ public class WebElementService {
                         }
                     }
                 }
-                if(publicReq.getWebValueDto()!=null && MapUtils.isNotEmpty(publicReq.getWebValueDto().getWebInputValueMap())){
-                    for (String key : publicReq.getWebValueDto().getWebInputValueMap().keySet()) {
+                if(publicReq.getWebValueDto()!=null && MapUtils.isNotEmpty(publicReq.getValueMap())){
+                    for (String key : publicReq.getValueMap().keySet()) {
                         if (StringUtils.isNotBlank(key)) {
-                            sql = sql.replaceAll("#" + key + "#", "'" + publicReq.getWebValueDto().getWebInputValueMap().get(key).getValue() + "'");
+                            sql = sql.replaceAll("#" + key + "#", "'" + publicReq.getValueMap().get(key).getValue() + "'");
                         }
                     }
                 }
@@ -384,6 +394,32 @@ public class WebElementService {
             } else if ("fun".equals(webData.getDataType())) {
                 String funBean = webData.getExpress();
                 tableNormal = ((WebTableDataReqFun) context.getBean(funBean)).execute(publicReq);
+            } else if ("tableHead".equalsIgnoreCase(webData.getDataType())) {
+                ObjectMapper mapper = new ObjectMapper();
+                // 禁用按字母排序功能
+                mapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, false);
+                // 解析JSON字符串
+                try {
+                    // 按顺序返回表头字段
+                    Map<String, Object> jsonMap = mapper.readValue(webData.getExpress(), LinkedHashMap.class);
+                    if (jsonMap.containsKey("headMap")) {
+                        Map<String, String> headMap = new LinkedHashMap<>();
+                        Map<String, Object> headMapJson = (LinkedHashMap) jsonMap.get("headMap");
+                        for (String key : headMapJson.keySet()) {
+                            if(key.contains("#")){
+                                String[] fieldName = key.split("#");
+                                String dataFieldName = fieldName[0];
+                                String eleFieldName = fieldName[1];
+                                headMap.put(eleFieldName, (String) headMapJson.get(dataFieldName));
+                            }else{
+                                headMap.put(key, (String) headMapJson.get(key));
+                            }
+                        }
+                        tableNormal.getHeadMap().putAll(headMap);
+                    }
+                }catch (Exception e){
+                    //忽略
+                }
             }
         }
 
@@ -457,6 +493,7 @@ public class WebElementService {
     }
 
     private String parseValue(String value){
+        if(StringUtils.isBlank(value)) return value;
         Map<String,Object> variablesMap = new HashMap<>();
         variablesMap.put("curDate", LocalDate.now().format(DateTimeFormatter.ofPattern(FORMATTER_DATE)));
         variablesMap.put("curDateTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern(FORMATTER_DATETIME)));

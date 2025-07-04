@@ -21,7 +21,11 @@ public class ConvertEleData {
         String[] attrs = s.split(separator);
         for (String attrExpress : attrs) {
             String[] express = attrExpress.split(connector);
-            attrMap.put(express[0], express[1].replace("\"", ""));
+            if(express.length>1) {
+                attrMap.put(express[0], express[1].replace("\"", ""));
+            }else {
+                attrMap.put(express[0], null);
+            }
         }
         return attrMap;
     }

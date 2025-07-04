@@ -76,7 +76,7 @@ public abstract class RequestFunUnit<D, V extends RequestPubDto> implements Requ
     private V getVariable(PublicReq requestDto){
         V variable = newInstanceVariable();
         //处理参数
-        Map<String, ValueObject> webInputValueMap = requestDto.getWebValueDto().getWebInputValueMap();
+        Map<String, ValueObject> webInputValueMap = requestDto.getValueMap();
         Map<String, ValueObject> camelFieldMap = new HashMap<>();
         for (Map.Entry<String, ValueObject> entry : webInputValueMap.entrySet()) {
             String key = entry.getKey();
