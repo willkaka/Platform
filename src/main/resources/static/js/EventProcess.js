@@ -13,9 +13,12 @@ function executeEventMethod(eventInfo, sourceElement) {
     // 判断该事件需要如何处理：
     // 1. 需要先 弹窗确认，客户取消则退出事件，否则继续后续处理
     if(eventInfo!=null && eventInfo.paramMap!=null && eventInfo.paramMap["showConfirmSW"]){
-        let del = confirm(eventInfo.paramMap["confirmCnt"]);
-        if(!del){
-            return;
+        let transferCnt = eventInfo.paramMap["transferCnt"];
+        if(transferCnt==null || transferCnt<=0){
+            let del = confirm(eventInfo.paramMap["confirmCnt"]);
+            if(!del){
+                return;
+            }
         }
         // 因会将事件参数传到后续处理动作中，因此此处已弹窗确认后将标志改为false,不影响后续处理。
 //        eventInfo.paramMap["showConfirmSW"]=false;
@@ -67,6 +70,10 @@ function executeEventMethod(eventInfo, sourceElement) {
     sendJsonByAjax(eventInfo.reqType+'/'+eventInfo.reqMapping,'post', data,contentType,processData,sucFreshAll,eventInfo);
 }
 
+function clearUpWebData(){
+
+}
+
 function insertIntoNewLine(eventInfo){
     // 获取事件发生的元素
     var event = window.event || arguments[0];
@@ -74,11 +81,13 @@ function insertIntoNewLine(eventInfo){
     let copyDivId = eventInfo.paramMap["targetDiv"];
     // 获取事件元素的上一层父元素，直到元素id以copyDivId开始为止
     let parentEle = eventEle.parentNode;
-    while (eventEle.parentNode && !eventEle.parentNode.id.startsWith(copyDivId)) {
+    let parentEleName = getElementByEleName(eventEle.parentNode.id);
+    while (eventEle.parentNode && !getElementByEleName(eventEle.parentNode.id).startsWith(copyDivId)) {
         parentEle = parentEle.parentNode;
+        parentEleName = getElementByEleName(eventEle.parentNode.id);
     }
     // 将id的前部分copyDivId替换为空，得到当前list的号码
-    let listNum = parentEle.id.replace(copyDivId,"");
+    let listNum = getElementByEleName(parentEle.id).replace(copyDivId,"");
 
     let divNew = parentEle.cloneNode(true);
     // 删除divNew下的所有元素
@@ -92,7 +101,7 @@ function insertIntoNewLine(eventInfo){
         if (childNode.getAttribute("defType") && childNode.getAttribute("defType") == "addRecordLineButton") {
             divNew.appendChild(childNode);
             // id以delRecordLineButton_开头的元素不拷贝
-        }else if(childNode.id && childNode.id.startsWith("delRecordLineButton_")){
+        }else if(childNode.id && getElementByEleName(childNode.id).startsWith("delRecordLineButton_")){
         }else{
             divNew.appendChild(childNode.cloneNode(true));
         }
@@ -100,6 +109,7 @@ function insertIntoNewLine(eventInfo){
 
     // 设置新元素的id
     divNew.id = copyDivId + (parseInt(listNum)+1);
+    divNew.elename = copyDivId + (parseInt(listNum)+1);
     // 新增"-"按钮
     // 定义事件信息
     let eventInfoList = [];
@@ -108,7 +118,7 @@ function insertIntoNewLine(eventInfo){
     eventInfoCopy.element = "delRecordLineButton_"+(parseInt(listNum)+1);
     eventInfoList.push(eventInfoCopy);
     let elementInfo = {
-        "id": "delRecordLineButton_"+(parseInt(listNum)+1),
+        "elename": "delRecordLineButton_"+(parseInt(listNum)+1),
         "desc":"-",
         "eventInfoList":eventInfoList,
         "attrMap":{
@@ -117,9 +127,6 @@ function insertIntoNewLine(eventInfo){
         "seq":998
     }
     writeButton(divNew,elementInfo);
-    // "+"按钮
-//    divNew.appendChild(eventEle);
-    // 插入到事件元素的后面
     parentEle.parentNode.appendChild(divNew);
 }
 
@@ -168,10 +175,6 @@ function delRecordLine(eventInfo){
 function getSourceElementInfo(eventEle, eventInfo){
 
     if(eventEle.parentElement != undefined && eventEle.parentElement != null && eventEle.parentElement.nodeName == 'TD'){
-//        let tableElement = eventEle.parentElement.parentElement.parentElement.parentElement; // table
-//        let rowNo = eventEle.parentElement.parentElement.rowIndex; //行号
-//        let tableId = eventEle.parentElement.parentElement.parentElement.parentElement.id.replace("_body_table","");
-//        let headTdList = document.getElementById(tableId+"_thead_tr").childNodes;
         let curTDList = eventEle.parentElement.parentElement.childNodes;
         if(null == eventInfo.paramMap) eventInfo.paramMap = {};
         for (let i=0;i<curTDList.length;i++){
@@ -190,10 +193,10 @@ function getSourceElementInfo(eventEle, eventInfo){
     // 分页按钮，需要返回请求的页码 reqPage
     }else if(eventEle.tagName == "A" && eventInfo.withPage){ //分页按钮请求
         if("上一页" == eventEle.innerHTML){
-            eventInfo.reqPage = outputMap.pageNow - 1 < 0?0:outputMap.pageNow - 1;
+            eventInfo.reqPage = (eventInfo.pageNow==0?1:eventInfo.pageNow) - 1 <= 0?1:eventInfo.pageNow - 1;
         }else if("下一页" == eventEle.innerHTML){
-            let totalPage = parseInt((outputMap.totalCount-1)/outputMap.pageSize)+1;
-            eventInfo.reqPage = outputMap.pageNow + 1 > totalPage?totalPage:outputMap.pageNow + 1;
+            let totalPage = parseInt((eventInfo.totalCount-1)/eventInfo.pageSize)+1;
+            eventInfo.reqPage = (eventInfo.pageNow==0?1:eventInfo.pageNow) + 1 > totalPage?totalPage:(eventInfo.pageNow==0?1:eventInfo.pageNow) + 1;
         }else{
             eventInfo.reqPage = eventEle.innerHTML;
         }

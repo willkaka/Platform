@@ -5,9 +5,9 @@ import com.hyw.gdata.DataService;
 import com.hyw.gdata.NQueryWrapper;
 import com.hyw.platform.web.model.WebEvent;
 import com.hyw.platform.web.model.WebMenu;
-import com.hyw.platform.web.model.WebTrigger;
 import com.hyw.platform.web.resp.EventInfo;
 import com.hyw.platform.web.resp.webElement.WebElementDto;
+import com.hyw.platform.web.syswebconfig.UUIDShort;
 import com.hyw.platform.web.util.WebUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +27,7 @@ public class WebMenuService {
     private DataService dataService;
 
 
-    public List<WebElementDto> getMenu(String parentMenu) {
+    public List<WebElementDto> getMenu(String parentMenu, Map<String,String> menuIdMap) {
         List<WebElementDto> webElementDtoDtoList = new ArrayList<>();
 
         @SuppressWarnings("unchecked")
@@ -35,12 +36,15 @@ public class WebMenuService {
                 .orderByAsc(WebMenu::getSortNo));
         for (WebMenu webMenu : webMenuList) {
             WebElementDto webElementDto = new WebElementDto();
-            webElementDto.setPId("root".equals(webMenu.getMenuParent()) ? "menuArea" : webMenu.getMenuParent());
-            webElementDto.setId(webMenu.getMenu());
+            webElementDto.setPId("root".equals(webMenu.getMenuParent()) ? "menuArea" : menuIdMap.getOrDefault(webMenu.getMenuParent(),webMenu.getMenuParent()));
+            webElementDto.setId(UUIDShort.generate());
+            webElementDto.setElementName(webMenu.getMenu());
             webElementDto.setType("root".equals(webMenu.getMenuParent()) ? "Group" : "Menu");
             webElementDto.setDesc(webMenu.getMenuDesc());
             webElementDto.setEventInfoList(getEventInfoList(webMenu.getMenu(),"menuEvent"));
-            webElementDto.setSubElementList(getMenu(webMenu.getMenu()));
+
+            menuIdMap.put(webMenu.getMenu(),webElementDto.getId());
+            webElementDto.setSubElementList(getMenu(webMenu.getMenu(), menuIdMap));
             webElementDtoDtoList.add(webElementDto);
         }
         return webElementDtoDtoList;
@@ -60,16 +64,7 @@ public class WebMenuService {
                 .eq(WebEvent::getMenu, menu)
                 .eq(WebEvent::getPage, StringUtils.isBlank(type)?"start_page":type));
         for (WebEvent webEventInfo : webEventInfoList) {
-            //取由该事件触发的事件
-            List<WebTrigger> webTriggerInfoList = dataService.list(new NQueryWrapper<WebTrigger>()
-                    .eq(WebTrigger::getSourceMenu, webEventInfo.getMenu())
-                    .eq(WebTrigger::getSourcePage, webEventInfo.getPage())
-                    .eq(WebTrigger::getSourceElement, webEventInfo.getElement()));
-            if (WebUtil.isEmpty(webTriggerInfoList)) {
-                eventInfoList.add(createEventInfo(webEventInfo, null));
-            } else {
-                webTriggerInfoList.forEach(trigger -> eventInfoList.add(createEventInfo(webEventInfo, trigger)));
-            }
+            eventInfoList.add(createEventInfo(webEventInfo));
         }
         return eventInfoList;
     }
@@ -79,10 +74,9 @@ public class WebMenuService {
      * 生成事件信息（包含该事件需要触发的事件）
      *
      * @param webEventInfo   事件信息
-     * @param webTriggerInfo 触发事件
      * @return EventInfo
      */
-    private EventInfo createEventInfo(WebEvent webEventInfo, WebTrigger webTriggerInfo) {
+    private EventInfo createEventInfo(WebEvent webEventInfo) {
         EventInfo eventInfo = new EventInfo();
         eventInfo.setEvent(webEventInfo.getEventType());
         eventInfo.setReqType(webEventInfo.getRequestType());
@@ -99,11 +93,6 @@ public class WebMenuService {
                 eventInfo.setWithPage(isWithPage);
             }
         }
-        if (webTriggerInfo == null) return eventInfo;
-        eventInfo.setRelEleChgType(webTriggerInfo.getTriggerElementType());
-        eventInfo.setRelEleType(webTriggerInfo.getTriggerType());
-        eventInfo.setRelEleId(webTriggerInfo.getTriggerElement());
-        eventInfo.setTriggerParamMap(JSON.parseObject(webTriggerInfo.getParam()));
         return eventInfo;
     }
 }

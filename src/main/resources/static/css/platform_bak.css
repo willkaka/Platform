@@ -1,0 +1,660 @@
+body{
+    position: relative;
+}
+/*
+ * #f5f5f5 淡灰色
+ * #d0d0d0 灰色
+*/
+/* ----------- top log css ------------------------ */
+.top_log_div{
+    margin:5px 0px 0px 0px;/*上边距，右边距，下边距，左边距*/
+    border-style:solid;
+    border-width:1px;
+    border-color:#f5f5f5;
+    background-color: #f5f5f5; /*背景色*/
+    text-align:right;
+}
+
+.login_Button{
+    cursor:pointer;
+}
+
+.menu_div {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #f5f5f5; /*背景色*/
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    border-radius: 8px; /*圆角*/
+}
+
+.menuDropButton {
+    display: inline-block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    cursor:pointer;
+}
+
+.menuDropDown {
+    display: inline-block;
+    cursor:pointer;
+}
+.menuDropDown:hover {
+    background-color: #f5f5f5; /*背景色*/
+}
+
+.menuDropDown-content {
+    display: none;
+    position: absolute;
+    background-color: #f5f5f5; /*子菜单背景色*/
+    min-width: 120px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    border-radius: 8px; /*圆角*/
+}
+
+.menuDropDown-content a {
+    color: black;         /*子菜单字体色 */
+    padding: 12px 10px;   /*字体的上下，左右间距*/
+    text-decoration: none;/*文字装饰*/
+    display: block;       /*按块显示*/
+    border-radius: 8px; /*圆角*/
+}
+
+/*把鼠标放在menuDropDown-content a上时，a的背景改为xx色*/
+.menuDropDown-content a:hover {background-color: #3F5766}
+
+/*把鼠标放在menuDropDown上时，显示menuDropDown-content*/
+.menuDropDown:hover .menuDropDown-content { display: block; }
+
+.contentArea{
+    margin:10px 5px 2px 5px;/*上边距，右边距，下边距，左边距*/
+    border-style:solid;
+    border-width:1px;
+    border-color:#f5f5f5;
+}
+
+.navArea{
+    margin:0px 0px 0px 0px;/*上边距，右边距，下边距，左边距*/
+    border-style:solid;
+    border-width:1px;
+    border-color:#f5f5f5;
+
+    background-color: #f5f5f5; /*背景色*/
+
+    color: white;
+    text-align: left;
+    padding: 2px 5px 2px 5px;/*上边距，右边距，下边距，左边距*/
+    text-decoration: none;
+}
+
+.inputArea{
+    display:inline-block;
+    margin:5px;
+    border-style:solid;
+    border-width:1px;
+    border-color:#f5f5f5;
+}
+
+.table_body_div{
+    display:inline-block;
+    margin:0px 0px 5px 0px;/*上边距，右边距，下边距，左边距*/
+    /*border-style:solid;*/
+    /*border-width:1px;*/
+    /*border-color:#f5f5f5;*/
+    overflow:auto;
+    max-height:500px;
+}
+
+.inputArea_div_grp{
+    margin: 5px;
+    display:inline-block;
+    padding: 14px 16px; /*内容与上下左右边距*/
+    background-color: #f5f5f5; /*背景色*/
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    border-radius: 8px; /*圆角*/
+    width: fit-content;
+}
+.inputArea_div_grp_inline{
+    margin: 5px;
+
+    padding: 14px 16px; /*内容与上下左右边距*/
+    background-color: #f5f5f5; /*背景色*/
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    border-radius: 8px; /*圆角*/
+}
+
+.inputArea_sub_label{ color:#212529;margin: 5px;}
+.inputArea_sub_input{
+    font-size: 16px; /*字体大小*/
+    border: none; border-bottom: 2px solid #d0d0d0; /*输入框只显示一条下划线*/
+    background-color: #f5f5f5; /*输入框背景色与div一致*/
+    color: #212529;/*字体颜色*/
+    min-height:25px;/*最小高度*/
+    padding: 0px 10px; /*内容与上下 左右边距*/
+}
+.inputArea_sub_input:focus {
+    background-color: #f5f5f5;
+}
+
+.inputArea_sub_select{
+    padding: 0px 10px;/*内容与上下 左右边距*/
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 16px; /*字体大小*/
+    min-height:25px;/*最小高度*/
+}
+
+.inputArea_sub_button {
+    display: inline-block;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+    /* border: none; */
+    border: 1px solid #538bf1;
+    color: #000;
+    text-align: center;
+    font-size: 16px;
+    padding: 14px 16px; /*内容与上下左右边距*/
+    transition: all 0.5s;
+    cursor: pointer;
+    margin: 5px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+.inputArea_sub_button span {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    transition: 0.5s;
+}
+
+.inputArea_sub_button span:after {
+    content: '»';
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    right: -20px;
+    transition: 0.5s;
+}
+
+.inputArea_sub_button:hover span {
+    padding-right: 25px;
+}
+
+.inputArea_sub_button:hover span:after {
+    opacity: 1;
+    right: 0;
+}
+
+
+.label_button {
+    display: inline-block;
+    border-radius: 2px;
+    background-color: #f5f5f5;
+    border: none;
+    color: #409eff;
+    text-align: center;
+    font-size: 16px;
+    transition: all 0.5s;
+    cursor: pointer;
+    margin: 5px;
+    /* box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); */
+    /*border-bottom: 1px solid #d0d0d0;*/
+}
+
+.label_button span {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    transition: 0.5s;
+}
+
+.label_button span:after {
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    right: -20px;
+    transition: 0.5s;
+}
+
+.label_button:hover span {
+    padding-right: 25px;
+}
+
+.label_button:hover span:after {
+    opacity: 1;
+    right: 0;
+}
+
+.outputArea{
+    /*display:inline-block;*/
+    margin:2px 5px 2px 5px;/*上边距，右边距，下边距，左边距*/
+    border-style:solid;
+    border-width:1px;
+    border-color:#f5f5f5;
+    /*overflow-style: scrollbar;*/
+    overflow-x:scroll; /*溢出时显示横向滚动条*/
+    /*height:50%;*/
+    max-height:750px;
+    overflow-y:scroll; /*溢出时显示纵向滚动条*/
+}
+
+.outputAreaMaxHeight350{
+    /*display:inline-block;*/
+    margin:2px 5px 2px 5px;/*上边距，右边距，下边距，左边距*/
+    border-style:solid;
+    border-width:1px;
+    border-color:#f5f5f5;
+    /*overflow-style: scrollbar;*/
+    overflow-x:scroll; /*溢出时显示横向滚动条*/
+    /*height:50%;*/
+    max-height:350px;
+    overflow-y:scroll; /*溢出时显示纵向滚动条*/
+}
+
+.display_contents{
+    display: contents;
+}
+
+.area_div{
+    display: block;
+    margin: 5px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #f5f5f5;
+    border-radius: 8px 8px 8px 8px; /*圆角,每个半径的四个值的顺序是：左上角，右上角，右下角，左下角。*/
+    background-color: #f5f5f5;
+}
+
+
+/*---------table----beg-----------*/
+.table_group_div{
+    overflow-x:scroll; /*溢出时显示横向滚动条*/
+    width:max-content;
+    display:grid;
+    border: 1px solid #d0d0d0;
+}
+.table_head_div{
+    display:block;
+    background-color: rgb(236, 236, 236);
+    /* margin:5px 5px 0px 5px;/*上边距，右边距，下边距，左边距*/
+    /*border-style:solid;*/
+    /*border-width:1px;*/
+    /*border-color:#f5f5f5;*/
+}
+.output_table{
+    font-family:"Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse:collapse;/*为表格设置合并边框*/
+    /*margin:2px 5px 2px 5px;/*上边距，右边距，下边距，左边距*/
+    float:left;
+    display: contents;
+    /*display: inline-block;*/
+
+    /*display:table;
+        width:100%;
+        table-layout:fixed; */
+}
+/*表格-表头行*/
+.output_table_thead{
+    /*position: -webkit-sticky; /*粘性定位*/
+    /*position: sticky;*/
+    /*top:0;*/
+    /*margin:2px 5px 2px 5px;/*上边距，右边距，下边距，左边距*/
+    white-space: nowrap;
+
+    /*display:table;
+        width:100%;
+        table-layout:fixed; */
+}
+.output_table_tbody{
+   /* max-height: 300px; */
+   /* overflow-y: scroll; */
+        overflow-x:scroll; /*溢出时显示横向滚动条*/
+        /*height:50%;*/
+        max-height:350px;
+        overflow-y:scroll; /*溢出时显示纵向滚动条*/
+    /*display:table;
+        width:100%;
+        table-layout:fixed; */
+}
+.output_table_th{
+    background-color:rgb(236, 236, 236);
+    color:#191a1a;
+    border-radius: 8px,8px,0px,0px; /*圆角,每个半径的四个值的顺序是：左上角，右上角，右下角，左下角。*/
+    /*font-size:1.1em;*/
+    font-size: 12px;
+    /*text-align:left;*/
+    text-align: center;
+    padding:15px 5px 15px 5px; /*上边距，右边距，下边距，左边距*/
+    /*border:1px solid #d0d0d0;*/
+}
+.output_table_td_0{
+    background-color:white;
+    /*white-space: pre-line; /*识别换行符\n*/
+    white-space: nowrap;
+    padding:8px 5px 2px 5px;
+    /*border:1px solid #d0d0d0;*/
+    border-right: none;
+    border-bottom: 1px solid #d0d0d0;
+    border-left: none;
+    border-top: none; /* 明确取消上边框 */
+}
+.output_table_td_1{
+    background-color:#F8F8FF;
+    /*white-space: pre-line; /*识别换行符\n*/
+    white-space: nowrap;
+    padding:8px 5px 2px 5px;
+    border-right: none;
+    border-bottom: 1px solid #d0d0d0;
+    border-left: none;
+    border-top: none; /* 明确取消上边框 */
+}
+.output_table_empty-block {
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    min-height: 60px;
+    text-align: center;
+    width: 100%;
+    color: #909399;
+}
+/*---------table----end-----------*/
+
+
+.output_textArea{
+    width:100%;
+    height:600px;
+    white-space: pre-wrap;
+}
+/* ----------- page box ------------------------ */
+.page-box{
+    text-align:center;
+    color:#aaa;
+    margin: 10px;
+    float: left;
+    width:100%;
+}
+
+.page-button {
+    color:#666;
+    border:1px solid #ddd;
+    background:#fcfcfc;
+    padding:4px 12px;
+    margin:0 3px;
+    text-decoration:none;
+    float: left;
+    cursor: pointer;
+}
+.page-button:hover {
+    background:#f5f5f5;;
+    border:1px solid #f5f5f5;;
+    color:#fff;
+}
+.page-button-strong {
+    background:#666;
+    border:1px solid #666 ;
+    color:#fff;
+    padding:4px 12px;
+    margin:0 3px;
+    float: left;
+}
+
+/* ----------- bottom css ------------------------ */
+.bottomContent{
+    margin:10px 5px 2px 5px;/*上边距，右边距，下边距，左边距*/
+    border-style:solid;
+    border-width:1px;
+    border-color:#f5f5f5;
+    padding:8px 5px 2px 5px;
+    text-align: center;
+
+    background:#f5f5f5;
+    color:#666;
+    width: 100%;
+    height: 100px;
+}
+
+/*********************弹窗样式定义*********************************/
+/*弹窗背景*/
+.subWindowBackGround{
+    position:absolute;
+    left: 0px;
+    top: 0px;
+    background: #000;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5); /*透明度*/
+}
+/*弹窗*/
+.subWindow{
+    position: fixed;
+    background: #FFFFF0;
+    min-width: 400px;
+    min-height: 300px;
+    margin: 5% 10% auto;
+  	top: 0px;
+    left: 0px;
+    border-radius: 5px;/*圆角*/
+    border-style:solid;
+    border-width:1px;
+    border-color:#f5f5f5;
+}
+/*弹窗头部*/
+.subWidowHeader{
+    margin:0px 0px 0px 0px;/*上边距，右边距，下边距，左边距*/
+    min-width:40px;
+    background:#f5f5f5;
+}
+/*弹窗头部_关闭按钮*/
+.subWidowHeaderCloseBtn{
+    float: right;
+    width: 25px;
+    height: 25px;
+    border-radius: 5px;
+    background: red;
+    color: #fff;
+    right: 5px;
+    top: 5px;
+    text-align: center;
+    cursor:pointer;
+}
+.subWidowBody{
+    margin:10px 5px 2px 5px;/*上边距，右边距，下边距，左边距*/
+    border-style:solid;
+    border-width:1px;
+    border-color:#f5f5f5;
+
+    max-height: 600px;
+    overflow:auto; /* 自动增加滚动条 */
+}
+.subWidowFooter{
+    margin:10px 5px 2px 5px;/*上边距，右边距，下边距，左边距*/
+    float:bottom;
+    border-style:solid;
+    border-width:1px;
+    border-color:#f5f5f5;
+    text-align: center; /* 居中 */
+}
+/*********************元素样式定义*********************************/
+.button {
+    background-color: #f5f5f5;
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 15px;
+    margin: 4px 2px;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+	border-radius: 8px; /*圆角*/
+}
+
+.button1 {
+    background-color: white;
+    color: black;
+    border: 2px solid #4CAF50;
+}
+
+.button1:hover {
+    background-color: #4CAF50;
+    color: white;
+}
+
+/**图片**/
+.responsive {
+    padding: 0 6px;
+    float: left;
+    width: 24.99999%;
+}
+@media only screen and (max-width: 700px){
+    .responsive {
+        width: 49.99999%;
+        margin: 6px 0;
+    }
+}
+@media only screen and (max-width: 500px){
+    .responsive {
+        width: 100%;
+    }
+}
+
+.imgDiv {
+    border: 1px solid #ccc;
+    width: 100%;
+    height: auto;
+}
+
+.imgDiv:hover {
+    border: 1px solid #777;
+}
+
+.imgTag {
+    width: 100%;
+    height: auto;
+    width= 300px;
+    height=200px;
+}
+.imgDesc {
+    padding: 15px;
+    text-align: center;
+}
+.alert {
+    padding: 15px;
+    background-color: #f44336; /* 红色背景 */
+    color: #212529; /* 白色文字 */
+}
+
+/* 不同类型的警告框样式 */
+.alert-success {
+    background-color: #f5f5f5;
+}
+.alert-info {
+    background-color: #f5f5f5;
+}
+.alert-warning {
+    background-color: #f5f5f5;
+}
+.alert-danger {
+    background-color: #f5f5f5;
+}
+.center {
+    text-align: center;
+}
+.display-none {
+    display: none;
+}
+
+.showWithRowDivGrid{
+    display: grid;
+}
+.showWithRowDivFlex{
+    display: flex;
+    flex-direction: column;
+}
+.content_title{
+    border-left: 2px solid #538bf1;
+    color: #333;
+    font-size: 14px;
+    letter-spacing: 0;
+    margin-bottom: 15px;
+    margin-top: 20px;
+    padding-bottom: 2px;
+    text-indent: 6px;
+}
+.background_color_1{
+    background-color: #f5f5f5;
+}
+/***************************************************/
+
+.el-table {
+    position: relative;
+    overflow: hidden;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    width: 100%;
+    max-width: 100%;
+    background-color: #fff;
+    font-size: 14px;
+    color: #606266;
+    border-right: none;
+    border-bottom: none;
+    top: 0;
+    right: 0;
+    width: 1px;
+    height: 100%;
+    content: "";
+    position: absolute;
+    background-color: #e6ebf5;
+    z-index: 1;
+}
+
+.el-table__header-wrapper{
+    overflow: hidden;
+}
+
+.el-table__body, .el-table__footer, .el-table__header {
+    table-layout: fixed;
+    border-collapse: separate;
+}
+
+.xxxthead {
+    display: table-header-group;
+    vertical-align: middle;
+    border-color: inherit;
+}
+
+.el-table__body-wrapper {
+    overflow: hidden;
+    position: relative;
+}
+.el-table__body-wrapper, .el-table__footer-wrapper, .el-table__header-wrapper {
+    width: 100%;
+}
+
+.canvas_1 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+}

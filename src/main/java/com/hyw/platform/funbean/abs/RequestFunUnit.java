@@ -1,6 +1,7 @@
 package com.hyw.platform.funbean.abs;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.hyw.gdata.DataService;
 import com.hyw.gdata.NQueryWrapper;
 import com.hyw.platform.exception.BizException;
@@ -11,6 +12,7 @@ import com.hyw.platform.web.req.ValueObject;
 import com.hyw.platform.web.resp.EventInfo;
 import com.hyw.platform.web.resp.NextOprDto;
 import com.hyw.platform.web.resp.PublicResp;
+import com.hyw.platform.web.resp.webElement.TableNormal;
 import com.hyw.platform.web.resp.webElement.WebElementDto;
 import com.hyw.platform.web.service.WebElementService;
 import com.hyw.platform.web.util.ObjectUtil;
@@ -88,6 +90,16 @@ public abstract class RequestFunUnit<D, V extends RequestPubDto> implements Requ
             for (Map.Entry<String, Object> entry : requestDto.getEventInfo().getParamMap().entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
+                if(value instanceof Map){
+                    Map<String, Object> valueMap = (Map<String, Object>) value;
+                    for (Map.Entry<String, Object> valueEntry : valueMap.entrySet()) {
+                        String valueKey = valueEntry.getKey();
+                        Object valueValue = valueEntry.getValue();
+                        String modifiedValueKey = com.hyw.platform.web.util.StringUtils.camelCaseToUnderline( valueKey );
+                        camelFieldMap.put(modifiedValueKey, new ValueObject().setValue(valueValue));
+                    }
+                    continue;
+                }
                 String modifiedKey = com.hyw.platform.web.util.StringUtils.camelCaseToUnderline( key );
                 camelFieldMap.put(modifiedKey, new ValueObject().setValue(value));
             }
@@ -172,17 +184,59 @@ public abstract class RequestFunUnit<D, V extends RequestPubDto> implements Requ
         }
 
         PublicResp returnDto = new PublicResp();
-        if(requestDto.getEventInfo() != null && StringUtils.isNotBlank(requestDto.getEventInfo().getNextPage())){
-            List<WebElementDto> inputList = webElementService.getPageElementsById(requestDto.getEventInfo().getNextPage(), requestDto);
+        String nextPage = null;
+        if(requestDto.getEventInfo()!=null && StringUtils.isNotBlank(requestDto.getEventInfo().getNextPage()) ){
+            nextPage = requestDto.getEventInfo().getNextPage();
+        }else if(requestDto.getEventInfo()!=null && MapUtils.isNotEmpty(requestDto.getEventInfo().getParamMap()) &&
+                requestDto.getEventInfo().getParamMap().containsKey("nextPage")) {
+            nextPage = (String) requestDto.getEventInfo().getParamMap().get("nextPage");
+        }
+        if(StringUtils.isNotBlank(nextPage)){
+            List<WebElementDto> inputList = webElementService.getPageElementsById(nextPage, requestDto);
             returnDto.setWebElementDtoList(inputList);
             WebElementDto curElement = null;
-            if(requestDto.getEventInfo().getParamMap().containsKey("dataFillToEle")) {
-                String dataFillToElementName = (String) requestDto.getEventInfo().getParamMap().get("dataFillToEle");
+            // dataFillToEle -> dataToEle
+            if(requestDto.getEventInfo().getParamMap().containsKey("dataToEle")) {
+                String dataFillToElementName = (String) requestDto.getEventInfo().getParamMap().get("dataToEle");
                 curElement = getEleByName(inputList, dataFillToElementName);
-            }
-            if (curElement != null) {
-                if ("textarea".equalsIgnoreCase(curElement.getType())) {
-                    curElement.setData(data);
+                if(curElement != null) {
+                    // 直接赋值，不需要转换
+                    boolean isSetData = false;
+                    if(curElement.getParam() != null && curElement.getParam().containsKey("setData")){
+                        isSetData = (boolean) curElement.getParam().get("setData");
+                    }
+                    if(isSetData){
+                        curElement.setData(data);
+                    }else {
+                        String dataKey;
+                        String dataToElePos = (String) requestDto.getEventInfo().getParamMap().get("dataToElePos");
+                        JSONObject subJson = JSON.parseObject(JSON.toJSONString(data));
+                        if (StringUtils.isNotBlank(dataToElePos) && dataToElePos.contains(".")) {
+                            String[] dataToElePosArr = dataToElePos.split("\\.");
+                            for (int i = 0; i < dataToElePosArr.length - 1; i++) {
+                                subJson = subJson.getJSONObject(dataToElePosArr[i]);
+                            }
+                            dataKey = dataToElePosArr[dataToElePosArr.length - 1];
+                        } else {
+                            dataKey = dataToElePos;
+                        }
+                        String dataToEleType = (String) requestDto.getEventInfo().getParamMap().get("dataToEleType");
+                        if (StringUtils.isNotBlank(dataToEleType)) {
+                            if ("list".equalsIgnoreCase(dataToEleType) && subJson.containsKey(dataKey)) {
+                                TableNormal tableNormal = (TableNormal) curElement.getData();
+                                //记录
+                                List tableDataList = subJson.getJSONArray(dataKey);
+                                tableNormal.getRecordList().addAll(tableDataList);
+                            }
+                        } else {
+                            curElement.setData(data);
+                            if ("table".equalsIgnoreCase(curElement.getType())) {
+                                TableNormal tableNormal = (TableNormal) curElement.getData();
+                                //记录
+                                tableNormal.getRecordList().add(subJson);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -220,7 +274,7 @@ public abstract class RequestFunUnit<D, V extends RequestPubDto> implements Requ
 
     private WebElementDto getEleByName(List<WebElementDto> inputList, String dataFillToElementName){
         for (WebElementDto webElementDto : inputList) {
-            if (webElementDto.getId().equals(dataFillToElementName)) {
+            if (webElementDto.getElementName().equals(dataFillToElementName)) {
                 return webElementDto;
             }
             if(CollectionUtils.isNotEmpty(webElementDto.getSubElementList())){

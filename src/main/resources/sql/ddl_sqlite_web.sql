@@ -62,18 +62,6 @@ CREATE TABLE IF NOT EXISTS web_call_after (
   param varchar(500) );
 CREATE INDEX wca_ind_01 on web_call_after (menu,page,process_bean);
 
-DROP TABLE IF EXISTS web_trigger;
-CREATE TABLE web_trigger (
-  web_trigger_id integer primary key,
-  source_menu varchar(32) NOT NULL,
-  source_page varchar(20),
-  source_element varchar(32),
-  trigger_type varchar(32),
-  trigger_element varchar(32),
-  trigger_element_type varchar(32),
-  param varchar(500) );
-CREATE INDEX wt_ind_01 on web_trigger (source_menu,source_element);
-
 DROP TABLE IF EXISTS web_data;
 CREATE TABLE web_data (
     web_data_id integer primary key,

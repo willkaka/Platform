@@ -44,6 +44,7 @@ public class MenuEdt extends RequestFunUnit<String, MenuEdt.QueryVariable> {
                 .eq(WebMenu::getWebMenuId, dto.getWebMenuId()));
         Assert.isTrue(webMenu!=null,"查无记录!");
 
+        webMenu.setMenuNo(dto.getMenuNo());
         webMenu.setSortNo(Integer.parseInt(dto.getSortNo()));
         webMenu.setMenu(dto.getMenu());
         webMenu.setMenuParent(dto.getMenuParent());

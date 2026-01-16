@@ -102,7 +102,8 @@ public class WebLogAspect {
         if (StringUtils.isEmpty(result)) {
             return "";
         }
-        return result.length() < MAXSIZE ? result : result.substring(0, MAXSIZE) + "...";
+        return result;
+//        return result.length() < MAXSIZE ? result : result.substring(0, MAXSIZE) + "...";
 
     }
     private String getParams(JoinPoint joinPoint) {

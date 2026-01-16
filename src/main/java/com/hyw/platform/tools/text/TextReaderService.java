@@ -18,7 +18,7 @@ import java.util.concurrent.Future;
 @Service
 public class TextReaderService {
 
-    @Resource(name="textReaderThreadPoolInstance")
+//    @Resource(name="textReaderThreadPoolInstance")
     private ExecutorService executorService;
 
     public void mulThreadsRead(File file,int threadCount){

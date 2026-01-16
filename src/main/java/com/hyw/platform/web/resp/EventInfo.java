@@ -8,7 +8,6 @@ import java.util.Map;
 
 /**
  * 事件信息
- *
  * 该数据会在触发事件后的请求中带回
  */
 @Data
@@ -24,14 +23,7 @@ public class EventInfo {
     private String menu;
     private String page;
     private String element;
-
-    private String RelEleId;
-    private String RelEleType;
-    private String RelEleChgType;
-
-    private String triggerType;
-    private String triggerElement;
-    private String triggerElementType; //改变的类型：value-改变值
+    private String elementId;
 
     private String nextPage;
 

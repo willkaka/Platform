@@ -1,6 +1,7 @@
 package com.hyw.platform.funbean.RequestFunImpl;
 
 import com.hyw.platform.exception.BizException;
+import com.hyw.platform.funbean.abs.RequestFunUnit;
 import com.hyw.platform.funbean.abs.RequestPubDto;
 import com.hyw.platform.funbean.abs.RequestTableDataUnit;
 import com.hyw.platform.web.req.PublicReq;
@@ -8,19 +9,22 @@ import com.hyw.platform.web.resp.webElement.TableNormal;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
 
 @Service("searchFromText")
-public class SearchFromText extends RequestTableDataUnit<SearchFromText.QueryVariable> {
+public class SearchFromText extends RequestFunUnit<Map<String,Object>,SearchFromText.QueryVariable> {
 
     /**
      * 输入参数检查
@@ -35,7 +39,7 @@ public class SearchFromText extends RequestTableDataUnit<SearchFromText.QueryVar
     }
 
     @Override
-    public TableNormal execLogic(PublicReq publicReq, SearchFromText.QueryVariable dto){
+    public Map<String,Object> execLogic(PublicReq publicReq, SearchFromText.QueryVariable dto){
 
         //        File dirFile = new File("D:\\002385\\20_生产维护单");
         List<Map<String, Object>> dataMaps = new ArrayList<>();
@@ -48,15 +52,18 @@ public class SearchFromText extends RequestTableDataUnit<SearchFromText.QueryVar
                 dataMaps.add(record);
             }
         }
-
-        TableNormal tableNormal = new TableNormal();
-        tableNormal.getRecordList().addAll(dataMaps);  //List<Map<String, Object>>
-
-        //表头
-        Map<String,String> headFieldMap = new LinkedHashMap<>();
-        headFieldMap.put("fullPath","路径");
-        tableNormal.getHeadMap().putAll(headFieldMap);
-        return tableNormal;
+        Assert.isTrue(CollectionUtils.isNotEmpty(dataMaps), "查找结果为空!");
+        Map<String,Object> rtnMap = new HashMap<>();
+        rtnMap.put("data",dataMaps);
+        return rtnMap;
+//        TableNormal tableNormal = new TableNormal();
+//        tableNormal.getRecordList().addAll(dataMaps);  //List<Map<String, Object>>
+//
+//        //表头
+//        Map<String,String> headFieldMap = new LinkedHashMap<>();
+//        headFieldMap.put("fullPath","路径");
+//        tableNormal.getHeadMap().putAll(headFieldMap);
+//        return tableNormal;
     }
 
     private List<String> readDirFile(File dir,String searchText){

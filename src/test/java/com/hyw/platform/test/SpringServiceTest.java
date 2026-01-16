@@ -1,13 +1,13 @@
 package com.hyw.platform.test;
 
 import com.alibaba.fastjson.JSONObject;
+import com.hyw.gdata.DataService;
+import com.hyw.gdata.NQueryWrapper;
 import com.hyw.platform.Application;
-import lombok.extern.slf4j.Slf4j;
+import com.hyw.platform.model.ConfigDatabaseInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +20,10 @@ import java.util.Map;
 public class SpringServiceTest {
 
     @Autowired
+    private DynamicDataSourceService dynamicDataSourceService;
+    @Autowired
+    private DataService dataService;
+    @Autowired
     private MultiThreadTest multiThreadTest;
 
     @Test
@@ -29,6 +33,17 @@ public class SpringServiceTest {
 
     @Test
     public void test1(){
+
+        dynamicDataSourceService.createAndSwitchDataSource("sit3_caes",
+                "jdbc:mysql://10.21.16.31:4588/caes?serverTimezone=Asia/Shanghai",
+                "dfdsro",
+                "iCOWaVU6$bJq",
+                "com.mysql.cj.jdbc.Driver");
+
+        ConfigDatabaseInfo configDatabaseInfo = dataService.getOne(new NQueryWrapper<ConfigDatabaseInfo>()
+                .eq(ConfigDatabaseInfo::getDatabaseName, "sit3_caes"));
+
+
         List<Map<String,String>> paramMapList = new ArrayList<>();
         for(int threadNo =1;threadNo<=100;threadNo++){
             Map<String,String> paramMap = new HashMap<>();

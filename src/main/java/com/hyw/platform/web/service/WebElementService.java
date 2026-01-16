@@ -3,7 +3,6 @@ package com.hyw.platform.web.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.hyw.gdata.DataService;
@@ -20,13 +19,11 @@ import com.hyw.platform.web.resp.webElement.WebElementDto;
 import com.hyw.platform.web.resp.webElement.TableNormal;
 import com.hyw.platform.web.util.ExpressContext;
 import com.hyw.platform.web.util.ExpressUtil;
-import com.hyw.platform.web.util.HttpUtil;
 import com.hyw.platform.web.util.WebUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.json.JSONTokener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -53,15 +50,16 @@ public class WebElementService {
     @SuppressWarnings("unchecked")
     public List<WebElementDto> getPageElementsByParentEle(String menu, String page, String parentElement,PublicReq publicReq){
         List<WebElementDto> webElementDtoDtoList = new ArrayList<>();
-        List<WebElement> webElementList = 
-                dataService.list(new NQueryWrapper<WebElement>()
+        List<WebElement> webElementList = dataService.list(new NQueryWrapper<WebElement>()
                 .eq(WebElement::getMenu,menu)
                 .eq(WebElement::getPage,page)
                 .eq(StringUtils.isNotBlank(parentElement),WebElement::getElementParent,parentElement));
+        Map<String,String> eleIdMap = new HashMap<>();
         for(WebElement webElement:webElementList){
+            eleIdMap.put(webElement.getElement(),webElement.getWebElementId());
             //检查是否已存在该元素，存在则不再加载。
             if(existEleInSub(webElementDtoDtoList,webElement)) continue;
-            List<WebElementDto> webElementDtos = convert2Dto(webElement,publicReq);
+            List<WebElementDto> webElementDtos = convert2Dto(webElement,publicReq,eleIdMap);
             if(CollectionUtils.isNotEmpty(webElementDtos)) webElementDtoDtoList.addAll(webElementDtos);
         }
         return webElementDtoDtoList;
@@ -83,6 +81,17 @@ public class WebElementService {
             eventInfo.setReqMapping(webCallAfter.getRequestBean());
             if(org.apache.commons.lang3.StringUtils.isNotBlank(webCallAfter.getParam())) {
                 eventInfo.setParamMap(JSON.parseObject(webCallAfter.getParam()));
+                // 遍历paramMap，处理subWindowId
+                if("closeSw".equals(webCallAfter.getOprType()) && eventInfo.getParamMap().containsKey("subWindowId")) {
+                    String subWindowId = eventInfo.getParamMap().get("subWindowId").toString();
+                    WebElement webElement = dataService.getOne(new NQueryWrapper<WebElement>()
+                            .eq(WebElement::getMenu, eventInfo.getMenu())
+//                            .eq(WebElement::getPage, eventInfo.getPage())
+                            .eq(WebElement::getElement, subWindowId));
+                    if(webElement != null){
+                        eventInfo.getParamMap().put("subWindowId",webElement.getWebElementId()+"_subWindowBackGround");
+                    }
+                }
             }
             eventInfoList.add(eventInfo);
         }
@@ -100,7 +109,14 @@ public class WebElementService {
                     .eq(WebElement::getPage, eleInfos[1])
                     .eq(WebElement::getElement, eleInfos[2])
         );
-        List<WebElementDto> webElementDtos = convert2Dto(webElement,publicReq);
+        // 取父元素id
+        WebElement parentElement = dataService.getOne(new NQueryWrapper<WebElement>()
+                   .eq(WebElement::getMenu, webElement.getMenu())
+                   .eq(WebElement::getElement, webElement.getElementParent()));
+        Map<String,String> eleIdMap = new HashMap<>();
+        eleIdMap.put(webElement.getElement(),webElement.getWebElementId());
+        if(null != parentElement) eleIdMap.put(parentElement.getElement(),parentElement.getWebElementId());
+        List<WebElementDto> webElementDtos = convert2Dto(webElement,publicReq,eleIdMap);
         if(CollectionUtils.isNotEmpty(webElementDtos)) webElementDtoDtoList.addAll(webElementDtos);
         return webElementDtoDtoList;
     }
@@ -118,23 +134,9 @@ public class WebElementService {
         return false;
     }
 
-    public List<WebElementDto> getPageElements(String menu, String page, String element,PublicReq publicReq){
-        List<WebElementDto> webElementDtoDtoList = new ArrayList<>();
-        List<WebElement> webElementList =
-                dataService.list(new NQueryWrapper<WebElement>()
-                        .eq(WebElement::getMenu,menu)
-                        .eq(WebElement::getPage,page)
-                        .eq(StringUtils.isNotBlank(element),WebElement::getElement,element));
-        for(WebElement webElement:webElementList){
-            List<WebElementDto> webElementDtos = convert2Dto(webElement,publicReq);
-            if(CollectionUtils.isNotEmpty(webElementDtos)) webElementDtoDtoList.addAll(webElementDtos);
-        }
-        return webElementDtoDtoList;
-    }
-
 
     @SuppressWarnings("unchecked")
-    public List<WebElementDto> getSubElements(String menu, String page, String parentElement,PublicReq publicReq){
+    public List<WebElementDto> getSubElements(String menu, String page, String parentElement,PublicReq publicReq,Map<String,String> eleIdMap){
         List<WebElementDto> webElementDtoDtoList = new ArrayList<>();
         List<WebElement> webElementList =
                 dataService.list(new NQueryWrapper<WebElement>()
@@ -142,17 +144,27 @@ public class WebElementService {
                         .eq(WebElement::getPage,page)
                         .eq(WebElement::getElementParent,parentElement));
         for(WebElement webElement:webElementList){
-            List<WebElementDto> webElementDtos = convert2Dto(webElement,publicReq);
+            eleIdMap.put(webElement.getElement(),webElement.getWebElementId());
+            List<WebElementDto> webElementDtos = convert2Dto(webElement,publicReq,eleIdMap);
             if(CollectionUtils.isNotEmpty(webElementDtos)) webElementDtoDtoList.addAll(webElementDtos);
         }
         return webElementDtoDtoList;
     }
 
-    private List<WebElementDto> convert2Dto(WebElement webElement,PublicReq publicReq){
+    private List<WebElementDto> convert2Dto(WebElement webElement,PublicReq publicReq,Map<String,String> eleIdMap){
         if(null == webElement) return null;
         List<WebElementDto> webElementDtos = new ArrayList<>();
         WebElementDto webElementDto = new WebElementDto(webElement);
-        webElementDto.setEventInfoList(getEventInfoList(webElement.getMenu(),webElement.getPage(),webElement.getElement()));
+//        if(webElement.getElementParent().endsWith("_swBody")) {
+//            String parentEle = webElement.getElementParent().substring(0, webElement.getElementParent().length() - 7);
+//            webElementDto.setPId(eleIdMap.getOrDefault(parentEle, parentEle)+"_swBody");
+//        }else if(webElement.getElementParent().endsWith("_swFooter")){
+//            String parentEle = webElement.getElementParent().substring(0, webElement.getElementParent().length() - 9);
+//            webElementDto.setPId(eleIdMap.getOrDefault(parentEle, parentEle)+"_swFooter");
+//        }else {
+            webElementDto.setPId(eleIdMap.getOrDefault(webElement.getElementParent(), webElement.getElementParent()));
+//        }
+        webElementDto.setEventInfoList(getEventInfoList(webElement.getMenu(),webElement.getPage(),webElement.getElement(),webElement.getWebElementId()));
 
         if(MapUtils.isNotEmpty(webElementDto.getAttrMap())){
             for (Map.Entry<String,String> entry : webElementDto.getAttrMap().entrySet()) {
@@ -171,7 +183,7 @@ public class WebElementService {
         }else{
             webElementDto.setData(getDataValue(webElement.getMenu(),webElement.getPage(),webElement.getElement(),publicReq));
         }
-        webElementDto.setSubElementList(getSubElements(webElement.getMenu(), webElement.getPage(), webElement.getElement(),publicReq));
+        webElementDto.setSubElementList(getSubElements(webElement.getMenu(), webElement.getPage(), webElement.getElement(),publicReq,eleIdMap));
         webElementDtos.add(webElementDto);
         return webElementDtos;
     }
@@ -292,7 +304,7 @@ public class WebElementService {
      * @param element 元素
      * @return List<EventInfo>
      */
-    private List<EventInfo> getEventInfoList(String menu, String page, String element){
+    private List<EventInfo> getEventInfoList(String menu, String page, String element, String elementId){
         List<EventInfo> eventInfoList = new ArrayList<>();
 
         //取配置的事件
@@ -301,16 +313,7 @@ public class WebElementService {
                 .eq(WebEvent::getPage,page)
                 .eq(WebEvent::getElement,element));
         for(WebEvent webEventInfo:webEventInfoList){
-            //取由该事件触发的事件
-            List<WebTrigger> webTriggerInfoList = dataService.list(new NQueryWrapper<WebTrigger>()
-                    .eq(WebTrigger::getSourceMenu,webEventInfo.getMenu())
-                    .eq(WebTrigger::getSourcePage,webEventInfo.getPage())
-                    .eq(WebTrigger::getSourceElement,webEventInfo.getElement()));
-            if(WebUtil.isEmpty(webTriggerInfoList)) {
-                eventInfoList.add(createEventInfo(webEventInfo,null));
-            }else{
-                webTriggerInfoList.forEach(trigger->eventInfoList.add(createEventInfo(webEventInfo,trigger)));
-            }
+                eventInfoList.add(createEventInfo(webEventInfo, elementId));
         }
         return eventInfoList;
     }
@@ -319,10 +322,9 @@ public class WebElementService {
     /**
      * 生成事件信息（包含该事件需要触发的事件）
      * @param webEventInfo 事件信息
-     * @param webTriggerInfo 触发事件
      * @return EventInfo
      */
-    private EventInfo createEventInfo(WebEvent webEventInfo,WebTrigger webTriggerInfo){
+    private EventInfo createEventInfo(WebEvent webEventInfo, String elementId){
         EventInfo eventInfo = new EventInfo();
         eventInfo.setEvent(webEventInfo.getEventType());
         eventInfo.setReqType(webEventInfo.getRequestType());
@@ -330,6 +332,7 @@ public class WebElementService {
         eventInfo.setMenu(webEventInfo.getMenu());
         eventInfo.setPage(webEventInfo.getPage());
         eventInfo.setElement(webEventInfo.getElement());
+        eventInfo.setElementId(elementId);
         eventInfo.setNextPage(webEventInfo.getNextPage());
         //事件参数
         Map<String, Object> eventParam = JSON.parseObject(webEventInfo.getParam());//json转map
@@ -340,11 +343,6 @@ public class WebElementService {
                 eventInfo.setWithPage(isWithPage);
             }
         }
-        if(webTriggerInfo == null) return eventInfo;
-        eventInfo.setRelEleChgType(webTriggerInfo.getTriggerElementType());
-        eventInfo.setRelEleType(webTriggerInfo.getTriggerType());
-        eventInfo.setRelEleId(webTriggerInfo.getTriggerElement());
-//        eventInfo.setTriggerParamMap(JSON.parseObject(webTriggerInfo.getParam()));
         return eventInfo;
     }
 
@@ -354,8 +352,6 @@ public class WebElementService {
      * @return WebElementDto
      */
     private void createTable(WebElementDto webElementDto,WebElement webElement,PublicReq publicReq){
-//        if(!"table".equalsIgnoreCase(webElement.getElementType())) return null;
-
         TableNormal tableNormal = new TableNormal();
         tableNormal.setId(webElement.getElement());
         tableNormal.setWithPage(false);

@@ -1,5 +1,6 @@
 package com.hyw.platform.web.exception;
 
+import com.alibaba.fastjson.JSON;
 import com.hyw.platform.exception.BizException;
 import com.hyw.platform.web.resp.PublicResp;
 import lombok.extern.slf4j.Slf4j;
@@ -16,11 +17,14 @@ public class ExceptionHandle {
         PublicResp publicResp = new PublicResp();
 
         // 主动抛出的报错信息
-        if (exception instanceof BizException){
+        if (exception instanceof BizException) {
             BizException bizException = (BizException) exception;
             publicResp.setRtnCode(bizException.getCode());
             publicResp.setRtnMsg(bizException.getMessage());
-
+        } else if(exception instanceof IllegalArgumentException) {
+            // org.springframework.util.Assert 类抛出的异常
+            publicResp.setRtnCode("BusinessCheckError");
+            publicResp.setRtnMsg(exception.getMessage());
         // 未按要求发送报文
         } else if(exception instanceof HttpMessageNotReadableException){
             log.error("Required request body is missing!",exception);
@@ -31,8 +35,9 @@ public class ExceptionHandle {
         } else {
             log.error("未知异常！",exception);
             publicResp.setRtnCode("9999");
-            publicResp.setRtnMsg("未知异常！"+exception.getMessage());
+            publicResp.setRtnMsg(exception.getMessage());
         }
+        log.info("请求处理异常,返回报文：{}", JSON.toJSONString(publicResp));
         return publicResp;
     }
 }

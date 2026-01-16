@@ -3,13 +3,11 @@ package com.hyw.platform.web.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.hyw.gdata.DataService;
-import com.hyw.gdata.NQueryWrapper;
-import com.hyw.gdata.dto.TableFieldInfo;
+import com.hyw.platform.config.DynamicDataSourceManager;
 import com.hyw.platform.exception.BizException;
 import com.hyw.platform.funbean.RequestFun;
-import com.hyw.platform.web.model.ServiceInterface;
-import com.hyw.platform.web.model.WebCallAfter;
-import com.hyw.platform.web.model.WebEvent;
+import com.hyw.platform.config.DataSourceContextHolder;
+import com.hyw.platform.iservice.LoanBalanceService;
 import com.hyw.platform.web.req.PublicReq;
 import com.hyw.platform.web.resp.EventInfo;
 import com.hyw.platform.web.resp.NextOprDto;
@@ -25,8 +23,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,6 +32,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import java.util.*;
 
 @Controller
@@ -61,8 +63,16 @@ public class BaseInfoController {
     @RequestMapping(value = {"/", "", "index"})
     public String startRequest(Model model) {
         model.addAttribute("webSiteName", Constant.WEB_SITE_TITLE);
-        return "index";
+        return "index_new";
+//        return "index";
     }
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private LoanBalanceService loanBalanceService;
+
+    @Autowired
+    private DynamicDataSourceManager dynamicDataSourceManager;
 
     /**
      * 页面初始化请求
@@ -75,10 +85,36 @@ public class BaseInfoController {
     public PublicResp initPageInfo(@RequestBody PublicReq publicReq) {
         PublicResp publicResp = new PublicResp().setRtnCode("0000").setRtnMsg("success");
 
+        testDataSourceSwitch();
+
+        Integer countA = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM config_database_info", Integer.class);
+        log.info("数据库A用户数: " + countA);
         //取菜单清单
-        List<WebElementDto> menuList = webMenuService.getMenu("root");
+        Map<String,String> menuIdMap = new HashMap<>();
+        List<WebElementDto> menuList = webMenuService.getMenu("root", menuIdMap);
         publicResp.setWebElementDtoList(menuList);
         return publicResp;
+    }
+
+    /**
+     * 测试切换数据源并执行查询
+     */
+    public void testDataSourceSwitch() {
+        dynamicDataSourceManager.addDataSource("sit3_caes",
+                "jdbc:mysql://10.21.16.31:4588/caes?serverTimezone=Asia/Shanghai",
+                "caesopr",
+                "Dfs@3K3#r3",
+                "com.mysql.cj.jdbc.Driver");
+
+        // 切换到该数据源
+        DynamicDataSourceManager.use("sit3_caes");
+        long count = loanBalanceService.count();
+        System.out.println("查询结果 - loan_balance 表记录数: " + count);
+        Integer countA = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM loan_balance", Integer.class);
+        System.out.println("查询结果 - loan_balance 表记录数: " + countA);
+
+        DynamicDataSourceManager.clear();
+
     }
 
     /**
@@ -98,7 +134,7 @@ public class BaseInfoController {
         }
 
         //取输入区域元素清单，固定从body开始
-        List<WebElementDto> inputList = webElementService.getPageElementsByParentEle(eventInfo.getMenu(), "start_page",null,publicReq);
+        List<WebElementDto> inputList = webElementService.getPageElementsByParentEle(eventInfo.getMenu(), "start_page","contentArea",publicReq);
         publicResp.setWebElementDtoList(inputList);
 
         publicResp.setRtnCode("0000");
@@ -139,27 +175,34 @@ public class BaseInfoController {
 
         if(!callInterfaceFlag) {
             publicResp = ((RequestFun) context.getBean(eventId)).execute(requestDto);
-        }
-        String page = eventInfo.getNextPage();
-        if(StringUtils.isBlank(page) && MapUtils.isNotEmpty(eventInfo.getParamMap()) && eventInfo.getParamMap().containsKey("nextPage")){
-            page = eventInfo.getParamMap().get("nextPage").toString();
-        }
-        if(StringUtils.isNotBlank(page)){
-            PublicReq publicReq = new PublicReq();
-            List<WebElementDto> inputList = webElementService.getPageElementsById(page, publicReq);
-            if(jsonObject!=null && jsonObject.size()>0){
-                setElementValue(inputList,jsonObject,eventInfo);
+        }else {
+            String page = eventInfo.getNextPage();
+            if (StringUtils.isBlank(page) && MapUtils.isNotEmpty(eventInfo.getParamMap()) && eventInfo.getParamMap().containsKey("nextPage")) {
+                page = eventInfo.getParamMap().get("nextPage").toString();
             }
-            publicResp.setWebElementDtoList(inputList);
+            if (StringUtils.isNotBlank(page)) {
+                PublicReq publicReq = new PublicReq();
+                List<WebElementDto> inputList = webElementService.getPageElementsById(page, publicReq);
+                if (jsonObject != null && !jsonObject.isEmpty()) {
+                    setElementValue(inputList, jsonObject, eventInfo);
+                }
+                publicResp.setWebElementDtoList(inputList);
+            }
         }
         if(eventInfo!=null) {
             NextOprDto nextOprDto = webElementService.getCallAfterOpr(eventInfo.getMenu(), eventInfo.getPage(), eventInfo.getElement());
+            // 将本次事件的参数传递到后续事件中
             for (EventInfo eventInfo1 : nextOprDto.getEventInfoList()) {
                 if(MapUtils.isEmpty(eventInfo1.getParamMap())){
                     eventInfo1.setParamMap(new HashMap<>());
                 }
                 if(MapUtils.isNotEmpty(eventInfo.getParamMap())) {
                     eventInfo1.getParamMap().putAll(eventInfo.getParamMap());
+                }
+                if(eventInfo1.getParamMap().containsKey("transferCnt")) {
+                    eventInfo1.getParamMap().put("transferCnt", (int)eventInfo1.getParamMap().get("transferCnt")+1);
+                }else{
+                    eventInfo1.getParamMap().put("transferCnt", 1);
                 }
             }
             publicResp.setNextOprDto(nextOprDto);
@@ -178,13 +221,15 @@ public class BaseInfoController {
                     continue;
                 }
             }
-            if("div".equalsIgnoreCase(dto.getType()) || "divTitle".equalsIgnoreCase(dto.getType())){
+            if("div".equalsIgnoreCase(dto.getType()) ||
+                    "divTitle".equalsIgnoreCase(dto.getType()) ||
+                    "table_record_button".equalsIgnoreCase(dto.getType())){
                 continue;
             }
             if(eventInfo != null && eventInfo.getParamMap()!=null && "table".equalsIgnoreCase(dto.getType())) {
                 // "dataToEle":"loanTable","dataToElePos":"data","dataToEleType":"list"
                 String dataToEle = (String) eventInfo.getParamMap().get("dataToEle");
-                if(dto.getId().equals(dataToEle)) {
+                if(dto.getElementName().equals(dataToEle)) {
                     String dataKey;
                     String dataToElePos = (String) eventInfo.getParamMap().get("dataToElePos");
                     JSONObject subJson = jsonObject;
@@ -202,13 +247,30 @@ public class BaseInfoController {
                         TableNormal tableNormal = (TableNormal) dto.getData();
                         //记录
                         List tableDataList = subJson.getJSONArray(dataKey);
+                        if(subJson.containsKey("total") && subJson.get("total")!=null){
+                            tableNormal.setTotalCount(subJson.getIntValue("total"));
+                            tableNormal.setWithPage(true);
+                        }
+                        if(subJson.containsKey("current") && subJson.get("current")!=null){
+                            tableNormal.setPageNow(subJson.getIntValue("current"));
+                        }
+                        if(subJson.containsKey("size") && subJson.get("size")!=null){
+                            tableNormal.setPageSize(subJson.getIntValue("size"));
+                        }
+                        if(subJson.containsKey("pages") && subJson.get("pages")!=null){
+                            tableNormal.setPageTotal(subJson.getIntValue("pages"));
+                        }
                         tableNormal.getRecordList().addAll(tableDataList);
                     }
                     continue;
                 }
             }
-            if(jsonObject.containsKey(dto.getId())){
-                Object value = jsonObject.get(dto.getId());
+            if(eventInfo != null && eventInfo.getParamMap()!=null && "canvas".equalsIgnoreCase(dto.getType())) {
+                dto.setData(jsonObject.get("data"));
+                continue;
+            }
+            if(jsonObject.containsKey(dto.getElementName())){
+                Object value = jsonObject.get(dto.getElementName());
                 dto.setDefValue(value==null?null:value.toString());
                 continue;
             }
@@ -222,66 +284,13 @@ public class BaseInfoController {
                         continue;
                     }
                 }
-                if(dataJson.containsKey(dto.getId())){
-                    Object value = dataJson.get(dto.getId());
+                if(dataJson.containsKey(dto.getElementName())){
+                    Object value = dataJson.get(dto.getElementName());
                     dto.setDefValue(value==null?null:value.toString());
                     continue;
                 }
             }
         }
-    }
-
-    /**
-     * 菜单请求
-     *
-     * @param publicReq 前台传入参数
-     * @return ReturnDto 后台返回参数
-     */
-    @RequestMapping(value = "/refreshEleReq/refresh")
-    @ResponseBody
-    public PublicResp refreshEleReq(@RequestBody PublicReq publicReq) {
-        PublicResp publicResp = new PublicResp();
-
-        EventInfo eventInfo = publicReq.getEventInfo();
-        if(null == eventInfo) {
-            throw new BizException("菜单事件信息不允许为空!");
-        }
-
-        //取输入区域元素清单，固定从body开始
-        List<WebElementDto> inputList = webElementService.getPageElements(eventInfo.getMenu(), eventInfo.getPage(),eventInfo.getElement(),publicReq);
-        publicResp.setWebElementDtoList(inputList);
-
-        publicResp.setRtnCode("0000");
-        publicResp.setRtnMsg("success");
-        return publicResp;
-    }
-
-
-    /**
-     * 菜单请求
-     *
-     * @param publicReq 前台传入参数
-     * @return ReturnDto 后台返回参数
-     */
-    @RequestMapping(value = "/refreshEleReq/{eventId}")
-    @ResponseBody
-    public PublicResp refreshEleReqTrigger(@PathVariable String eventId, @RequestBody PublicReq publicReq) {
-        PublicResp publicResp = new PublicResp();
-
-        EventInfo eventInfo = publicReq.getEventInfo();
-        if(null == eventInfo) {
-            throw new BizException("菜单事件信息不允许为空!");
-        }
-
-        //取输入区域元素清单，固定从body开始
-        List<WebElementDto> inputList = webElementService.getPageElements(eventInfo.getMenu(), eventInfo.getPage(),eventId,publicReq);
-        publicResp.setWebElementDtoList(inputList);
-
-        Map<String,Object> paramMap = eventInfo.getParamMap();
-        publicResp.setNextOprDto(getNextOpr(paramMap));
-        publicResp.setRtnCode("0000");
-        publicResp.setRtnMsg("success");
-        return publicResp;
     }
 
     /**
@@ -346,16 +355,22 @@ public class BaseInfoController {
         String nextPage = eventInfo.getNextPage();
 
         //取输入区域元素清单，固定从body开始
-        List<WebElementDto> inputList = webElementService.getPageElementsByParentEle(eventInfo.getMenu(), nextPage,null,publicReq);
+        List<WebElementDto> inputList = webElementService.getPageElementsByParentEle(eventInfo.getMenu(), nextPage,"body",publicReq);
         if(CollectionUtils.isNotEmpty(inputList) && param!=null && !param.isEmpty()) {
             inputList.forEach(in -> param.forEach((k, v) -> {
                 if (k.equals(in.getId())) in.setDefValue(v.toString());
             }));
         }
         publicResp.setWebElementDtoList(inputList);
-        NextOprDto nextOprDto = new NextOprDto();
-        nextOprDto.setShowSw(true);
+        // 取后续操作
+        NextOprDto nextOprDto = webElementService.getCallAfterOpr(eventInfo.getMenu(), eventInfo.getPage(), eventInfo.getElement());
+        if(MapUtils.isNotEmpty(param)){
+            for (EventInfo eventInfo1 : nextOprDto.getEventInfoList()) {
+                eventInfo1.getParamMap().putAll(param);
+            }
+        }
         publicResp.setNextOprDto(nextOprDto);
+        nextOprDto.setShowSw(true);
 
         publicResp.setRtnCode("0000");
         publicResp.setRtnMsg("success");

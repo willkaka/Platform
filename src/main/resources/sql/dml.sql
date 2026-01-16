@@ -574,3 +574,6 @@ INSERT INTO config_database_info (database_name, database_type, database_driver,
 ('ipos_sit3', 'mysql', 'com.mysql.cj.jdbc.Driver', 'jdbc:mysql://10.21.16.31:4588', 'ipos', 'iposopr', '*nP*!X6ixmSH', 'useUnicode=yes&characterEncoding=UTF8&useSSL=false&serverTimezone=Asia/Shanghai'),
 ('ipos_sit6', 'mysql', 'com.mysql.cj.jdbc.Driver', 'jdbc:mysql://10.21.16.52:3307', 'ipos', 'iposopr', '*nP*!X6ixmSH', 'useUnicode=yes&characterEncoding=UTF8&useSSL=false&serverTimezone=Asia/Shanghai');
 
+
+
+

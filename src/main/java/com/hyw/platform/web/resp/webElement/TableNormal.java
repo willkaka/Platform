@@ -11,6 +11,7 @@ public class TableNormal extends WebElementDto {
 
     private boolean isWithPage;//是否分页
     private int totalCount;//总记录数
+    private int pageTotal;//总页码
     private int pageNow;//当前页码
     private int pageSize;//每页记录数
 

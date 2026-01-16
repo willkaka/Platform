@@ -1,0 +1,317 @@
+<html lang="zh-CN" class=" ">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link rel="icon" href="favicon.ico">
+    <title>任务列表 - 大数金融通用业务对账平台</title>
+    <link rel="stylesheet" href="../static/csstest/devices.min.css" type="text/css">
+    <link href="../static/csstest/app.87f00402.css" rel="preload" as="style">
+    <link href="../static/csstest/chunk-libs.5cf311f0.css" rel="preload" as="style">
+<!--    <link href="static/js/app.a16fee3e.js" rel="preload" as="script">-->
+<!--    <link href="static/js/chunk-elementUI.a72c7a4c.js" rel="preload" as="script">-->
+<!--    <link href="static/js/chunk-libs.0ab2cade.js" rel="preload" as="script">-->
+<!--    <link href="static/js/runtime.0aa4dafa.js" rel="preload" as="script">-->
+    <link href="../static/csstest/chunk-libs.5cf311f0.css" rel="stylesheet">
+    <link href="../static/csstest/app.87f00402.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../static/csstest/chunk-99f80f94.5c9b2684.css">
+<!--    <script charset="utf-8" src="static/js/chunk-99f80f94.ee83ec28.js"></script>-->
+    <link rel="stylesheet" type="text/css" href="../static/csstest/chunk-66dc9e1e.4ec5ad78.css">
+<!--    <script charset="utf-8" src="static/js/chunk-66dc9e1e.51068bd3.js"></script>-->
+    <link rel="stylesheet" type="text/css" href="../static/csstest/chunk-210d6842.b5bcd5db.css">
+<!--    <script charset="utf-8" src="static/js/chunk-210d6842.fc4aa406.js"></script>-->
+</head>
+<body>
+<script src="static/tinymce/tinymce.min.js"></script>
+<div id="app">
+    <div data-v-33c99e86="" class="app-wrapper openSidebar">
+        <div data-v-33c99e86="" class="sidebar-container has-logo">
+            <div data-v-6aabca60="" class="sidebar-logo-container">
+                <a data-v-6aabca60="" href="#/" class="sidebar-logo-link router-link-active">
+                    <img data-v-6aabca60="" src="static/img/logo.b02d67d8.png" class="sidebar-logo">
+                        <h1 data-v-6aabca60="" class="sidebar-title">大数金融通用业务对账平台 </h1>
+                </a>
+            </div>
+            <div class="el-scrollbar">
+                <div class="scrollbar-wrapper el-scrollbar__wrap" style="margin-bottom: -15px; margin-right: -15px;">
+                    <div class="el-scrollbar__view">
+                        <ul role="menubar" class="el-menu" style="background-color: rgb(48, 65, 86);">
+                            <div><a href="#/dashboard">
+                                <li role="menuitem" tabindex="-1" class="el-menu-item submenu-title-noDropdown" style="padding-left: 20px; color: rgb(191, 203, 217); background-color: rgb(48, 65, 86);">
+                                    <svg data-v-f9f7fefc="" aria-hidden="true" class="svg-icon" data-v-18eeea00="">
+                                        <use data-v-f9f7fefc="" xlink:href="#icon-dashboard"></use>
+                                    </svg>
+                                    <span data-v-18eeea00="">首页</span>
+                                </li>
+                            </a></div>
+                            <div><a href="#/task/list" class="router-link-exact-active router-link-active">
+                                <li role="menuitem" tabindex="-1" class="el-menu-item is-active submenu-title-noDropdown" style="padding-left: 20px; color: rgb(64, 158, 255); background-color: rgb(48, 65, 86);">
+                                    <svg data-v-f9f7fefc="" aria-hidden="true" class="svg-icon" data-v-18eeea00="">
+                                        <use data-v-f9f7fefc="" xlink:href="#icon-list"></use>
+                                    </svg>
+                                    <span data-v-18eeea00="">任务列表</span></li>
+                            </a></div>
+                            <div><a href="#/task-instances/list">
+                                <li role="menuitem" tabindex="-1" class="el-menu-item submenu-title-noDropdown" style="padding-left: 20px; color: rgb(191, 203, 217); background-color: rgb(48, 65, 86);">
+                                    <svg data-v-f9f7fefc="" aria-hidden="true" class="svg-icon" data-v-18eeea00="">
+                                        <use data-v-f9f7fefc="" xlink:href="#icon-list"></use>
+                                    </svg>
+                                    <span data-v-18eeea00="">执行记录</span></li>
+                            </a></div>
+                            <div><a href="#/datasourceconfig/list">
+                                <li role="menuitem" tabindex="-1" class="el-menu-item submenu-title-noDropdown" style="padding-left: 20px; color: rgb(191, 203, 217); background-color: rgb(48, 65, 86);">
+                                    <svg data-v-f9f7fefc="" aria-hidden="true" class="svg-icon" data-v-18eeea00="">
+                                        <use data-v-f9f7fefc="" xlink:href="#icon-list"></use>
+                                    </svg>
+                                    <span data-v-18eeea00="">数据源配置</span></li>
+                            </a></div>
+                        </ul>
+                    </div>
+                </div>
+                <div class="el-scrollbar__bar is-horizontal">
+                    <div class="el-scrollbar__thumb" style="transform: translateX(0%);"></div>
+                </div>
+                <div class="el-scrollbar__bar is-vertical">
+                    <div class="el-scrollbar__thumb" style="transform: translateY(0%);"></div>
+                </div>
+            </div>
+        </div>
+        <div data-v-33c99e86="" class="main-container">
+            <div data-v-33c99e86="" class="fixed-header">
+                <div data-v-7d4be189="" data-v-33c99e86="" class="navbar">
+                    <div data-v-49e15297="" data-v-7d4be189="" id="hamburger-container" class="hamburger-container" style="padding: 0px 15px;">
+                        <svg data-v-49e15297="" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="64" height="64" class="hamburger is-active">
+                            <path data-v-49e15297="" d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM142.4 642.1L298.7 519a8.84 8.84 0 0 0 0-13.9L142.4 381.9c-5.8-4.6-14.4-.5-14.4 6.9v246.3a8.9 8.9 0 0 0 14.4 7z"></path>
+                        </svg>
+                    </div>
+                    <div data-v-c4ff581e="" data-v-7d4be189="" aria-label="Breadcrumb" role="navigation" class="el-breadcrumb app-breadcrumb breadcrumb-container" id="breadcrumb-container">
+                        <span data-v-c4ff581e="">
+                            <span data-v-c4ff581e="" class="el-breadcrumb__item">
+                                <span role="link" class="el-breadcrumb__inner">
+                                    <a data-v-c4ff581e="">任务管理</a>
+                                </span>
+                                <span role="presentation" class="el-breadcrumb__separator">/</span>
+                            </span>
+                            <span data-v-c4ff581e="" class="el-breadcrumb__item">
+                                <span role="link" class="el-breadcrumb__inner">
+                                    <span data-v-c4ff581e="" class="no-redirect">任务列表</span>
+                                </span>
+                                <span role="presentation" class="el-breadcrumb__separator">/</span>
+                            </span>
+                        </span>
+                    </div>
+                    <div data-v-7d4be189="" class="right-menu">
+                        <div data-v-7d4be189="" class="avatar-container right-menu-item hover-effect el-dropdown">
+                            <div data-v-7d4be189="" class="avatar-wrapper el-dropdown-selfdefine" aria-haspopup="list" aria-controls="dropdown-menu-3584" role="button" tabindex="0">
+                                <img data-v-7d4be189="" src="static/img/unknown-head.24bd3edd.png" class="user-avatar">
+                                <i data-v-7d4be189="" class="el-icon-caret-bottom"></i>
+                            </div>
+                            <ul data-v-7d4be189="" class="el-dropdown-menu el-popper el-dropdown-menu--mini" id="dropdown-menu-3584" style="display: none;">
+                                <a data-v-7d4be189="" href="#/" class="router-link-active">
+                                <li data-v-7d4be189="" tabindex="-1" class="el-dropdown-menu__item"><!---->首页</li>
+                            </a> <a data-v-7d4be189="" href="#/setting">
+                                <li data-v-7d4be189="" tabindex="-1" class="el-dropdown-menu__item el-dropdown-menu__item--divided"><!---->个人设置 </li>
+                            </a>
+                                <li data-v-7d4be189="" tabindex="-1" class="el-dropdown-menu__item el-dropdown-menu__item--divided"><!---->修改密码 </li>
+                                <li data-v-7d4be189="" tabindex="-1" class="el-dropdown-menu__item el-dropdown-menu__item--divided"><!---->退出登录 </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <section data-v-2c43ba7a="" data-v-33c99e86="" class="app-main">
+                <div data-v-2c43ba7a="" class="app-container">
+                    <div class="filter-container">
+                        <div class="filter-item el-input el-input--mini">
+                            <input type="text" autocomplete="off" placeholder="任务号" class="el-input__inner">
+                        </div>
+                        <div class="filter-item el-input el-input--mini">
+                            <input type="text" autocomplete="off" placeholder="任务名称" class="el-input__inner">
+                        </div>
+                        <button type="button" class="el-button filter-item el-button--primary el-button--mini">
+                            <i class="el-icon-search"></i>
+                            <span>搜索</span>
+                        </button>
+                        <button type="button" class="el-button filter-item el-button--default el-button--mini">
+                            <span>重置</span>
+                        </button>
+                        <button type="button" class="el-button filter-item el-button--success el-button--mini">
+                            <i class="el-icon-edit"></i>
+                            <span>添加</span>
+                        </button>
+                    </div>
+                    <div class="el-table el-table--fit el-table--border el-table--scrollable-y el-table--enable-row-hover el-table--enable-row-transition el-table--mini" style="height: calc(-142px + 100vh);">
+                        <div class="hidden-columns">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="el-table__header-wrapper">
+                            <table cellspacing="0" cellpadding="0" border="0" class="el-table__header" style="width: 1116px;">
+                                <colgroup>
+                                    <col name="el-table_1_column_1" width="251">
+                                    <col name="el-table_1_column_2" width="250">
+                                    <col name="el-table_1_column_3" width="250">
+                                    <col name="el-table_1_column_4" width="350">
+                                    <col name="gutter" width="15">
+                                </colgroup>
+                                <thead class="has-gutter">
+                                <tr>
+                                    <th colspan="1" rowspan="1" class="el-table_1_column_1     is-leaf">
+                                        <div class="cell">任务号</div>
+                                    </th>
+                                    <th colspan="1" rowspan="1" class="el-table_1_column_2     is-leaf">
+                                        <div class="cell">任务名称</div>
+                                    </th>
+                                    <th colspan="1" rowspan="1" class="el-table_1_column_3     is-leaf">
+                                        <div class="cell">描述</div>
+                                    </th>
+                                    <th colspan="1" rowspan="1" class="el-table_1_column_4  is-center   is-leaf">
+                                        <div class="cell">操作</div>
+                                    </th>
+                                    <th class="gutter" style="width: 15px;"></th>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div>
+                        <div class="el-table__body-wrapper is-scrolling-none" style="height: 753px;">
+                            <table cellspacing="0" cellpadding="0" border="0" class="el-table__body" style="width: 1101px;">
+                                <colgroup>
+                                    <col name="el-table_1_column_1" width="251">
+                                    <col name="el-table_1_column_2" width="250">
+                                    <col name="el-table_1_column_3" width="250">
+                                    <col name="el-table_1_column_4" width="350">
+                                </colgroup>
+                                <tbody>
+                                    <tr class="el-table__row">
+                                        <td rowspan="1" colspan="1" class="el-table_1_column_1  ">
+                                            <div class="cell">20250516000003</div>
+                                        </td>
+                                        <td rowspan="1" colspan="1" class="el-table_1_column_2  ">
+                                            <div class="cell">核算系统_业务_012_长银消金_《FEE_CHECK》对账</div>
+                                        </td>
+                                        <td rowspan="1" colspan="1" class="el-table_1_column_3  ">
+                                            <div class="cell">
+                                                FEE_CHECK文件(dfds.bank_data_info)与核算caes交易单据back_bill比较。
+                                            </div>
+                                        </td>
+                                        <td rowspan="1" colspan="1" class="el-table_1_column_4 is-center ">
+                                            <div class="cell">
+                                                <a href="#/task/config/20250516000003" class="filter-item">
+                                                    <button type="button" class="el-button filter-item el-button--primary el-button--mini">
+                                                        <span>配置</span>
+                                                    </button>
+                                                </a>
+                                                <button type="button" class="el-button el-button--primary el-button--mini">
+                                                    <span>执行计划</span>
+                                                </button>
+                                                <button type="button" class="el-button el-button--success el-button--mini">
+                                                    <span>修改</span>
+                                                </button>
+                                                <span placement="top" class="filter-item">
+                                                    <div role="tooltip" id="el-popover-4082" aria-hidden="true" class="el-popover el-popper" tabindex="0" style="display: none;">
+                                                        <div class="el-popconfirm">
+                                                            <p class="el-popconfirm__main">
+                                                                <i class="el-popconfirm__icon el-icon-question" style="color: rgb(255, 153, 0);"></i>
+                                                                删除后不可恢复，确定删除吗？
+                                                            </p>
+                                                            <div class="el-popconfirm__action">
+                                                                <button type="button" class="el-button el-button--text el-button--mini">
+                                                                    <span>取消</span>
+                                                                </button>
+                                                                <button type="button" class="el-button el-button--primary el-button--mini">
+                                                                    <span>删除</span>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <button type="button" class="el-button el-button--danger el-button--mini el-popover__reference" aria-describedby="el-popover-4082" tabindex="0">
+                                                        <span>删除</span>
+                                                    </button>
+                                                </span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="el-table__column-resize-proxy" style="display: none;"></div>
+                        <div class="el-loading-mask" style="display: none;">
+                            <div class="el-loading-spinner">
+                                <svg viewBox="25 25 50 50" class="circular">
+                                    <circle cx="50" cy="50" r="20" fill="none" class="path"></circle>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div data-v-5286be1a="" class="pagination-container">
+                        <div data-v-5286be1a="" class="el-pagination is-background">
+                            <span class="el-pagination__total">共 70 条</span>
+                            <span class="el-pagination__sizes">
+                                <div class="el-select el-select--mini">
+                                    <div class="el-input el-input--mini el-input--suffix">
+                                        <input type="text" readonly="readonly" autocomplete="off" placeholder="请选择" class="el-input__inner">
+                                            <span class="el-input__suffix">
+                                                <span class="el-input__suffix-inner">
+                                                    <i class="el-select__caret el-input__icon el-icon-arrow-up"></i>
+                                                </span>
+                                            </span>
+                                    </div>
+                                    <div class="el-select-dropdown el-popper" style="display: none; min-width: 110px;">
+                                        <div class="el-scrollbar" style="">
+                                            <div class="el-select-dropdown__wrap el-scrollbar__wrap" style="margin-bottom: -15px; margin-right: -15px;">
+                                                <ul class="el-scrollbar__view el-select-dropdown__list">
+                                                    <li class="el-select-dropdown__item">
+                                                        <span>10条/页</span>
+                                                    </li>
+                                                    <li class="el-select-dropdown__item selected">
+                                                        <span>20条/页</span>
+                                                    </li>
+                                                    <li class="el-select-dropdown__item">
+                                                        <span>30条/页</span>
+                                                    </li>
+                                                    <li class="el-select-dropdown__item">
+                                                        <span>50条/页</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="el-scrollbar__bar is-horizontal">
+                                                <div class="el-scrollbar__thumb" style="transform: translateX(0%);"></div>
+                                            </div>
+                                            <div class="el-scrollbar__bar is-vertical">
+                                                <div class="el-scrollbar__thumb" style="transform: translateY(0%);"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </span>
+                            <button type="button" disabled="disabled" class="btn-prev">
+                                <i class="el-icon el-icon-arrow-left"></i>
+                            </button>
+                            <ul class="el-pager">
+                                <li class="number active">1</li>
+                                <li class="number">2</li>
+                                <li class="number">3</li>
+                                <li class="number">4</li>
+                            </ul>
+                            <button type="button" class="btn-next">
+                                <i class="el-icon el-icon-arrow-right"></i>
+                            </button>
+                            <span class="el-pagination__jump">
+                                前往
+                                <div class="el-input el-input--mini el-pagination__editor is-in-pagination">
+                                    <input type="number" autocomplete="off" min="1" max="4" class="el-input__inner">
+                                </div>
+                                页
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+</body>
+</html>

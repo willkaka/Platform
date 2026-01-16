@@ -5,6 +5,11 @@
 var curMenuId = "";
 var userNameKey="userName";
 // var htmlMap = {};
+// 当前打开的标签页 { id: "dashboard", title: "控制面板", icon: "fa-tachometer-alt" }
+var menuNameMap = {};
+var tabs = [];
+var tabData = {};
+var activeTab;
 
 /**
  * 初始化页面内容

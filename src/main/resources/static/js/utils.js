@@ -52,6 +52,17 @@ function appendChildAtSeq(parentElement,childElement,seq) {
 }
 
 function removeElementById(elementId){
+    //检查是否是tempArea下的元素，若是则不删除
+    let checkElement = document.getElementById(elementId);
+    // 遍历所有父元素，直到找到id为tempArea的元素，或者遍历到根元素
+    while (checkElement && checkElement.id !== "tempArea") {
+        checkElement = checkElement.parentNode;
+    }
+    // 如果找到了id为tempArea的元素，说明是tempArea下的元素，不删除
+    if (checkElement && checkElement.id === "tempArea") {
+        return;
+    }
+
     let element = document.getElementById(elementId+"_group");
     if(element!=null){
         removeElement(element);
@@ -59,6 +70,34 @@ function removeElementById(elementId){
     element = document.getElementById(elementId);
     if(element!=null){
         removeElement(element);
+    }else{
+        const elements = getElementByEleName(elementId);
+        for (let i = 0; i < elements.length; i++) {
+            removeElement(elements[i]);
+        }
+    }
+}
+
+function removeElementByUid(elementUid){
+    //检查是否是tempArea下的元素，若是则不删除
+    let checkElement = document.querySelector(`[uid="${elementUid.replace(/"/g, '\\"')}"]`);
+//    // 遍历所有父元素，直到找到id为tempArea的元素，或者遍历到根元素
+//    while (checkElement && checkElement.id !== "tempArea") {
+//        checkElement = checkElement.parentNode;
+//    }
+//    // 如果找到了id为tempArea的元素，说明是tempArea下的元素，不删除
+//    if (checkElement && checkElement.id === "tempArea") {
+//        return;
+//    }
+//
+    let uid = elementUid + "_group";
+    let element = document.querySelector(`[uid="${uid.replace(/"/g, '\\"')}"]`);
+    if(element!=null){
+        removeElement(element);
+    }
+//    element = document.getElementById(elementId);
+    if(checkElement!=null){
+        removeElement(checkElement);
     }
 }
 
@@ -75,6 +114,34 @@ function removeElement(element){
 function hideById(eleId){
     let ele = document.getElementById(eleId);
     ele.style.display="none";
+}
+
+/**
+ * 不显示指定标签
+ * @param eleId
+ */
+function hideByName(eleId){
+    let ele = document.getElementById(eleId);
+    ele.style.display="none";
+}
+
+function getElementByEleName(value) {
+  try {
+    const safeValue = value.replace(/"/g, '\\"');
+    return document.querySelectorAll(`[elename="${safeValue}"]`);
+  } catch (e) {
+    console.error("查询失败:", e);
+    return [];
+  }
+
+  const elements = document.querySelectorAll(`[elename="${value}"]`);
+
+  // 遍历结果
+  elements.forEach(element => {
+    console.log("找到元素:", element);
+    console.log("elename值:", element.getAttribute('elename'));
+  });
+  return elements;
 }
 
 /**
@@ -207,11 +274,11 @@ function getAllInputValueMap(){
 function getOutFlagEleValue(eventInfo){
     let keyValueMap = {};
     // eventInfo.sourceElement为空退出
-    if(eventInfo.reqType == "menuReq"){
+    if(eventInfo!=null && eventInfo.reqType != null && eventInfo.reqType == "menuReq"){
         return keyValueMap;
     }
     // 取eventInfo事件元素的上一层父元素，直到元素id以contentArea或className为subWindowBackGround开始为止
-    let parentEle = document.getElementById(eventInfo.element);
+    let parentEle = document.getElementById(eventInfo.elementId);
     while (parentEle &&!parentEle.id.startsWith("contentArea") && !parentEle.className.startsWith("subWindowBackGround")) {
         parentEle = parentEle.parentNode;
     }
@@ -256,12 +323,12 @@ function nodeAllChildren(node, keyValueMap){
         // 如果tag为input,select
         if(childNode.tagName == "INPUT"){
             if("file"===childNode.type){
-                keyValueMap[childNode.id] = childNode.files;//支持多文件上传
+                keyValueMap[childNode.getAttribute('elename')] = childNode.files;//支持多文件上传
             }else{
                 let valueObject = {};
                 valueObject["value"] = childNode.value;
                 valueObject["defValue"] = childNode.defaultValue;
-                keyValueMap[childNode.id] = valueObject;
+                keyValueMap[childNode.getAttribute('elename')] = valueObject;
             }
         }
         if(childNode.tagName == "SELECT"){
@@ -278,7 +345,7 @@ function nodeAllChildren(node, keyValueMap){
                 let valueObject = {};
                 valueObject["value"] = selectedValueMap;
                 valueObject["defValue"] = "";
-                keyValueMap[childNode.id] = valueObject;
+                keyValueMap[childNode.getAttribute('elename')] = valueObject;
             }else{
                 let index = childNode.selectedIndex; // 选中索引
                 if(index >= 0){
@@ -286,12 +353,12 @@ function nodeAllChildren(node, keyValueMap){
                     let valueObject = {};
                     valueObject["value"] = childNode.options[index].value; // 选中值
                     valueObject["defValue"] = "";
-                    keyValueMap[childNode.id] = valueObject;
+                    keyValueMap[childNode.getAttribute('elename')] = valueObject;
                 }else{
                     let valueObject = {};
                     valueObject["value"] = "";
                     valueObject["defValue"] = "";
-                    keyValueMap[childNode.id] = valueObject;
+                    keyValueMap[childNode.getAttribute('elename')] = valueObject;
                 }
             }
         }
@@ -322,7 +389,7 @@ function getNodeValueMap(nodeTag){
                 let valueObject = {};
                 valueObject["value"] = selectedValueMap;
                 valueObject["defValue"] = "";
-                nodeValueMap[nodeEle.id] = valueObject;
+                nodeValueMap[nodeEle.getAttribute('elename')] = valueObject;
             }else{
                 let index = nodeEle.selectedIndex; // 选中索引
                 if(index >= 0){
@@ -330,12 +397,12 @@ function getNodeValueMap(nodeTag){
                     let valueObject = {};
                     valueObject["value"] = nodeEle.options[index].value; // 选中值
                     valueObject["defValue"] = "";
-                    nodeValueMap[nodeEle.id] = valueObject;
+                    nodeValueMap[nodeEle.getAttribute('elename')] = valueObject;
                 }else{
                     let valueObject = {};
                     valueObject["value"] = "";
                     valueObject["defValue"] = "";
-                    nodeValueMap[nodeEle.id] = valueObject;
+                    nodeValueMap[nodeEle.getAttribute('elename')] = valueObject;
                 }
             }
         }else if("input"===nodeTag){
@@ -345,7 +412,7 @@ function getNodeValueMap(nodeTag){
                 let valueObject = {};
                 valueObject["value"] = nodeEle.value;
                 valueObject["defValue"] = nodeEle.defaultValue;
-                nodeValueMap[nodeEle.id] = valueObject;
+                nodeValueMap[nodeEle.getAttribute('elename')] = valueObject;
             }
         }
     }
