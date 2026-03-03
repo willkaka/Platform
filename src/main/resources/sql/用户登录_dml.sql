@@ -5,7 +5,7 @@ INSERT INTO web_element(web_element_id, element_no, sort_no, menu, page, element
 (2025010100000001, 'EM000001', 1, 'root', 'start_page', 'contentArea', 'login_sbw', 'subWindow', '登录', '', ''),
 (2025010100000002, 'EM000002', 2, 'root', 'start_page', 'login_sbw', 'login_sbw_content_div', 'div', '', 'class="showWithRowDivGrid"', ''),
 (2025010100000003, 'EM000003', 3, 'root', 'start_page', 'login_sbw_content_div', 'userId', 'input', '用户', 'out="Y"', NULL),
-(2025010100000004, 'EM000004', 4, 'root', 'start_page', 'login_sbw_content_div', 'password', 'input', '密码', 'out="Y";type="password"', NULL),
+(2025010100000004, 'EM000004', 4, 'root', 'start_page', 'login_sbw_content_div', 'password', 'input', '密码', 'out="Y"#type="password"', NULL),
 (2025010100000005, 'EM000005', 5, 'root', 'start_page', 'login_sbw', 'login_sbw_footer_div', 'div', '', 'class="subWidowFooter"', ''),
 (2025010100000006, 'EM000006', 6, 'root', 'start_page', 'login_sbw_footer_div', 'login', 'button', '登录', 'class="inputArea_sub_button"', NULL);
 

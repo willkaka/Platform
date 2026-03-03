@@ -61,7 +61,7 @@ public abstract class RequestFunUnit<D, V extends RequestPubDto> implements Requ
         //执行自定义逻辑
         D data = execLogic(requestDto,params);
 
-        PublicResp resp = setPublicResp();
+        PublicResp resp = setPublicResp(data);
 
         //返回数据处理
         return returnData(requestDto,data,params,resp);
@@ -152,9 +152,9 @@ public abstract class RequestFunUnit<D, V extends RequestPubDto> implements Requ
     }
 
     /**
-     * 输入参数检查
+     * 输出自定义
      */
-    public PublicResp setPublicResp(){ return null;}
+    public PublicResp setPublicResp(D data){ return null;}
 
     /**
      * 输入参数检查
@@ -227,6 +227,10 @@ public abstract class RequestFunUnit<D, V extends RequestPubDto> implements Requ
                                 //记录
                                 List tableDataList = subJson.getJSONArray(dataKey);
                                 tableNormal.getRecordList().addAll(tableDataList);
+                                if(subJson.containsKey("headMap")){
+                                    Map<String,Object> dataMap = (Map<String,Object>) data;
+                                    tableNormal.setHeadMap((Map<String,String>) dataMap.get("headMap"));
+                                }
                             }
                         } else {
                             curElement.setData(data);

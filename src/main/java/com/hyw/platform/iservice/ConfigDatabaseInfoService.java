@@ -1,5 +1,7 @@
 package com.hyw.platform.iservice;
 
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hyw.gdata.DataService;
 import com.hyw.gdata.NQueryWrapper;
 import com.hyw.gdata.constant.DbConstant;
@@ -7,6 +9,7 @@ import com.hyw.gdata.exception.DbException;
 import com.hyw.gdata.utils.QueryUtil;
 import com.hyw.platform.constant.Constant;
 import com.hyw.platform.model.ConfigDatabaseInfo;
+import com.hyw.platform.mapper.ConfigDatabaseInfoMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +19,7 @@ import java.sql.DriverManager;
 
 @Slf4j
 @Service
-public class ConfigDatabaseInfoService {
+public class ConfigDatabaseInfoService extends ServiceImpl<ConfigDatabaseInfoMapper, ConfigDatabaseInfo> implements IService<ConfigDatabaseInfo> {
 
     @Autowired
     private DataService dataService;

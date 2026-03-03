@@ -2,12 +2,8 @@ package com.hyw.platform.web.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.hyw.gdata.DataService;
-import com.hyw.platform.config.DynamicDataSourceManager;
 import com.hyw.platform.exception.BizException;
 import com.hyw.platform.funbean.RequestFun;
-import com.hyw.platform.config.DataSourceContextHolder;
-import com.hyw.platform.iservice.LoanBalanceService;
 import com.hyw.platform.web.req.PublicReq;
 import com.hyw.platform.web.resp.EventInfo;
 import com.hyw.platform.web.resp.NextOprDto;
@@ -24,7 +20,6 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,10 +27,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
 import java.util.*;
 
 @Controller
@@ -46,8 +37,6 @@ public class BaseInfoController {
     private WebMenuService webMenuService;
     @Autowired
     private WebElementService webElementService;
-    @Autowired
-    private DataService dataService;
     @Autowired
     private CallInterface callInterface;
 
@@ -66,13 +55,6 @@ public class BaseInfoController {
         return "index_new";
 //        return "index";
     }
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-    @Autowired
-    private LoanBalanceService loanBalanceService;
-
-    @Autowired
-    private DynamicDataSourceManager dynamicDataSourceManager;
 
     /**
      * 页面初始化请求
@@ -84,37 +66,11 @@ public class BaseInfoController {
     @ResponseBody
     public PublicResp initPageInfo(@RequestBody PublicReq publicReq) {
         PublicResp publicResp = new PublicResp().setRtnCode("0000").setRtnMsg("success");
-
-        testDataSourceSwitch();
-
-        Integer countA = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM config_database_info", Integer.class);
-        log.info("数据库A用户数: " + countA);
         //取菜单清单
         Map<String,String> menuIdMap = new HashMap<>();
         List<WebElementDto> menuList = webMenuService.getMenu("root", menuIdMap);
         publicResp.setWebElementDtoList(menuList);
         return publicResp;
-    }
-
-    /**
-     * 测试切换数据源并执行查询
-     */
-    public void testDataSourceSwitch() {
-        dynamicDataSourceManager.addDataSource("sit3_caes",
-                "jdbc:mysql://10.21.16.31:4588/caes?serverTimezone=Asia/Shanghai",
-                "caesopr",
-                "Dfs@3K3#r3",
-                "com.mysql.cj.jdbc.Driver");
-
-        // 切换到该数据源
-        DynamicDataSourceManager.use("sit3_caes");
-        long count = loanBalanceService.count();
-        System.out.println("查询结果 - loan_balance 表记录数: " + count);
-        Integer countA = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM loan_balance", Integer.class);
-        System.out.println("查询结果 - loan_balance 表记录数: " + countA);
-
-        DynamicDataSourceManager.clear();
-
     }
 
     /**

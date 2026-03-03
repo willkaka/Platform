@@ -10,6 +10,7 @@ import com.hyw.platform.web.resp.webElement.WebElementDto;
 import com.hyw.platform.web.syswebconfig.UUIDShort;
 import com.hyw.platform.web.util.WebUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ public class WebMenuService {
         List<WebMenu> webMenuList = dataService.list(new NQueryWrapper<WebMenu>()
                 .eq(WebMenu::getMenuParent, parentMenu)
                 .orderByAsc(WebMenu::getSortNo));
+        int sortNo = 0;
         for (WebMenu webMenu : webMenuList) {
             WebElementDto webElementDto = new WebElementDto();
             webElementDto.setPId("root".equals(webMenu.getMenuParent()) ? "menuArea" : menuIdMap.getOrDefault(webMenu.getMenuParent(),webMenu.getMenuParent()));
@@ -45,6 +47,10 @@ public class WebMenuService {
 
             menuIdMap.put(webMenu.getMenu(),webElementDto.getId());
             webElementDto.setSubElementList(getMenu(webMenu.getMenu(), menuIdMap));
+            if(CollectionUtils.isNotEmpty(webElementDto.getSubElementList())){
+                webElementDto.setType("Group");
+                webElementDto.setSortNo(++sortNo);
+            }
             webElementDtoDtoList.add(webElementDto);
         }
         return webElementDtoDtoList;

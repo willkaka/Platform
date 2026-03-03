@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.hyw.platform.web.resp.EventInfo;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -126,6 +127,42 @@ public class PublicReq {
             }
         }
         return jsonObject;
+    }
+
+    public Map<String,Object> getInputValueMap(){
+        Map<String, Object> valueMap = new HashMap<>();
+        getInputValueObjMap().forEach((k,valueObj)->valueMap.put(k,valueObj.getValue()));
+        return valueMap;
+    }
+
+    public Map<String, ValueObject> getInputValueObjMap(){
+        //处理参数
+        Map<String, ValueObject> webInputValueMap = this.getValueMap();
+        Map<String, ValueObject> camelFieldMap = new HashMap<>();
+        for (Map.Entry<String, ValueObject> entry : webInputValueMap.entrySet()) {
+            String key = entry.getKey();
+            ValueObject value = entry.getValue();
+            camelFieldMap.put(key, value);
+        }
+        if(this.getEventInfo() != null && MapUtils.isNotEmpty(this.getEventInfo().getParamMap())){
+            for (Map.Entry<String, Object> entry : this.getEventInfo().getParamMap().entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                if(value instanceof Map){
+                    Map<String, Object> valueMap = (Map<String, Object>) value;
+                    for (Map.Entry<String, Object> valueEntry : valueMap.entrySet()) {
+                        String valueKey = valueEntry.getKey();
+                        Object valueValue = valueEntry.getValue();
+                        String modifiedValueKey = com.hyw.platform.web.util.StringUtils.camelCaseToUnderline( valueKey );
+                        camelFieldMap.put(modifiedValueKey, new ValueObject().setValue(valueValue));
+                    }
+                    continue;
+                }
+                String modifiedKey = com.hyw.platform.web.util.StringUtils.camelCaseToUnderline( key );
+                camelFieldMap.put(modifiedKey, new ValueObject().setValue(value));
+            }
+        }
+        return camelFieldMap;
     }
 }
 

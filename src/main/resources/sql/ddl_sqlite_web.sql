@@ -72,3 +72,14 @@ CREATE TABLE web_data (
     data_attr varchar(20),
     express varchar(20) );
 CREATE INDEX wd_ind_01 on web_data (menu,page,element);
+
+-- 通用查询配置
+DROP TABLE IF EXISTS common_query_config;
+CREATE TABLE common_query_config (
+    common_query_config_id integer primary key,
+    query_type varchar(20),
+    query_name varchar(50),
+    query_desc varchar(200),
+    query_cond text,
+    query_sql text);
+CREATE INDEX cqc_ind_01 on common_query_config (query_type);

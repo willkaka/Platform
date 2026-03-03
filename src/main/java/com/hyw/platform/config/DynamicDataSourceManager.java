@@ -1,8 +1,13 @@
 package com.hyw.platform.config;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.hyw.platform.iservice.ConfigDatabaseInfoService;
+import com.hyw.platform.model.ConfigDatabaseInfo;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -14,8 +19,11 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class DynamicDataSourceManager {
 
-    // ⚠️ 关键：使用 Map<Object, Object> 避免 setTargetDataSources 类型不匹配
-    private static final Map<Object, Object> dataSourceMap = new ConcurrentHashMap<>();
+    @Autowired
+    private ConfigDatabaseInfoService configDatabaseInfoService;
+
+    @Getter
+    private final Map<Object, Object> dataSourceMap = new ConcurrentHashMap<>();
 
     private DataSource defaultDataSource;
 
@@ -23,6 +31,15 @@ public class DynamicDataSourceManager {
         Assert.notNull(defaultDataSource, "Default DataSource must not be null");
         this.defaultDataSource = defaultDataSource;
         dataSourceMap.put("default", defaultDataSource);
+    }
+
+    public void addDataSource(String dsKey){
+        // 获取对应数据库配置信息
+        ConfigDatabaseInfo cdi = configDatabaseInfoService.getOne(new QueryWrapper<ConfigDatabaseInfo>().lambda()
+                .eq(ConfigDatabaseInfo::getDatabaseName, dsKey));
+        // 手动添加数据源
+        addDataSource(cdi.getDatabaseName(),cdi.getDatabaseAddr(),cdi.getLoginName(),
+                cdi.getLoginPassword(),cdi.getDatabaseDriver());
     }
 
     /**
@@ -70,16 +87,12 @@ public class DynamicDataSourceManager {
     }
 
     /**
-     * 获取内部数据源映射（调试用）
-     */
-    public Map<Object, Object> getDataSourceMap() {
-        return dataSourceMap;
-    }
-
-    /**
      * 切换到指定数据源（供业务调用）
      */
-    public static void use(String dsKey) {
+    public void use(String dsKey) {
+        if(!dataSourceMap.containsKey(dsKey)){
+            addDataSource(dsKey);
+        }
         DataSourceContextHolder.setDataSource(dsKey);
         log.info("切换到数据源: {}", dsKey);
     }
@@ -87,14 +100,14 @@ public class DynamicDataSourceManager {
     /**
      * 切回默认数据源
      */
-    public static void useDefault() {
+    public void useDefault() {
         DataSourceContextHolder.setDataSource("default");
     }
 
     /**
      * 清理当前线程数据源上下文
      */
-    public static void clear() {
+    public void clear() {
         DataSourceContextHolder.clear();
         useDefault();
         log.info("切换回默认数据源");

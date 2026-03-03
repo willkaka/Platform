@@ -244,6 +244,12 @@ function getInputValueMap(eventInfo){
             nodeValueMap[key] = map[key];
         }
 
+        //取标签为 textarea 的页面元素
+        map = getNodeValueMap("textarea");
+        for(let key in map){
+            nodeValueMap[key] = map[key];
+        }
+
         //取标签为 select 的页面元素
         map = getNodeValueMap("select");
         for(let key in map){
@@ -257,6 +263,11 @@ function getAllInputValueMap(){
     let nodeValueMap = {};
     // 取标签为 input 的页面元素
     let map = getNodeValueMap("input");
+    for(let key in map){
+        nodeValueMap[key] = map[key];
+    }
+    //取标签为 textarea 的页面元素
+    map = getNodeValueMap("textarea");
     for(let key in map){
         nodeValueMap[key] = map[key];
     }
@@ -362,6 +373,12 @@ function nodeAllChildren(node, keyValueMap){
                 }
             }
         }
+        if(childNode.tagName == "TEXTAREA"){
+             let valueObject = {};
+             valueObject["value"] = childNode.value;
+             valueObject["defValue"] = childNode.defaultValue;
+             keyValueMap[childNode.getAttribute('elename')] = valueObject;
+        }
     }
     return children;
 }
@@ -414,6 +431,11 @@ function getNodeValueMap(nodeTag){
                 valueObject["defValue"] = nodeEle.defaultValue;
                 nodeValueMap[nodeEle.getAttribute('elename')] = valueObject;
             }
+        }else if("TEXTAREA"===nodeTag){
+             let valueObject = {};
+             valueObject["value"] = nodeEle.value;
+             valueObject["defValue"] = nodeEle.defaultValue;
+             nodeValueMap[nodeEle.getAttribute('elename')] = valueObject;
         }
     }
     return nodeValueMap;

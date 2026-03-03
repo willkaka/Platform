@@ -82,9 +82,12 @@ function insertIntoNewLine(eventInfo){
     // 获取事件元素的上一层父元素，直到元素id以copyDivId开始为止
     let parentEle = eventEle.parentNode;
     let parentEleName = getElementByEleName(eventEle.parentNode.id);
-    while (eventEle.parentNode && !getElementByEleName(eventEle.parentNode.id).startsWith(copyDivId)) {
-        parentEle = parentEle.parentNode;
-        parentEleName = getElementByEleName(eventEle.parentNode.id);
+    while (eventEle.parentNode &&
+        getElementByEleName(eventEle.parentNode.id)!=null &&
+        getElementByEleName(eventEle.parentNode.id).length>0 &&
+        !getElementByEleName(eventEle.parentNode.id).startsWith(copyDivId)) {
+         parentEle = parentEle.parentNode;
+         parentEleName = getElementByEleName(eventEle.parentNode.id);
     }
     // 将id的前部分copyDivId替换为空，得到当前list的号码
     let listNum = getElementByEleName(parentEle.id).replace(copyDivId,"");

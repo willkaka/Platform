@@ -101,7 +101,7 @@ public class WebElementDto {
         this.sortNo =webElement.getSortNo();
         this.desc=webElement.getElementDesc();
         this.type=webElement.getElementType();
-        this.attrMap= ConvertEleData.getAttrMap(webElement.getElementAttr(), ";", "=");
+        this.attrMap= ConvertEleData.getAttrMap(webElement.getElementAttr(), "#", "=");
         this.param = StringUtils.isBlank(webElement.getParam())?new HashMap<>():new HashMap<>(JSON.parseObject(webElement.getParam()));
     }
 }

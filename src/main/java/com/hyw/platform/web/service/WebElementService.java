@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.hyw.gdata.DataService;
 import com.hyw.gdata.NQueryWrapper;
 import com.hyw.gdata.dto.TableFieldInfo;
+import com.hyw.platform.config.DynamicDataSourceManager;
 import com.hyw.platform.funbean.WebDataReqFun;
 import com.hyw.platform.funbean.WebTableDataReqFun;
 import com.hyw.platform.web.model.*;
@@ -26,8 +27,10 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -43,6 +46,10 @@ public class WebElementService {
     private DataService dataService;
     @Autowired
     private CallInterface callInterface;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private DynamicDataSourceManager dynamicDataSourceManager;
 
     private static final String FORMATTER_DATE = "yyyy-MM-dd";
     private static final String FORMATTER_DATETIME = "yyyy-MM-dd HH:mm:ss";
@@ -209,11 +216,27 @@ public class WebElementService {
                 dataMap.put((String) jsonArray.getJSONObject(i).get("value"), (String) jsonArray.getJSONObject(i).get("text"));
             }
         }else if("sql".equals(webData.getDataAttr())) {
-            String sql= webData.getExpress();
-            sql = sql.replaceAll("#menu#","'"+menu+"'");
-            sql = sql.replaceAll("#page#","'"+page+"'");
+            String sql = webData.getExpress();
+            sql = sql.replaceAll("#menu#", "'" + menu + "'");
+            sql = sql.replaceAll("#page#", "'" + page + "'");
+            sql = setParamToSql(sql, publicReq.getInputValueMap());
             List<Map<String, Object>> dataMaps = dataService.mapList(new NQueryWrapper<>()
                     .setSql(sql));
+            dataMap = WebUtil.getValueMap(dataMaps);
+
+        }else if("remoteSql".equals(webData.getDataAttr())) {
+            // 非默认数据库Sql
+            JSONObject dataJson = JSON.parseObject(webData.getExpress());
+            Map<String,Object> reqParam = publicReq.getInputValueMap();
+            if(!reqParam.containsKey("dbName")) return dataMap;
+            String dbName = reqParam.get("dbName").toString();
+            String sql = dataJson.getString("sql");
+            sql = setParamToSql(sql, reqParam);
+
+            dynamicDataSourceManager.use(dbName);
+            List<Map<String, Object>> dataMaps = jdbcTemplate.queryForList(sql);
+            dynamicDataSourceManager.clear();
+
             dataMap = WebUtil.getValueMap(dataMaps);
         }else if("fun".equals(webData.getDataAttr())) {
             String funBean = webData.getExpress();
@@ -222,9 +245,6 @@ public class WebElementService {
                 dataMap.put(key,(String)dataMapObject.get(key));
             }
         }else if("callInterface".equals(webData.getDataType())) {
-//            dataMap = callInterface(webData.getDataAttr(), webData.getExpress(), publicReq);
-
-            JSONObject reqJson = new JSONObject();
             Map<String,Object> param = getAllInputData(publicReq);
             JSONObject dataJson = JSON.parseObject(webData.getExpress());
             if(dataJson.containsKey("inputParam")) {
@@ -239,6 +259,23 @@ public class WebElementService {
             dataMap = respJsonToMap(dataJson, jsonResp);
         }
         return dataMap;
+    }
+
+    private String setParamToSql(String sql, Map<String,Object> param){
+        for(String key:param.keySet()){
+            Object valueObj = param.get(key);
+            if(valueObj==null) continue;
+            String valueStr;
+            // 判断valueObj的类型，数字不加引号
+            if(valueObj instanceof Integer || valueObj instanceof Long || valueObj instanceof Double || valueObj instanceof Float ||
+                    valueObj instanceof Boolean || valueObj instanceof BigDecimal){
+                valueStr = valueObj.toString();
+            }else{
+                valueStr = "'"+valueObj+"'";
+            }
+            sql = sql.replaceAll("#"+key+"#",valueStr);
+        }
+        return sql;
     }
 
     private Map<String,String> respJsonToMap(JSONObject dataJson, JSONObject respJson){
@@ -452,7 +489,7 @@ public class WebElementService {
                     webElementDto.setType("input");
                     webElementDto.setId(t.getFieldName());
                     webElementDto.setDesc(t.getComment());
-                    webElementDto.setAttrMap(getAttrMap(webElement.getElementAttr(), ",", "="));
+                    webElementDto.setAttrMap(getAttrMap(webElement.getElementAttr(), "#", "="));
                     webElementDtos.add(webElementDto);
                 }
             } else if ("fun".equals(webData.getDataType())) {
@@ -504,8 +541,8 @@ public class WebElementService {
         for (Map.Entry<String,Object> entry : variablesMap.entrySet()) {
             String key = entry.getKey();
             Object paramValue = entry.getValue();
-            if(value.contains("#{"+key+"}")){
-                newValue = newValue.replace(("#{"+key+"}"), (CharSequence) paramValue);
+            if(value.contains("${"+key+"}")){
+                newValue = newValue.replace(("${"+key+"}"), (CharSequence) paramValue);
             }
         }
         return newValue;

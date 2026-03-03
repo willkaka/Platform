@@ -193,9 +193,18 @@ body {
     transition: var(--transition);
 }
 
-.nav-link.active .submenu-toggle {
-    transform: rotate(90deg);
+.nav-item .nav-link.active .submenu-toggle {
+    transform: rotate(90deg) !important;
     color: white;
+}
+/* ⭐ 新增：控制子菜单显示 */
+.nav-item .nav-link.active + .submenu {
+    display: block !important;
+}
+
+/* ⭐ 新增：默认隐藏子菜单 */
+.nav-item .submenu {
+    display: none;
 }
 
 /* 子菜单样式 */

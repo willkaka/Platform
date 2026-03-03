@@ -76,10 +76,33 @@ function nextOpr(PublicResp,nextOprDto,requestParam){
 function loopElementList(elementDtoList,eventInfo){
     for (let i=0;i<elementDtoList.length;i++){
         let elementDto = elementDtoList[i];
+        // 如果 eventInfo.paramMap含有参数onlyUpd且等于"Y"，则只更新元素
+        if(eventInfo!=null && eventInfo.paramMap!=null && eventInfo.paramMap.hasOwnProperty("onlyUpd") && eventInfo.paramMap.onlyUpd=="Y") {
+            updateWebElement(elementDto,eventInfo);
+            continue;
+        }
         writeWebElementRoute(elementDto.pid,elementDto,eventInfo);
         let subElementDtoList = elementDto.subElementList;
         if(subElementDtoList!=null && subElementDtoList.length>0){
             loopElementList(subElementDtoList,eventInfo);
+        }
+    }
+}
+
+function updateWebElement(elementInfo,eventInfo){
+    let elementId = elementInfo.id;
+    let element = document.getElementById(elementId);
+    if(element == null) return;
+    if(elementInfo.type == "selectOption"){
+        // 清空select的option元素
+        element.textContent = "";
+        let dataMap = elementInfo.data;
+        for(let value in dataMap){
+            let option = document.createElement("option");
+            option.setAttribute("id",elementInfo.id+"_option_"+value);
+            option.setAttribute("value",value);
+            option.textContent = dataMap[value];
+            element.appendChild(option);
         }
     }
 }
@@ -108,6 +131,7 @@ function writeWebElementRoute(parentEleId,elementInfo,eventInfo){
     if(elementInfo.type == "table_record_radio") writeTableRadio(parentEle,elementInfo);
 
     if(elementInfo.type == "textarea") writeTextArea(parentEle,elementInfo,eventInfo);
+    if(elementInfo.type == "textareaLabel") writeTextAreaLabel(parentEle,elementInfo,eventInfo);
     if(elementInfo.type == "input") writeInput(parentEle,elementInfo,eventInfo);
     if(elementInfo.type == "inputWithoutLabel") writeInputWithoutLabel(parentEle,elementInfo,eventInfo);
     if(elementInfo.type == "inputFile") writeInputFile(parentEle,elementInfo);
@@ -127,7 +151,7 @@ function writeSpan(parentEle,elementInfo){
     let element_span = document.createElement("span");
     element_span.setAttribute("id",elementInfo.id); //id
     element_span.setAttribute("eleName",elementInfo.elementName); //名称
-    element_span.innerHTML = elementInfo.desc;//名称
+    element_span.textContent = elementInfo.desc;//名称
     setAttr(element_span,elementInfo.attrMap); // 属性配置
     setEventListener(element_span,elementInfo.eventInfoList); //事件
 
@@ -142,7 +166,7 @@ function writeDiv(parentEle,elementInfo){
     setEventListener(element_div,elementInfo.eventInfoList); //事件
 
     if(elementInfo.param != null && elementInfo.param["showText"]!=null && elementInfo.param["showText"]){
-        element_div.innerHTML = elementInfo.desc;//名称
+        element_div.textContent = elementInfo.desc;//名称
     }
 
     parentEle.appendChild(element_div);
@@ -154,7 +178,7 @@ function writeDivTitle(parentEle,elementInfo){
     element_div.setAttribute("eleName",elementInfo.elementName); //名称
     setAttr(element_div,elementInfo.attrMap); // 属性配置
     setEventListener(element_div,elementInfo.eventInfoList); //事件
-    element_div.innerHTML = elementInfo.desc;//名称
+    element_div.textContent = elementInfo.desc;//名称
 
     parentEle.appendChild(element_div);
 }
@@ -169,6 +193,11 @@ function writeDivTitle(parentEle,elementInfo){
           </div>
   **/
 function writeGroup(parentEle,elementInfo){
+    if(elementInfo.sortNo==1){
+        let temp_div = document.createElement("div");
+        temp_div.style.height = "10px";
+        parentEle.appendChild(temp_div);
+    }
     let item_div = document.createElement("div");
     item_div.setAttribute("class","nav-item");
 
@@ -177,19 +206,18 @@ function writeGroup(parentEle,elementInfo){
     // 增加点击事件，调menuClicked方法，并传递elementInfo.eventInfoList
     link_div.addEventListener('click', function(e) {
         menuClicked(e,elementInfo);
+        e.stopPropagation(); // 阻止冒泡，避免触发 link_div 的点击
+        // 切换 active 类
+        link_div.classList.toggle("active");
     })
     item_div.appendChild(link_div);
 
-//    let i_a = document.createElement("i");
-//    i_a.setAttribute("class","fas fa-users");
-//    link_div.appendChild(i_a);
-
     let span = document.createElement("span");
-    span.innerHTML = elementInfo.desc;//名称
+    span.textContent = elementInfo.desc;//名称
     link_div.appendChild(span);
 
     let i_b = document.createElement("i");
-    i_b.setAttribute("class","fas fa-chevron-right submenu-toggle");
+    i_b.classList.add("fas", "fa-chevron-right", "submenu-toggle");
     link_div.appendChild(i_b);
 
     let sub_menu_div = document.createElement("div");
@@ -199,6 +227,7 @@ function writeGroup(parentEle,elementInfo){
     item_div.appendChild(sub_menu_div);
     parentEle.appendChild(item_div);
 }
+
 
 function menuClicked(e, elementInfo){
 //    console.log("menuClicked");
@@ -237,7 +266,7 @@ function writeGroup_dropDown(parentEle,elementInfo){
     let element_a = document.createElement("a");
     element_a.setAttribute("class","menuDropButton");
 
-    element_a.innerHTML = elementInfo.desc;//菜单名称
+    element_a.textContent = elementInfo.desc;//菜单名称
     setAttr(element_a,elementInfo.attrMap); // 属性配置
     element_div.appendChild(element_a);
 
@@ -274,7 +303,7 @@ function writeMenu(parentEle,elementInfo){
     submenu_div.setAttribute("data-tab",elementInfo.id);
 
     let span = document.createElement("span");
-    span.innerHTML = elementInfo.desc;//名称
+    span.textContent = elementInfo.desc;//名称
     submenu_div.appendChild(span);
 
     parentEle.appendChild(submenu_div);
@@ -293,7 +322,7 @@ function writeMenu_dropDown(parentEle,elementInfo){
     let element_a = document.createElement("a");
     element_a.setAttribute("id",elementInfo.id);
     element_a.setAttribute("eleName",elementInfo.elementName); //名称
-    element_a.innerHTML = elementInfo.desc;//菜单名称
+    element_a.textContent = elementInfo.desc;//菜单名称
     setAttr(element_a,elementInfo.attrMap); // 属性配置
     setEventListener(element_a,elementInfo.eventInfoList); //事件
     parentEle.appendChild(element_a);
@@ -330,9 +359,59 @@ function writeTextArea(parentEle,elementInfo,eventInfo){
     textArea.setAttribute("eleName",elementInfo.elementName); //名称
     textArea.setAttribute("class","output_textArea");
     setAttr(textArea,elementInfo.attrMap);
-    textArea.innerHTML = elementInfo.data;
-//    textArea.innerHTML = textArea.innerHTML.replace(/\n/g, "<br>");
+    textArea.textContent = elementInfo.data;
     parentEle.appendChild(textArea);
+}
+
+
+/**
+ * 在父元素插入生成的输入框 div label/input
+ **/
+function writeTextAreaLabel(parentEle,elementInfo,eventInfo){
+    let groupDiv = document.createElement("div");
+    groupDiv.setAttribute("id",elementInfo.id+"_group");
+    groupDiv.setAttribute("class","inputArea_div_grp");
+
+    let label = document.createElement("label");
+    label.setAttribute("id",elementInfo.id+"_label");
+    label.setAttribute("class","inputArea_sub_label");
+    label.textContent = elementInfo.desc;//名称
+    groupDiv.appendChild(label);
+
+    let input = document.createElement("textarea");
+    input.setAttribute("id",elementInfo.id);
+    input.setAttribute("eleName",elementInfo.elementName); //名称
+    if(null != elementInfo.desc){
+        input.setAttribute("placeholder",elementInfo.desc);
+    }
+    // 不为undefined时，设置默认值
+    if(null != elementInfo.defValue && elementInfo.defValue != "undefined"){
+        input.textContent = elementInfo.defValue;
+    }
+    // 从页面中取值
+    if(elementInfo.param!=null && elementInfo.param["valueFrmWeb"]){
+        let webFieldName = elementInfo.param["valueFrmWeb"];
+        let webFieldValueMap = getInputValueMap(eventInfo);
+        for(let key in webFieldValueMap){
+            if(key == webFieldName){
+                input.textContent = webFieldValueMap[key].value;
+            }
+        }
+    }
+    if(eventInfo!=null && eventInfo.paramMap!=null && eventInfo.paramMap["valueFromSelectedRecord"] && eventInfo.paramMap[elementInfo.elementName]!=null){
+        input.textContent = eventInfo.paramMap[elementInfo.elementName];
+        input.setAttribute("defaultValue", eventInfo.paramMap[elementInfo.elementName]);
+    }
+    if(null != elementInfo.attrMap){
+        setAttr(input,elementInfo.attrMap);
+    }
+    input.setAttribute("class","inputArea_sub_input");
+    groupDiv.appendChild(input);
+
+    if(elementInfo.param != null && elementInfo.param["hide"]!=null && elementInfo.param["hide"]){
+        groupDiv.setAttribute("class","display-none");
+    }
+    appendChildAtSeq(parentEle,groupDiv,elementInfo.seq);
 }
 
 /**
@@ -344,7 +423,7 @@ function writeSpanGroup(parentEle,elementInfo,eventInfo){
     groupDiv.setAttribute("class","inputArea_div_grp");
 
     let label = document.createElement("span");
-    label.innerHTML = elementInfo.desc + ":";//名称
+    label.textContent = elementInfo.desc + ":";//名称
     groupDiv.appendChild(label);
 
     let input = document.createElement("span");
@@ -391,7 +470,7 @@ function writeInput(parentEle,elementInfo,eventInfo){
     let label = document.createElement("label");
     label.setAttribute("id",elementInfo.id+"_label");
     label.setAttribute("class","inputArea_sub_label");
-    label.innerHTML = elementInfo.desc;//名称
+    label.textContent = elementInfo.desc;//名称
     groupDiv.appendChild(label);
 
     let input = document.createElement("input");
@@ -444,7 +523,7 @@ function writeInputFile(parentEle,elementInfo){
     let label = document.createElement("label");
     label.setAttribute("id",elementInfo.id+"_label");
     label.setAttribute("class","inputArea_sub_label");
-    label.innerHTML = elementInfo.desc;//名称
+    label.textContent = elementInfo.desc;//名称
     groupDiv.appendChild(label);
 
     let input = document.createElement("input");
@@ -473,7 +552,7 @@ function writeInputDataList(parentEle,elementInfo){
     let label = document.createElement("label");
     label.setAttribute("id",elementInfo.id+"_label");
     label.setAttribute("class","inputArea_sub_label");
-    label.innerHTML = elementInfo.desc;//名称
+    label.textContent = elementInfo.desc;//名称
     groupDiv.appendChild(label);
 
     let input = document.createElement("input");
@@ -494,7 +573,6 @@ function writeInputDataList(parentEle,elementInfo){
         let option = document.createElement("option");
         option.setAttribute("value",value);
         option.setAttribute("name",dataMap[value]);
-        //option.innerHTML = dataMap[value];
         dataList.appendChild(option);
     }
     groupDiv.appendChild(input);
@@ -511,7 +589,7 @@ function writeMultipleSelect(parentEle,elementInfo){
     let label = document.createElement("label");
     label.setAttribute("id",elementInfo.id+"_label");
     label.setAttribute("class","inputArea_sub_label");
-    label.innerHTML = elementInfo.desc;//名称
+    label.textContent = elementInfo.desc;//名称
     groupDiv.appendChild(label);
 
     let select = document.createElement("select");
@@ -563,7 +641,7 @@ function writeSelectOption(parentEle,elementInfo){
     let label = document.createElement("label");
     label.setAttribute("id",elementInfo.id+"_label");
     label.setAttribute("class","inputArea_sub_label");
-    label.innerHTML = elementInfo.desc;//名称
+    label.textContent = elementInfo.desc;//名称
     groupDiv.appendChild(label);
 
     let select = document.createElement("select");
@@ -580,7 +658,7 @@ function writeSelectOption(parentEle,elementInfo){
         let option = document.createElement("option");
         option.setAttribute("id",elementInfo.id+"_option_"+value);
         option.setAttribute("value",value);
-        option.innerHTML = dataMap[value];
+        option.textContent = dataMap[value];
         select.appendChild(option);
     }
     groupDiv.appendChild(select);
@@ -599,7 +677,7 @@ function writeDropDown(parentEle,elementInfo){
     let label = document.createElement("label");
     label.setAttribute("id",elementInfo.id+"_label");
     label.setAttribute("class","inputArea_sub_label");
-    label.innerHTML = elementInfo.desc;//名称
+    label.textContent = elementInfo.desc;//名称
     groupDiv.appendChild(label);
 
     let select = document.createElement("select");
@@ -617,7 +695,7 @@ function writeDropDown(parentEle,elementInfo){
         let option = document.createElement("option");
         option.setAttribute("id",elementInfo.id+"_option_"+value);
         option.setAttribute("value",value);
-        option.innerHTML = dataMap[value];
+        option.textContent = dataMap[value];
         select.appendChild(option);
     }
     groupDiv.appendChild(select);
@@ -635,7 +713,7 @@ function writeButton(parentEle,elementInfo){
     setEventListener(button,elementInfo.eventInfoList); //事件
     setAttr(button,elementInfo.attrMap); // 属性配置
     let span = document.createElement("span");
-    span.innerHTML = elementInfo.desc;//名称
+    span.textContent = elementInfo.desc;//名称
     button.appendChild(span);
 
     appendChildAtSeq(parentEle,button,elementInfo.seq);
@@ -688,7 +766,7 @@ function writeTableLabel(parentEle,elementInfo){
         let element_thead_th = document.createElement("th");
         element_thead_th.setAttribute("class","output_table_th");
         element_thead_th.setAttribute("colName","序号");
-        element_thead_th.innerHTML = "序号";//名称
+        element_thead_th.textContent = "序号";//名称
         element_thead_tr.appendChild(element_thead_th);
         colSizeMap["序号"] = element_thead_th.clientWidth+7;
     }
@@ -700,9 +778,9 @@ function writeTableLabel(parentEle,elementInfo){
         let element_thead_th = document.createElement("th");
         element_thead_th.setAttribute("class","output_table_th");
         if( headMap[fieldName] != null && headMap[fieldName] != "" && headMap[fieldName] != "null"){
-            element_thead_th.innerHTML = headMap[fieldName];
+            element_thead_th.textContent = headMap[fieldName];
         }else{
-            element_thead_th.innerHTML = fieldName;
+            element_thead_th.textContent = fieldName;
         }
         element_thead_th.setAttribute("colName",fieldName);
         element_thead_tr.appendChild(element_thead_th);
@@ -770,7 +848,7 @@ function writeTableLabel(parentEle,elementInfo){
         if(elementInfo.param != null && elementInfo.param["showSeq"]!=null && elementInfo.param["showSeq"]){
             let element_table_td = document.createElement("td");
             element_table_td.setAttribute("class","output_table_td_0");
-            element_table_td.innerHTML = begSeq+i+1;//字段名  序号
+            element_table_td.textContent = begSeq+i+1;//字段名  序号
             element_table_td.width = colSizeMap["序号"];
             element_table_td.setAttribute("colName","序号");
             element_table_tr.appendChild(element_table_td);
@@ -788,7 +866,7 @@ function writeTableLabel(parentEle,elementInfo){
             if(value==null || value==undefined || value=="null"){
                 value = "";
             }
-            element_table_td.innerHTML = value;//字段显示值
+            element_table_td.textContent = value;//字段显示值
             element_table_tr.appendChild(element_table_td);
             // 配置隐藏字段
             if(elementInfo.param != null && elementInfo.param["hideFields"]!=null && elementInfo.param["hideFields"].includes(fieldName)){
@@ -806,7 +884,7 @@ function writeTableLabel(parentEle,elementInfo){
         let blankRecordDiv = document.createElement("div");
         blankRecordDiv.setAttribute("class","output_table_empty-block");
         let blankRecordSpan = document.createElement("span");
-        blankRecordSpan.innerHTML = "暂无数据";
+        blankRecordSpan.textContent = "暂无数据";
         blankRecordDiv.appendChild(blankRecordSpan);
         tbody_div.appendChild(blankRecordDiv);
     }
@@ -846,7 +924,7 @@ function writeTableRadio(parentEle,elementInfo){
     let thead_tr = document.getElementById(elementInfo.pid+"_thead_tr");
     let element_thead_th = document.createElement("th");
     element_thead_th.setAttribute("class","output_table_th");
-    element_thead_th.innerHTML = "操作";//字段名
+    element_thead_th.textContent = "操作";//字段名
     appendChildAtSeq(thead_tr,element_thead_th,elementInfo.seq);
 
     row = 0;
@@ -876,7 +954,7 @@ function writeTableButton(parentEle,elementInfo){
     let element_thead_th;
     for(let i=thead_td_list.length-1;i>=0;i--){
         theadTd = thead_td_list[i];
-        if(theadTd.innerHTML == "操作"){
+        if(theadTd.textContent == "操作"){
             element_thead_th = theadTd;
             existOprTd = true;
             break;
@@ -886,7 +964,7 @@ function writeTableButton(parentEle,elementInfo){
     if(!existOprTd){
         element_thead_th = document.createElement("th");
         element_thead_th.setAttribute("class","output_table_th");
-        element_thead_th.innerHTML = "操作";//字段名
+        element_thead_th.textContent = "操作";//字段名
         appendChildAtSeq(thead_tr,element_thead_th,elementInfo.seq);
     }
 
@@ -913,7 +991,7 @@ function writeTableButton(parentEle,elementInfo){
         button.setAttribute("eleName",elementInfo.elementName); //名称
         setEventListener(button,elementInfo.eventInfoList); //事件
         setAttr(button,elementInfo.attrMap); // 属性配置
-        button.innerHTML = elementInfo.desc;//名称
+        button.textContent = elementInfo.desc;//名称
         appendChildAtSeq(element_table_td,button,elementInfo.seq);
 
         tdWidth = element_table_td.clientWidth;
@@ -960,7 +1038,7 @@ function writePageButton(parentEle,eventInfo,webTableInfo){
     let pageNow = webTableInfo.pageNow;
     let page_pre_a = document.createElement("a");
     page_pre_a.setAttribute("class","page-button");
-    page_pre_a.innerHTML = "上一页";
+    page_pre_a.textContent = "上一页";
     setEventListener(page_pre_a,events); //事件
     page_div.appendChild(page_pre_a);
 
@@ -1001,7 +1079,7 @@ function writePageButton(parentEle,eventInfo,webTableInfo){
     }
     let page_next_a = document.createElement("a");
     page_next_a.setAttribute("class","page-button");
-    page_next_a.innerHTML = "下一页";
+    page_next_a.textContent = "下一页";
     setEventListener(page_next_a,events); //事件
     page_div.appendChild(page_next_a);
     parentEle.appendChild(page_div);
@@ -1011,12 +1089,12 @@ function writePageA(page_div,pageNum,pageNow,events){
     if(pageNum==pageNow){
         let page_strong = document.createElement("strong");
         page_strong.setAttribute("class","page-button-strong");
-        page_strong.innerHTML = String(pageNum);
+        page_strong.textContent = String(pageNum);
         page_div.appendChild(page_strong);
     }else{
         let page_a = document.createElement("a");
         page_a.setAttribute("class","page-button");
-        page_a.innerHTML = String(pageNum);
+        page_a.textContent = String(pageNum);
         setEventListener(page_a,events); //事件
         page_div.appendChild(page_a);
     }
@@ -1055,13 +1133,13 @@ function writeSubWindow(parentEle,elementInfo){
     div_sContent.appendChild(div_sHeader);
 
     let headSpan = document.createElement("span");
-    headSpan.innerHTML = elementInfo.desc;
+    headSpan.textContent = elementInfo.desc;
     div_sHeader.appendChild(headSpan);
 
     let div_closeButton = document.createElement("div");
     div_closeButton.setAttribute("id",elementInfo.id+"_header-x-div");
     div_closeButton.setAttribute("class","subWidowHeaderCloseBtn");
-    div_closeButton.innerHTML = "x";
+    div_closeButton.textContent = "x";
     div_closeButton.setAttribute("onclick","hideById(\""+elementInfo.id+"_subWindowBackGround"+"\")");
     div_sHeader.appendChild(div_closeButton);
 
@@ -1369,7 +1447,7 @@ function closeTab(tabId, e) {
 // 渲染标签页
 function renderTabs() {
     const tabsBar = document.getElementById('tabsBar');
-    tabsBar.innerHTML = '';
+    tabsBar.textContent = '';
 
     tabs.forEach(tab => {
         const tabElement = document.createElement('div');
