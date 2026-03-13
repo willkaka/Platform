@@ -115,7 +115,8 @@ INSERT INTO web_event(web_event_id, menu, page, "element", event_type, request_t
 (2025070200006418, 'JobDef', 'jobTaskPage', 'del_task_button', 'click', 'buttonReq', 'delJobTask', NULL, '{"showConfirmSW":true,"confirmCnt":"是否确认删除？","host":"lcs"}'),
 (2025070200006419, 'JobDef', 'jobTaskPage', 'exe_task_button', 'click', 'buttonReq', 'executeTask', NULL, '{"showConfirmSW":true,"confirmCnt":"立即发起执行task是否确认？","host":"lcs"}'),
 (2025070200006420, 'JobDef', 'out_page', 'jobTable', 'click', 'buttonReq', 'pageJobDef', 'JobDef#out_page#outAreaDiv1', '{"host":"lcs","dataToEle":"jobTable","dataToElePos":"data.records","dataToEleType":"list","withPage":true}'),
-(2025070200006421, 'JobDef', 'jobLogOutPage', 'jobLogTable', 'click', 'buttonReq', 'pageJobLog', 'JobDef#jobLogOutPage#jobLogDiv', '{"host":"lcs","dataToEle":"jobLogTable","dataToElePos":"data.records","dataToEleType":"list","withPage":true}');
+(2025070200006421, 'JobDef', 'jobTaskPage', 'jobTaskTable', 'click', 'buttonReq', 'pageJobTask', 'JobDef#jobTaskPage#jobTaskDiv', '{"host":"lcs","dataToEle":"jobTaskTable","dataToElePos":"data.records","dataToEleType":"list","withPage":true}'),
+(2025070200006422, 'JobDef', 'jobLogOutPage', 'jobLogTable', 'click', 'buttonReq', 'pageJobLog', 'JobDef#jobLogOutPage#jobLogDiv', '{"host":"lcs","dataToEle":"jobLogTable","dataToElePos":"data.records","dataToEleType":"list","withPage":true}');
 
 DELETE FROM web_data WHERE menu = 'JobDef';
 INSERT INTO web_data(web_data_id, menu, page, "element", data_type, data_attr, express)VALUES

@@ -25,7 +25,8 @@ INSERT INTO web_event(web_event_id, menu, page, "element", event_type, request_t
 (2025071700006701, 'repay02', 'menuEvent', '1', 'click', 'menuReq', 'repay02', '', ''),
 (2025071700006702, 'repay02', 'start_page', 'queryFlowButton', 'click', 'buttonReq', 'queryTransFlow02', 'repay02#start_page#queryOutTableDiv', '{"host":"lcs","dataToEle":"repayFlowListTable","dataToElePos":"data.records","dataToEleType":"list"}'),
 (2025071700006703, 'repay02', 'start_page', 'submit_acc_button', 'click', 'buttonReq', 'repayTrxAcc', NULL, '{"showConfirmSW":true,"confirmCnt":"是否确认记账？","host":"lcs"}'),
-(2025071700006704, 'repay02', 'start_page', 'back_rcd_button', 'click', 'buttonReq', 'flowBack', NULL, '{"showConfirmSW":true,"confirmCnt":"是否确认退回？","host":"lcs"}');
+(2025071700006704, 'repay02', 'start_page', 'back_rcd_button', 'click', 'buttonReq', 'flowBack', NULL, '{"showConfirmSW":true,"confirmCnt":"是否确认退回？","host":"lcs"}'),
+(2025071700006705, 'repay02', 'start_page', 'repayFlowListTable', 'click', 'buttonReq', 'queryTransFlow02', 'repay02#start_page#queryOutTableDiv', '{"host":"lcs","dataToEle":"repayFlowListTable","dataToElePos":"data.records","dataToEleType":"list"}');
 
 
 DELETE FROM web_data WHERE menu = 'repay02';

@@ -90,7 +90,8 @@ INSERT INTO web_event(web_event_id, menu, page, "element", event_type, request_t
 (2025071700006608, 'repay01', 'queryLoan_total_page', 'queryLoanOweAmtButton', 'click', 'buttonReq', 'queryLoanOweTotal', 'repay01#queryLoan_total_page#queryRtnInfoSubDiv', '{"host":"lcs"}'),
 (2025071700006609, 'repay01', 'queryLoan_sbw', 'repay_sbw_button', 'click', 'swDataReq', 'repay01', 'repay_sbw', '{"valueFromSelectedRecord":true}'),
 (2025071700006610, 'repay01', 'repay_sbw', 'repayTrxSubmitButton', 'click', 'buttonReq', 'repayTrxDetailAmtSave', NULL, '{"host":"lcs"}'),
-(2025071700006611, 'repay01', 'queryLoan_total_page', 'repayTrxTotalAmtSubmitButton', 'click', 'buttonReq', 'repayTrxTotalAmtSave', NULL, '{"host":"lcs"}');
+(2025071700006611, 'repay01', 'queryLoan_total_page', 'repayTrxTotalAmtSubmitButton', 'click', 'buttonReq', 'repayTrxTotalAmtSave', NULL, '{"host":"lcs"}'),
+(2025071700006612, 'repay01', 'start_page', 'repayFlowListTable', 'click', 'buttonReq', 'queryTransFlow', 'repay01#start_page#queryOutTableDiv', '{"host":"lcs","dataToEle":"repayFlowListTable","dataToElePos":"data.records","dataToEleType":"list"}');
 
 DELETE FROM web_data WHERE menu = 'repay01';
 INSERT INTO web_data(web_data_id, menu, page, "element", data_type, data_attr, express)VALUES

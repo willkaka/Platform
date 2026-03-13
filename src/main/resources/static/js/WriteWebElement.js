@@ -1001,6 +1001,8 @@ function writeTableButton(parentEle,elementInfo){
     }
     if(tdWidth!=0){
         element_thead_th.width = tdWidth;
+    }else{
+        element_thead_th.width = 65;
     }
 
     let theadTr = document.getElementById(elementInfo.pid+"_thead_tr");
@@ -1032,7 +1034,7 @@ function writePageButton(parentEle,eventInfo,webTableInfo){
     events[0].pageSize = webTableInfo.pageSize;
     events[0].pageTotal = webTableInfo.pageTotal;
     let page_div = document.createElement("div");
-    page_div.setAttribute("class","page-box");
+    page_div.setAttribute("class","table-pagination");
 
     let totalPage = parseInt((webTableInfo.totalCount-1)/webTableInfo.pageSize)+1;
     let pageNow = webTableInfo.pageNow;
@@ -1208,11 +1210,26 @@ function writeCanvas(parentEle,elementInfo){
     canvas.setAttribute("eleName",elementInfo.elementName); //名称
     setAttr(canvas,elementInfo.attrMap); // 属性配置
 
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // 清空画布
+    // 最大高度
+    let maxHeight = 0;
     let canvasList = elementInfo.data;
     // canvasList 结构：[{"lineName":"","lineType":"","lineX":100,
     //    "points":[{"pointName":"","pointType":"","pointSeq":1,"pointX":100,"pointY":50,"pointPre":{}}]},{}]
+    for(let i=0;i<canvasList.length;i++){
+        let line = canvasList[i];
+        let points = line.points;
+        for(let j=0;j<points.length;j++){
+            let point = points[j];
+            let pointY = point.pointY;
+            if(pointY > maxHeight){
+                maxHeight = pointY;
+            }
+        }
+    }
+    canvas.setAttribute("height",maxHeight + 50);
+
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, maxHeight + 50); // 清空画布
     for(let i=0;i<canvasList.length;i++){
         let line = canvasList[i];
         let lineName = line.lineName;
@@ -1299,7 +1316,11 @@ function drawPoint(ctx, x, y, label) {
     // 绘制标签
     ctx.font = '16px Arial';
     ctx.fillStyle = '#2c3e50';
-    ctx.fillText(label, x + 10, y + 5);
+    const lines = label.split('\\n');
+
+    lines.forEach((line, index) => {
+        ctx.fillText(line, x + 10, y+5 + (index * 20));
+    });
 }
 
 function drawLabel(ctx, x, y, label) {

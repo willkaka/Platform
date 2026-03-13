@@ -8,15 +8,11 @@ package com.hyw.platform.tools.excel;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.github.crab2died.exceptions.Excel4JException;
-import com.github.crab2died.handler.ExcelHeader;
-import com.github.crab2died.utils.Utils;
-import com.monitorjbl.xlsx.StreamingReader;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
@@ -46,34 +42,88 @@ public class ExExcelUtils {
         }
         return exExcelUtils;
     }
+//
+//    private List<JSONObject> readExcel2ObjectsHandler(Workbook workbook, int offsetLine,
+//                                                      int limitLine, int sheetIndex, JSONArray jsonArray) {
+//        List<JSONObject> list = new ArrayList<>();
+//        Sheet sheet = workbook.getSheetAt(sheetIndex);
+//        long maxLine = sheet.getLastRowNum() > ((long) offsetLine + limitLine) ?
+//                ((long) offsetLine + limitLine) : sheet.getLastRowNum();
+//        for (int i = offsetLine; i <= maxLine; i++) {
+//            JSONObject jobj = new JSONObject();
+//            Row row = sheet.getRow(i);
+//            if (null == row)
+//                continue;
+//            for (int j = 0; j < jsonArray.size(); j++) {
+//                JSONObject jsonObject = jsonArray.getJSONObject(j);
+//                String location = jsonObject.getString("cellLocation");
+//                String key = jsonObject.getString("cellContent");
+//                CellReference cr = new CellReference(location);
+//                Cell cell = row.getCell(cr.getCol());
+//                if (cell == null || cell.getCellTypeEnum() == CellType.BLANK) {
+//                    break;
+//                }
+//                String val = Utils.getCellValue(cell);
+//                jobj.put(key, val.trim());
+//            }
+//            if (!jobj.isEmpty()) {
+//                list.add(jobj);
+//            } else {
+//                continue;
+//            }
+//        }
+//        return list;
+//    }
 
     private List<JSONObject> readExcel2ObjectsHandler(Workbook workbook, int offsetLine,
                                                       int limitLine, int sheetIndex, JSONArray jsonArray) {
         List<JSONObject> list = new ArrayList<>();
         Sheet sheet = workbook.getSheetAt(sheetIndex);
-        long maxLine = sheet.getLastRowNum() > ((long) offsetLine + limitLine) ?
-                ((long) offsetLine + limitLine) : sheet.getLastRowNum();
+
+        // ✅ 计算最大行号 (POI 行号从 0 开始)
+        int lastRowNum = sheet.getLastRowNum();
+        int maxLine = Math.min(lastRowNum, offsetLine + limitLine);
+
         for (int i = offsetLine; i <= maxLine; i++) {
-            JSONObject jobj = new JSONObject();
+            // ✅ 创建行时自动创建空白单元格，避免 getCell 返回 null
             Row row = sheet.getRow(i);
-            if (null == row)
+            if (row == null) {
                 continue;
+            }
+
+            JSONObject jobj = new JSONObject();
+            boolean hasValidData = false;
+
             for (int j = 0; j < jsonArray.size(); j++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(j);
-                String location = jsonObject.getString("cellLocation");
-                String key = jsonObject.getString("cellContent");
-                CellReference cr = new CellReference(location);
-                Cell cell = row.getCell(cr.getCol());
-                if (cell == null || cell.getCellTypeEnum() == CellType.BLANK) {
-                    break;
+                String location = jsonObject.getString("cellLocation"); // 如 "A1"
+                String key = jsonObject.getString("cellContent");      // 如 "username"
+
+                try {
+                    CellReference cr = new CellReference(location);
+                    // ✅ 设置策略：如果单元格不存在，返回空白单元格而不是 null
+                    Cell cell = row.getCell(cr.getCol(), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+
+                    // ✅ 使用 getCellType() 替代废弃的 getCellTypeEnum()
+                    if (cell.getCellType() == CellType.BLANK) {
+                        // ⚠️ 注意：这里改为 continue 而不是 break，避免中断整行读取
+                        continue;
+                    }
+
+                    String val = cell.getStringCellValue();
+                    if (val != null && !val.trim().isEmpty()) {
+                        jobj.put(key, val.trim());
+                        hasValidData = true;
+                    }
+                } catch (Exception e) {
+                    // 记录日志或跳过该单元格
+                    continue;
                 }
-                String val = Utils.getCellValue(cell);
-                jobj.put(key, val.trim());
             }
-            if (!jobj.isEmpty()) {
+
+            // ✅ 只有当行内有有效数据时才添加
+            if (hasValidData) {
                 list.add(jobj);
-            } else {
-                continue;
             }
         }
         return list;
@@ -199,10 +249,10 @@ public class ExExcelUtils {
             font.setFontHeightInPoints((short) 12);//设置字体大小
             font.setBold(true);
             //边框
-            style.setBorderBottom(HSSFCellStyle.BORDER_THIN); //下边框
-            style.setBorderLeft(HSSFCellStyle.BORDER_THIN);//左边框
-            style.setBorderTop(HSSFCellStyle.BORDER_THIN);//上边框
-            style.setBorderRight(HSSFCellStyle.BORDER_THIN);//右边框
+            style.setBorderBottom(BorderStyle.THIN); //下边框
+            style.setBorderLeft(BorderStyle.THIN);//左边框
+            style.setBorderTop(BorderStyle.THIN);//上边框
+            style.setBorderRight(BorderStyle.THIN);//右边框
             style.setFont(font);
             int i=0;
             for(String key:headText.keySet()){

@@ -81,16 +81,16 @@ function insertIntoNewLine(eventInfo){
     let copyDivId = eventInfo.paramMap["targetDiv"];
     // 获取事件元素的上一层父元素，直到元素id以copyDivId开始为止
     let parentEle = eventEle.parentNode;
-    let parentEleName = getElementByEleName(eventEle.parentNode.id);
+    let parentEleName = document.getElementById(eventEle.parentNode.id).getAttribute("elename");
     while (eventEle.parentNode &&
         getElementByEleName(eventEle.parentNode.id)!=null &&
         getElementByEleName(eventEle.parentNode.id).length>0 &&
         !getElementByEleName(eventEle.parentNode.id).startsWith(copyDivId)) {
          parentEle = parentEle.parentNode;
-         parentEleName = getElementByEleName(eventEle.parentNode.id);
+         parentEleName = document.getElementById(eventEle.parentNode.id).getAttribute("elename");
     }
     // 将id的前部分copyDivId替换为空，得到当前list的号码
-    let listNum = getElementByEleName(parentEle.id).replace(copyDivId,"");
+    let listNum = document.getElementById(parentEle.id).getAttribute("elename").replace(copyDivId,"");
 
     let divNew = parentEle.cloneNode(true);
     // 删除divNew下的所有元素
@@ -100,11 +100,12 @@ function insertIntoNewLine(eventInfo){
     // 遍历parentEle下的所有元素，拷贝到divNew中
     for (let i = 0; i < parentEle.childNodes.length; i++) {
         let childNode = parentEle.childNodes[i];
+        let childEleName = childNode.getAttribute("elename");
         // 属性type值为addRecordLineButton的元素不拷贝
         if (childNode.getAttribute("defType") && childNode.getAttribute("defType") == "addRecordLineButton") {
             divNew.appendChild(childNode);
             // id以delRecordLineButton_开头的元素不拷贝
-        }else if(childNode.id && getElementByEleName(childNode.id).startsWith("delRecordLineButton_")){
+        }else if(childNode.id && childEleName && childEleName.startsWith("delRecordLineButton_")){
         }else{
             divNew.appendChild(childNode.cloneNode(true));
         }

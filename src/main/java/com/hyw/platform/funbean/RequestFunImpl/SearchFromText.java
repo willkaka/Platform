@@ -116,47 +116,6 @@ public class SearchFromText extends RequestFunUnit<Map<String,Object>,SearchFrom
         return null;
     }
 
-//    private String readWordDocFileContent(File file, String searchText){
-//        try (FileInputStream fis = new FileInputStream(file);
-//             HWPFDocument doc = new HWPFDocument(fis);
-//             WordExtractor extractor = new WordExtractor(doc)) {
-//
-//            String documentText = extractor.getText();
-//
-//            if (documentText.contains(searchText)) {
-//                System.out.println(file.getPath());
-//                return file.getPath();
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-
-    private String readExcelFileContent(File file, String searchText){
-        try (Workbook workbook = WorkbookFactory.create(Files.newInputStream(file.toPath()))) {
-            int sheetCount = workbook.getNumberOfSheets();
-            for(int sheetNo = 0;sheetNo < sheetCount;sheetNo++) {
-                Sheet sheet = workbook.getSheetAt(sheetNo); // 获取第一个工作表
-
-                for (Row row : sheet) {
-                    for (Cell cell : row) {
-                        if(cell.getCellType() == CellType.STRING.getCode()) {
-                            String cellValue = cell.getStringCellValue();
-                            if (cellValue.contains(searchText)) {
-                                System.out.println(file.getPath());
-                                return file.getPath();
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (IOException | InvalidFormatException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     private String readTextFileContent(File file, String searchText){
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;

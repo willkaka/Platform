@@ -1,122 +1,92 @@
-
-buildscript {
-    repositories {
-        maven { url 'http://maven.aliyun.com/repository/public' }
-        maven { url 'http://maven.aliyun.com/repository/google' }
-        maven { url 'http://maven.aliyun.com/repository/gradle-plugin' }
-        mavenLocal()
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:2.2.2.RELEASE"
-    }
-}
-
 plugins {
-    id 'org.springframework.boot' version '2.2.2.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'org.springframework.boot' version '2.7.18' // 升级到 2.x 最新稳定版，兼容 Java 8
+    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
     id 'java'
 }
 
 group = 'com.hyw'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.8'
+
+java {
+    sourceCompatibility = 'VERSION_1_8'
+    targetCompatibility = 'VERSION_1_8'
+}
+
+// 配置仓库，移除不安全的 http 和本地绝对路径
+repositories {
+    // 阿里云镜像 (使用 https)
+    maven { url 'https://maven.aliyun.com/repository/public' }
+    maven { url 'https://maven.aliyun.com/repository/google' }
+    maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+    // 本地 libs 目录 (相对路径，可移植)
+    flatDir { dirs 'D:\\ideaSpace\\jars' }
+    mavenCentral()
+}
 
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
-}
-
-repositories {
-    mavenCentral()
-    flatDir{
-        dirs 'D:\\ideaSpace\\jars'
-//        dirs 'E:\\javasource\\jars'
+    // 排除潜在的日志冲突
+    all {
+        exclude group: 'commons-logging', module: 'commons-logging'
+        exclude group: 'log4j', module: 'log4j'
     }
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    // --- Spring Boot Starters ---
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-web-services'
-    implementation group: 'com.baomidou', name: 'mybatis-plus-boot-starter', version: '3.5.6'
-    implementation 'junit:junit:4.12'
-    implementation 'log4j:log4j:1.2.17'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    // 测试依赖 (包含 JUnit 5, Mockito 等)
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'junit:junit:4.13.1'
 
-    compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'mysql:mysql-connector-java'
+    // --- 数据库 ---
+    runtimeOnly 'mysql:mysql-connector-java:8.0.33'
+    implementation 'org.xerial:sqlite-jdbc:3.42.0.0' // 升级 SQLite
+    implementation 'com.baomidou:mybatis-plus-boot-starter:3.5.5' // 版本与 Spring Boot 2.7 对齐
+
+    // --- 工具库 (版本由 Spring Boot 管理，无需指定) ---
+    implementation 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-//    testImplementation('org.springframework.boot:spring-boot-starter-test') {
-//        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-//    }
 
-//	// https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-generator
-//    compile group: 'com.baomidou', name: 'mybatis-plus-generator', version: '3.4.1'
+    implementation 'org.apache.commons:commons-lang3:3.12.0' // 显式指定版本
+    implementation 'commons-fileupload:commons-fileupload:1.5' // ✅ 必须指定版本
+    implementation 'org.apache.httpcomponents:httpclient:4.5.14' // 显式指定版本
+    implementation 'org.quartz-scheduler:quartz:2.3.2' // 显式指定版本
+    implementation 'org.aspectj:aspectjweaver:1.9.7' // 显式指定版本
+    implementation 'org.aspectj:aspectjrt:1.9.7' // 显式指定版本
 
-//    compile group: 'org.projectlombok', name: 'lombok'
+    // --- 文件与多媒体处理 ---
+    implementation 'org.apache.tika:tika-core:2.9.1' // 升级
+    implementation 'net.coobird:thumbnailator:0.4.20' // 升级
+    implementation 'com.drewnoakes:metadata-extractor:2.19.0' // 升级
 
+    // --- JSON 处理 (建议替换 Fastjson) ---
+    // implementation 'com.alibaba.fastjson2:fastjson2:2.0.43' // 推荐 Fastjson2
+    implementation 'com.alibaba:fastjson:1.2.83' // 如果必须用 1.x，请用最新安全版
+    implementation 'org.json:json:20231013' // 升级
+
+    // --- Excel 处理 (版本对齐) ---
+    implementation 'cn.afterturn:easypoi-spring-boot-starter:4.4.0'
+    // EasyPOI 4.4 需要 POI 4.x 或 5.x，原 3.15 过低会导致报错
+    implementation 'org.apache.poi:poi:5.2.5'
+    implementation 'org.apache.poi:poi-ooxml:5.2.5'
+    implementation 'com.monitorjbl:xlsx-streamer:2.2.0' // 升级
+    implementation 'xerces:xercesImpl:2.12.2' // 升级
+
+    // --- 其他 ---
+    implementation 'org.eclipse.jgit:org.eclipse.jgit:6.7.0.202309050840-r' // 升级
+    implementation 'com.alibaba:QLExpress:3.3.1' // 升级
+    implementation 'com.github.javaparser:javaparser-core:3.25.5' // 升级
+    implementation 'org.freemarker:freemarker:2.3.32' // 升级
+
+    // --- 本地私有 Jar ---
+    // 确保 D:\ideaSpace\jars 中的 jar 包已复制到项目根目录的 libs 文件夹下
     implementation 'com.hyw:gdata:1.0.0'
-
-    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
-
-    // 用于判断文件类型
-    implementation group: 'org.apache.tika', name: 'tika-core', version: '1.23'
-
-    // 用于图片转换为base64
-    implementation group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
-    // 用于图片缩略图
-    implementation group: 'net.coobird', name: 'thumbnailator', version: '0.4.8'
-    // 用于取图片Exif
-    implementation group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.12.0'
-
-    // 加载sqlite数据库
-    implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.28.0'
-    // json转换
-    implementation group: 'com.alibaba', name: 'fastjson', version: '1.2.54'
-    // json
-    implementation group: 'org.json', name: 'json', version: '20210307'
-
-
-    // 动态数据源使用
-//	compile group: 'org.apache.tomcat', name: 'tomcat-jdbc', version: '9.0.35'
-
-    // https://mvnrepository.com/artifact/org.wso2.apache.httpcomponents/httpclient
-    implementation group: 'org.wso2.apache.httpcomponents', name: 'httpclient', version: '4.3.1.wso2v1'
-
-    //JGIT
-    implementation group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '5.5.1.201910021850-r'
-    // QLExpress 表达式计算
-    implementation group: 'com.alibaba', name: 'QLExpress', version: '3.2.0'
-
-    // https://mvnrepository.com/artifact/org.quartz-scheduler/quartz
-    implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.2'
-
-    // Excel操作工具
-    implementation 'com.github.crab2died:Excel4J:3.0.0-Alpha'
-    implementation 'org.apache.poi:poi:3.15'
-    implementation 'org.apache.poi:poi-ooxml:3.15'
-    implementation 'xerces:xercesImpl:2.11.0'
-    // 读取大excel文件时使用
-    implementation group: 'com.monitorjbl', name: 'xlsx-streamer', version: '2.1.0'
-
-    // Java代码解析
-    implementation group: 'com.github.javaparser', name: 'javaparser-core', version: '3.23.0'
-
-    // https://mvnrepository.com/artifact/org.aspectj/aspectjweaver
-    implementation group: 'org.aspectj', name: 'aspectjweaver', version: '1.9.7'
-    // https://mvnrepository.com/artifact/org.aspectj/aspectjrt
-    implementation group: 'org.aspectj', name: 'aspectjrt', version: '1.9.7'
-
-    // https://mvnrepository.com/artifact/cn.afterturn/easypoi-spring-boot-starter
-    implementation group: 'cn.afterturn', name: 'easypoi-spring-boot-starter', version: '4.4.0'
-
-    //codeGenerator使用
-    // https://mvnrepository.com/artifact/org.freemarker/freemarker
-    implementation group: 'org.freemarker', name: 'freemarker', version: '2.3.31'
-
 }
 
-test {
+tasks.named('test') {
     useJUnitPlatform()
 }

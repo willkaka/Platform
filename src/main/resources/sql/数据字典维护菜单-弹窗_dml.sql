@@ -85,7 +85,9 @@ INSERT INTO web_event(web_event_id, menu, page, "element", event_type, request_t
 (2025070100006311, 'DataDict', 'add_enum_sbw', 'addEnumButton', 'click', 'buttonReq', 'addDictEnum', NULL, '{"host":"lcs"}'),
 (2025070100006312, 'DataDict', 'dictEnumPage', 'edt_enum_button', 'click', 'swDataReq', 'DataDict', 'edt_enum_sbw', '{"valueFromSelectedRecord":true}'),
 (2025070100006313, 'DataDict', 'edt_enum_sbw', 'edtEnumButton', 'click', 'buttonReq', 'updDictEnum', NULL, '{"host":"lcs"}'),
-(2025070100006314, 'DataDict', 'dictEnumPage', 'del_enum_button', 'click', 'buttonReq', 'delDictEnum', NULL, '{"showConfirmSW":true,"confirmCnt":"是否确认删除？","host":"lcs"}');
+(2025070100006314, 'DataDict', 'dictEnumPage', 'del_enum_button', 'click', 'buttonReq', 'delDictEnum', NULL, '{"showConfirmSW":true,"confirmCnt":"是否确认删除？","host":"lcs"}'),
+(2025070100006315, 'DataDict', 'out_page', 'dictTable', 'click', 'buttonReq', 'pageDictDef', 'DataDict#out_page#outAreaDiv1', '{"host":"lcs","dataToEle":"dictTable","dataToElePos":"data.records","dataToEleType":"list"}'),
+(2025070100006316, 'DataDict', 'dictEnumPage', 'dictEnumTable', 'click', 'buttonReq', 'pageDictEnum', 'DataDict#dictEnumPage#dictEnumDiv', '{"host":"lcs","dataToEle":"dictEnumTable","dataToElePos":"data.records","dataToEleType":"list"}');
 
 DELETE FROM web_data WHERE menu = 'DataDict';
 INSERT INTO web_data(web_data_id, menu, page, "element", data_type, data_attr, express)VALUES

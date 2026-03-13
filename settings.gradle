@@ -1,1 +1,9 @@
+pluginManagement {
+    repositories {
+        // 必须使用 HTTPS，但指向阿里云镜像
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        gradlePluginPortal()
+    }
+}
 rootProject.name = 'platform'

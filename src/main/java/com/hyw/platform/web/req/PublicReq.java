@@ -7,10 +7,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.apache.commons.collections4.MapUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Data
 @Accessors( chain = true )
@@ -36,6 +33,13 @@ public class PublicReq {
                     valueMap.put(k,valueObject);
                     return;
                 }
+            } else if (v instanceof LinkedHashMap){
+                Map<String, Object> vMap = (Map<String, Object>) v;
+                if(vMap.containsKey("value")) {
+                    ValueObject valueObject = new ValueObject().setValue(vMap.get("value")).setDefValue(vMap.get("defValue"));
+                    valueMap.put(k, valueObject);
+                    return;
+                }
             }
         });
         return valueMap;
@@ -47,6 +51,9 @@ public class PublicReq {
             if(v instanceof JSONObject){
                 valueMap.put(k,((JSONObject) v).get("value"));
             }
+            if(v instanceof LinkedHashMap){
+                valueMap.put(k,((Map<String,Object>) v).get("value"));
+            }
         });
         return valueMap;
     }
@@ -56,6 +63,9 @@ public class PublicReq {
         this.webValueDto.getJSONObject("webInputValueMap").forEach((k,v)->{
             if(v instanceof JSONObject){
                 valueMap.put(k,((JSONObject) v).getString("value"));
+            }
+            if(v instanceof LinkedHashMap){
+                valueMap.put(k,((Map<String,Object>) v).getOrDefault("value","").toString());
             }
         });
         return valueMap;
@@ -68,11 +78,15 @@ public class PublicReq {
     public JSONObject getCurValueJson(){
         JSONObject jsonObject = new JSONObject();
         for (Map.Entry<String, Object> entry : this.webValueDto.getJSONObject("webInputValueMap").entrySet()) {
+//        for (Map.Entry<String, Object> entry : this.webValueDto.getJSONObject("inputValueObjMap").entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
 
             if(value instanceof JSONObject){
                 jsonObject.put(key,((JSONObject) value).get("value"));
+            }
+            if(value instanceof LinkedHashMap){
+                jsonObject.put(key,((Map<String,Object>) value).get("value"));
             }
             if(value instanceof JSONArray){
                 List<JSONObject> jsonList = new ArrayList<>();
@@ -107,6 +121,9 @@ public class PublicReq {
 
             if(value instanceof JSONObject){
                 jsonObject.put(key,((JSONObject) value).get("defValue"));
+            }
+            if(value instanceof LinkedHashMap){
+                jsonObject.put(key,((Map<String,Object>) value).get("defValue"));
             }
             if(value instanceof JSONArray){
                 List<JSONObject> jsonList = new ArrayList<>();

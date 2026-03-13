@@ -145,10 +145,10 @@ public class ExcelUtil {
             font.setFontHeightInPoints((short) 12);//设置字体大小
             font.setBold(true);
             //边框
-            style.setBorderBottom(HSSFCellStyle.BORDER_THIN); //下边框
-            style.setBorderLeft(HSSFCellStyle.BORDER_THIN);//左边框
-            style.setBorderTop(HSSFCellStyle.BORDER_THIN);//上边框
-            style.setBorderRight(HSSFCellStyle.BORDER_THIN);//右边框
+            style.setBorderBottom(BorderStyle.THIN); //下边框
+            style.setBorderLeft(BorderStyle.THIN);//左边框
+            style.setBorderTop(BorderStyle.THIN);//上边框
+            style.setBorderRight(BorderStyle.THIN);//右边框
             style.setFont(font);
             int i=0;
             for(String key:headFieldName.keySet()){

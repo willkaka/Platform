@@ -888,6 +888,13 @@ body {
     margin:0 3px;
     float: left;
 }
+.table-pagination {
+    display: flex;             /* 启用弹性布局 */
+    justify-content: flex-end; /* 关键：内容右对齐 */
+    align-items: center;       /* 垂直居中 */
+    padding: 10px 0;           /* 上下留白，实现独立行效果 */
+    margin-top: 5px;           /* 与表格的间距 */
+}
 
 /* ----------- bottom css ------------------------ */
 .bottomContent{

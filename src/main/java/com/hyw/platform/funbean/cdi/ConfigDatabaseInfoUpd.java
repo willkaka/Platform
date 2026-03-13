@@ -38,8 +38,6 @@ public class ConfigDatabaseInfoUpd extends RequestFunUnit<String, ConfigDatabase
         BizException.trueThrow(StringUtils.isBlank(variable.getDatabaseType()),"数据库类型不允许为空值!");
         BizException.trueThrow(StringUtils.isBlank(variable.getDatabaseDriver()),"数据库驱动不允许为空值!");
         BizException.trueThrow(StringUtils.isBlank(variable.getDatabaseAddr()),"数据库地址不允许为空值!");
-        BizException.trueThrow(StringUtils.isBlank(variable.getLoginName()),"登录名不允许为空值!");
-        BizException.trueThrow(StringUtils.isBlank(variable.getLoginPassword()),"登录密码不允许为空值!");
     }
 
     @Override

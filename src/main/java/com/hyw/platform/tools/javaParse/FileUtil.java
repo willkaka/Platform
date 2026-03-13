@@ -7,11 +7,9 @@ import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.tika.metadata.HttpHeaders;
 import org.apache.tika.metadata.Metadata;
-import org.apache.tika.metadata.TikaMetadataKeys;
-import org.apache.tika.mime.MediaType;
+import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.Parser;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.xml.sax.helpers.DefaultHandler;
@@ -21,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -85,17 +82,39 @@ public class FileUtil {
      * @param file 文件
      * @return 文件类型
      */
+//    public static String getFileType(File file) {
+//        if (file.isDirectory()) { return "dir"; }
+//        AutoDetectParser parser = new AutoDetectParser();
+//        parser.setParsers(new HashMap<MediaType, Parser>());
+//        Metadata metadata = new Metadata();
+//        metadata.add(TikaMetadataKeys.RESOURCE_NAME_KEY, file.getName());
+//        try (InputStream stream = new FileInputStream(file)) {
+//            parser.parse(stream, new DefaultHandler(), metadata, new ParseContext());
+//        }catch (Exception e){
+//            throw new RuntimeException();
+//        }
+//        return metadata.get(HttpHeaders.CONTENT_TYPE);
+//    }
     public static String getFileType(File file) {
-        if (file.isDirectory()) { return "dir"; }
+        if (file.isDirectory()) {
+            return "dir";
+        }
+
         AutoDetectParser parser = new AutoDetectParser();
-        parser.setParsers(new HashMap<MediaType, Parser>());
+        // Tika 2.x 通常不需要手动 setParsers，AutoDetectParser 会自动加载
+        // parser.setParsers(new HashMap<MediaType, Parser>());
+
         Metadata metadata = new Metadata();
-        metadata.add(TikaMetadataKeys.RESOURCE_NAME_KEY, file.getName());
+        // ✅ 修改这里：使用 TikaCoreProperties.RESOURCE_NAME_KEY
+        metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, file.getName());
+
         try (InputStream stream = new FileInputStream(file)) {
             parser.parse(stream, new DefaultHandler(), metadata, new ParseContext());
-        }catch (Exception e){
-            throw new RuntimeException();
+        } catch (Exception e) {
+            throw new RuntimeException("文件类型检测失败", e);
         }
+
+        // ✅ 修改这里：使用 HttpHeaders.CONTENT_TYPE 或 直接写 "Content-Type"
         return metadata.get(HttpHeaders.CONTENT_TYPE);
     }
 
